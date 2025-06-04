@@ -10,9 +10,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.zzz.core.presentation.buttons.IconTextButton
+import com.zzz.core.presentation.nav.util.BottomNavBar
 import com.zzz.core.theme.WanderaTheme
 
 
@@ -23,14 +25,12 @@ class MainActivity : ComponentActivity() {
         setContent {
             WanderaTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Box(Modifier.fillMaxSize().padding(innerPadding)){
-                        IconTextButton(
-                            onClick = {
-
-                            },
-                            icon = com.zzz.core.R.drawable.add,
-                            text = "Add Day"
-                        )
+                    Box(
+                        Modifier.fillMaxSize()
+                            .padding(innerPadding),
+                        contentAlignment = Alignment.Center
+                    ){
+                        BottomNavBar()
                     }
                 }
             }
