@@ -1,0 +1,10 @@
+package com.zzz.data.util
+
+internal object DbUtils {
+    const val DB_NAME = "wandera_db"
+
+    const val TRIP_TABLE_NAME = "trip_table"
+    const val DAY_TABLE_NAME = "day_table"
+    const val TODO_LOCATION_TABLE_NAME = "todo_location_table"
+    const val RECENT_TRIPS_TABLE_NAME = "recent_trips_table"
+}
