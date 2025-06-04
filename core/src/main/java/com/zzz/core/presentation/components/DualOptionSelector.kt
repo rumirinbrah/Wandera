@@ -25,7 +25,6 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.zzz.core.domain.DailyTask
 import kotlinx.coroutines.launch
@@ -40,7 +39,7 @@ fun DualOptionSelector(
     val scope = rememberCoroutineScope()
 
     val topLeft = remember {
-        Animatable(initialValue = 0f,)
+        Animatable(initialValue = 0f)
     }
     var canvasWidth by remember { mutableFloatStateOf(0f) }
 

@@ -18,6 +18,8 @@ val lightOnSurface = Color(0xFF151515)
 val lightSurfaceContainer = Color(0xFFE5E5E5)
 val lightOnSurfaceContainer = Color(0xFF151515)
 
+val lightErrorContainer = Color(0xFFD70000)
+val lightOnErrorContainer = Color(0xFFFFFFFF)
 
 val light = Color(0xFFFFFFFF)
 
