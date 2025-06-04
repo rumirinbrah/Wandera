@@ -1,5 +1,6 @@
 package com.zzz.data.trip.model
 
+import android.net.Uri
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.zzz.data.util.DbUtils
@@ -12,5 +13,6 @@ data class Trip(
     val id : Long = 0,
     val tripName : String,
     val startDate : Long,
-    val endDate : Long
+    val endDate : Long,
+    val documents : List<Uri> = emptyList()
 )

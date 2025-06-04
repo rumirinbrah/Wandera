@@ -19,7 +19,7 @@ import com.zzz.data.util.DbUtils
 data class TodoLocation(
     @PrimaryKey(autoGenerate = true)
     val id : Long =0,
-    val title : String,
+    val title : String, 
     val isTodo : Boolean = true,
     val dayId : Long
 )
