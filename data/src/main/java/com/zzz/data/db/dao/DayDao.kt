@@ -10,7 +10,7 @@ import com.zzz.data.trip.model.Day
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-abstract class DayDao {
+internal abstract class DayDao {
 
     //add
     @Insert
@@ -23,6 +23,11 @@ abstract class DayDao {
     //delete
     @Query("delete from day_table where id = :id")
     abstract suspend fun deleteDayById(id : Long)
+
+    //get by id
+    @Transaction
+    @Query("select * from day_table where id = :dayId")
+    abstract suspend fun getDayById(dayId : Long) : DayWithTodos
 
     //GET
     @Transaction

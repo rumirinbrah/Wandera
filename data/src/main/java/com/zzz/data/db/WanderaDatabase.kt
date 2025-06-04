@@ -21,7 +21,7 @@ import com.zzz.data.trip.model.Trip
     exportSchema = false
 )
 @TypeConverters(value = [UriTypeConverter::class])
-abstract class WanderaDatabase :RoomDatabase(){
+internal abstract class WanderaDatabase :RoomDatabase(){
 
     abstract val tripDao : TripDao
     abstract val dayDao : DayDao

@@ -10,7 +10,7 @@ import com.zzz.data.trip.model.Trip
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-abstract class TripDao {
+internal abstract class TripDao {
 
     //add
     @Insert
@@ -24,9 +24,14 @@ abstract class TripDao {
     @Query("DELETE from trip_table where id = :id")
     abstract suspend fun deleteTripById(id :Long)
 
+    //GET by id
+    @Transaction
+    @Query("SELECT * from trip_table where id = :id")
+    abstract suspend fun getTripById(id : Long) : TripWithDaysAndTodos
+
     //GET
     @Transaction
     @Query("SELECT * from trip_table")
-    abstract fun getTripsWithDaysAndTodos() : Flow<List<TripWithDaysAndTodos>>
+    abstract fun getTrips() : Flow<List<TripWithDaysAndTodos>>
 
 }

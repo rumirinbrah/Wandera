@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.Flow
 
 
 @Dao
-abstract class TodoDao {
+internal abstract class TodoDao {
 
     //add
     @Insert
