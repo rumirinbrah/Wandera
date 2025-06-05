@@ -1,14 +1,14 @@
 package com.zzz.data.db.repos
 
 import com.zzz.data.db.dao.TripDao
-import com.zzz.data.trip.TripSource
+import com.zzz.data.trip.source.TripSource
 import com.zzz.data.trip.TripWithDaysAndTodos
 import com.zzz.data.trip.model.Trip
 import kotlinx.coroutines.flow.Flow
 
 internal class TripSourceImpl(
     private val tripDao: TripDao
-) :TripSource{
+) : TripSource {
 
     override fun getTrips(): Flow<List<TripWithDaysAndTodos>> {
         return tripDao.getTrips()

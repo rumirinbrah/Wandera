@@ -16,6 +16,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.zzz.core.presentation.buttons.IconTextButton
 import com.zzz.core.presentation.nav.util.BottomNavBar
 import com.zzz.core.theme.WanderaTheme
+import com.zzz.feature_trip.create.presentation.CreateRoot
 
 
 class MainActivity : ComponentActivity() {
@@ -28,9 +29,8 @@ class MainActivity : ComponentActivity() {
                     Box(
                         Modifier.fillMaxSize()
                             .padding(innerPadding),
-                        contentAlignment = Alignment.Center
                     ){
-                        BottomNavBar()
+                        CreateRoot()
                     }
                 }
             }

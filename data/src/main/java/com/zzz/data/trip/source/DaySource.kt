@@ -1,5 +1,6 @@
-package com.zzz.data.trip
+package com.zzz.data.trip.source
 
+import com.zzz.data.trip.DayWithTodos
 import com.zzz.data.trip.model.Day
 import kotlinx.coroutines.flow.Flow
 

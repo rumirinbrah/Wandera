@@ -1,4 +1,4 @@
-package com.zzz.data.trip
+package com.zzz.data.trip.source
 
 import com.zzz.data.trip.model.TodoLocation
 import kotlinx.coroutines.flow.Flow

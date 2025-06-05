@@ -1,7 +1,7 @@
 package com.zzz.data.db.repos
 
 import com.zzz.data.db.dao.DayDao
-import com.zzz.data.trip.DaySource
+import com.zzz.data.trip.source.DaySource
 import com.zzz.data.trip.DayWithTodos
 import com.zzz.data.trip.model.Day
 import kotlinx.coroutines.flow.Flow
@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.Flow
 
 internal class DaySourceImpl(
     private val dayDao: DayDao
-) :DaySource{
+) : DaySource {
 
     override fun getDaysByTripId(id: Long): Flow<List<DayWithTodos>> {
         return dayDao.getDaysWithTodosByTripId(id)

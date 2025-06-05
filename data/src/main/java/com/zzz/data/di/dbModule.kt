@@ -1,14 +1,13 @@
 package com.zzz.data.di
 
 import androidx.room.Room
-import androidx.room.RoomDatabase
 import com.zzz.data.db.WanderaDatabase
 import com.zzz.data.db.repos.DaySourceImpl
 import com.zzz.data.db.repos.TodoSourceImpl
 import com.zzz.data.db.repos.TripSourceImpl
-import com.zzz.data.trip.DaySource
-import com.zzz.data.trip.TodoSource
-import com.zzz.data.trip.TripSource
+import com.zzz.data.trip.source.DaySource
+import com.zzz.data.trip.source.TodoSource
+import com.zzz.data.trip.source.TripSource
 import com.zzz.data.util.DbUtils
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
