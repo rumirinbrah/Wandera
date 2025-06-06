@@ -1,19 +1,16 @@
-package com.zzz.core.presentation.nav
+package com.zzz.wandera.nav
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Text
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.ViewModel
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.navigation
 import androidx.navigation.navigation
 import com.zzz.core.presentation.nav.util.Screen
 import com.zzz.feature_trip.create.presentation.CreateRoot
@@ -22,7 +19,7 @@ import org.koin.androidx.compose.koinViewModel
 
 fun NavGraphBuilder.homeNavGraph(navController : NavHostController){
     navigation<Screen.HomeGraph>(
-        startDestination = Screen.HomeGraph
+        startDestination = Screen.HomeGraph.CreateTripScreen
     ){
 
         //home
@@ -34,24 +31,35 @@ fun NavGraphBuilder.homeNavGraph(navController : NavHostController){
             val parentEntry = remember(backStack) {
                 navController.getBackStackEntry(Screen.HomeGraph)
             }
-            val vm = koinViewModel<CreateViewModel>(viewModelStoreOwner = parentEntry)
-            CreateRoot(vm)
+            val createViewModel = koinViewModel<CreateViewModel>(viewModelStoreOwner = parentEntry)
+
+
+            CreateRoot(
+                onNavToAddDay = {
+                    navController.navigate(Screen.HomeGraph.AddDayScreen)
+                },
+                createViewModel
+            )
         }
         //create -> add day
         composable<Screen.HomeGraph.AddDayScreen> {backStack->
+            /*
+            not necessary to use remember here(doing for recovering process death scenarios)
+
+             */
+
             val parentEntry = remember(backStack) {
                 navController.getBackStackEntry(Screen.HomeGraph)
             }
-            val vm = koinViewModel<CreateViewModel>(viewModelStoreOwner = parentEntry)
-            val state by vm.tripState.collectAsStateWithLifecycle()
+            val createViewModel = koinViewModel<CreateViewModel>(viewModelStoreOwner = parentEntry)
+
+            val state by createViewModel.tripState.collectAsStateWithLifecycle()
+
 
             Box(Modifier.fillMaxSize()){
-                Text(state.tripTitle)
+                Text("TITLE IS "+state.tripTitle, fontSize = 20.sp)
             }
         }
     }
-
-}
-class niga  :ViewModel(){
 
 }

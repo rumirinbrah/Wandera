@@ -1,7 +1,8 @@
-package com.zzz.core.presentation.nav.util
+package com.zzz.wandera.nav.util
 
 import androidx.annotation.DrawableRes
 import com.zzz.core.R
+import com.zzz.core.presentation.nav.util.Screen
 
 data class NavItem(
     @DrawableRes val icon : Int,
@@ -14,12 +15,12 @@ internal val bottomItems = listOf(
         R.drawable.bike_nav,
         "Trips",
         Screen.HomeGraph
-    ),
+    ) ,
     NavItem(
         R.drawable.alarm_nav,
         "Recents",
         Screen.RecentsScreen
-    ),
+    ) ,
     NavItem(
         R.drawable.translate_nav,
         "Translate",
