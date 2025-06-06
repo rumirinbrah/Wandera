@@ -1,6 +1,8 @@
 package com.zzz.core.presentation.text_field
 
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -9,6 +11,9 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.input.ImeAction
 import kotlin.math.max
 import kotlin.math.sin
 
@@ -19,10 +24,13 @@ fun RoundedTextField(
     onValueChange : (String)->Unit,
     singleLine : Boolean = false,
     maxLines : Int = 10,
+    imeAction : ImeAction = ImeAction.Unspecified,
     background : Color = MaterialTheme.colorScheme.primaryContainer,
     onBackground : Color = MaterialTheme.colorScheme.onPrimaryContainer,
     modifier: Modifier = Modifier
 ) {
+    val keyboard = LocalSoftwareKeyboardController.current
+
     OutlinedTextField(
         modifier = modifier,
         value = value,
@@ -38,6 +46,14 @@ fun RoundedTextField(
         },
         singleLine = singleLine,
         maxLines = maxLines,
-        shape = RoundedCornerShape(40)
+        shape = RoundedCornerShape(40),
+        keyboardActions = KeyboardActions(
+            onDone = {
+                keyboard?.hide()
+            }
+        ),
+        keyboardOptions = KeyboardOptions(
+            imeAction = imeAction
+        )
     )
 }

@@ -13,6 +13,7 @@ sealed class CreateAction {
     //day
     data class OnDayTitleChange(val title : String) : CreateAction()
     data class OnAddTodoLocation(val todo : TodoLocation) : CreateAction()
+    data object OnSaveDay : CreateAction()
 
     data object OnSave : CreateAction()
 }

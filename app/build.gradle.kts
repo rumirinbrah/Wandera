@@ -65,4 +65,5 @@ dependencies {
 
     implementation(project(":core"))
     implementation(project(":feature_trip"))
+    implementation(project(":data"))
 }

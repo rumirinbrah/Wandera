@@ -33,6 +33,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -47,9 +48,11 @@ import com.zzz.core.presentation.dialogs.DateRangePickerDialog
 import com.zzz.core.presentation.text_field.RoundedTextField
 import com.zzz.core.theme.WanderaTheme
 import com.zzz.feature_trip.R
+import com.zzz.feature_trip.create.presentation.components.IndicatorCard
 import com.zzz.feature_trip.create.presentation.states.CreateAction
 import com.zzz.feature_trip.create.presentation.states.DayState
 import com.zzz.feature_trip.create.presentation.states.TripState
+import com.zzz.feature_trip.create.util.toFormattedDate
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -57,6 +60,7 @@ fun CreateRoot(
     createViewModel: CreateViewModel = koinViewModel() ,
     modifier: Modifier = Modifier
 ) {
+
     val tripState by createViewModel.tripState.collectAsStateWithLifecycle()
     val dayState by createViewModel.dayState.collectAsStateWithLifecycle()
 
@@ -101,9 +105,13 @@ private fun CreateTripPage(
             fontWeight = FontWeight.Bold ,
         )
         RoundedTextField(
-            value = "" ,
-            placeholder = "Trip title" ,
-            onValueChange = {} ,
+            value = tripState.tripTitle ,
+            placeholder = "Give your trip a title!" ,
+            onValueChange = {value->
+                onAction(CreateAction.OnTripTitleChange(value))
+            } ,
+            imeAction = ImeAction.Done,
+            singleLine = true,
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -128,8 +136,14 @@ private fun CreateTripPage(
                 } ,
                 iconSize = 30.dp
             )
-
-            Text("None selected")
+            if(tripState.startDate!=null && tripState.endDate!=null){
+                Row {
+                    Text(tripState.startDate.toFormattedDate()+" - ")
+                    Text(tripState.endDate.toFormattedDate("dd MMM yyyy"))
+                }
+            }else{
+                Text("None selected")
+            }
         }
         //put the dialog here
         if (showDatePicker) {
@@ -137,6 +151,8 @@ private fun CreateTripPage(
                 onSelect = { start , end ->
                     Log.d("date" , "Selected date start $start ; end $end ")
                     showDatePicker = false
+
+                    onAction(CreateAction.OnDateSelect(start,end))
                 } ,
                 onDismiss = {
                     showDatePicker = false
@@ -164,16 +180,8 @@ private fun CreateTripPage(
                 }
             )
         }
-        Row(
-            Modifier.fillMaxWidth()
-                .height(100.dp)
-                .clip(Shapes().large)
-                .background(MaterialTheme.colorScheme.surfaceContainer)
-                .alpha(0.5f),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text("Added itinerary will appear here")
+        if(tripState.days.isEmpty()){
+            IndicatorCard("Added itinerary will appear here")
         }
 
         VerticalSpace(5.dp)
@@ -192,16 +200,25 @@ private fun CreateTripPage(
         Row(
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
+            //image
             ElevatedIconTextButton(
                 icon = com.zzz.core.R.drawable.upload_image ,
                 text = "Image" ,
-                onClick = {}
+                onClick = {
+
+                }
             )
+            //pdf
             ElevatedIconTextButton(
                 icon = com.zzz.core.R.drawable.pdf ,
                 text = "PDF" ,
-                onClick = {}
+                onClick = {
+
+                }
             )
+        }
+        if(tripState.days.isEmpty()){
+            IndicatorCard("Added documents will appear here")
         }
 
         //translate
