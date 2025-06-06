@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlin.math.log
+import kotlin.random.Random
 
 class CreateViewModel(
     private val tripSource : TripSource
@@ -29,11 +29,20 @@ class CreateViewModel(
     fun onAction(action: CreateAction){
         when(action){
 
+            //title
             is CreateAction.OnDayTitleChange -> {
                 onDayTitleChange(action.title)
             }
+            //add
             is CreateAction.OnAddTodoLocation -> {
-                onAddTodo(action.todo)
+                onAddTodo(action.title,action.isTodo)
+            }
+            is CreateAction.OnDeleteTodoLocation->{
+                onDeleteTodo(action.todoLocation)
+            }
+            //dialog
+            is CreateAction.OnDialogVisibilityChange->{
+                onDialogVisibilityChange(action.visible)
             }
             CreateAction.OnSaveDay ->{
 
@@ -65,11 +74,26 @@ class CreateViewModel(
         }
     }
 
-    private fun onAddTodo(todo: TodoLocation) {
+    private fun onAddTodo(title: String, isTodo : Boolean) {
+        viewModelScope.launch {
+            //assigning random id for lazy col animations...reassign to 0 while dao ops
+            val todo = TodoLocation(
+                title = title ,
+                isTodo = isTodo
+            )
+            _dayState.update {
+                it.copy(
+                    todoLocations = it.todoLocations + todo,
+                    dialogVisible = false
+                )
+            }
+        }
+    }
+    private fun onDeleteTodo(todoLocation: TodoLocation) {
         viewModelScope.launch {
             _dayState.update {
                 it.copy(
-                    todoLocations = it.todoLocations + todo
+                    todoLocations = it.todoLocations - todoLocation
                 )
             }
         }
@@ -84,6 +108,17 @@ class CreateViewModel(
             }
         }
     }
+
+    private fun onDialogVisibilityChange(visible : Boolean){
+        viewModelScope.launch {
+            _dayState.update {
+                it.copy(
+                    dialogVisible = visible
+                )
+            }
+        }
+    }
+
 
     //=========== TRIP ===========
     private fun onTripTitleChange(title : String){

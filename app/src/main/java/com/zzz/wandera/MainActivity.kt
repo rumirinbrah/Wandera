@@ -10,14 +10,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.zzz.core.presentation.buttons.IconTextButton
-import com.zzz.core.presentation.nav.Navigation
-import com.zzz.core.presentation.nav.util.BottomNavBar
+import com.zzz.wandera.nav.Navigation
 import com.zzz.core.theme.WanderaTheme
-import com.zzz.feature_trip.create.presentation.CreateRoot
+import com.zzz.feature_trip.create.presentation.AddDayRoot
 
 
 class MainActivity : ComponentActivity() {
@@ -26,15 +23,15 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             WanderaTheme {
-//                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-//                    Box(
-//                        Modifier.fillMaxSize()
-//                            .padding(innerPadding),
-//                    ){
-//                        CreateRoot()
-//                    }
-//                }
-                Navigation()
+                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                    Box(
+                        Modifier.fillMaxSize()
+                            .padding(innerPadding),
+                    ){
+                        AddDayRoot()
+                    }
+                }
+                //Navigation()
             }
         }
     }

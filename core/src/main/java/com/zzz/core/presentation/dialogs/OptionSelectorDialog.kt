@@ -32,6 +32,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -78,7 +79,8 @@ fun OptionSelectorDialog(
                 onValueChange ={text=it},
                 placeholder = { Text(textFieldPlaceholder) },
                 keyboardOptions = KeyboardOptions(
-                    imeAction = ImeAction.Done
+                    imeAction = ImeAction.Done,
+                    capitalization = KeyboardCapitalization.Words
                 ) ,
                 keyboardActions = KeyboardActions(
                     onDone = {
@@ -93,7 +95,8 @@ fun OptionSelectorDialog(
                     unfocusedIndicatorColor = MaterialTheme.colorScheme.primaryContainer,
                     focusedIndicatorColor = MaterialTheme.colorScheme.primaryContainer
                 ),
-                modifier = Modifier
+                modifier = Modifier,
+
             )
 
             DualOptionSelector(

@@ -57,6 +57,7 @@ import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun CreateRoot(
+    onNavToAddDay : ()->Unit,
     createViewModel: CreateViewModel = koinViewModel() ,
     modifier: Modifier = Modifier
 ) {
@@ -69,7 +70,8 @@ fun CreateRoot(
         dayState,
         onAction = {action->
             createViewModel.onAction(action)
-        }
+        },
+        onNavToAddDay = onNavToAddDay
     )
 }
 
@@ -78,7 +80,7 @@ private fun CreateTripPage(
     tripState : TripState,
     dayState : DayState,
     onAction :(CreateAction)->Unit,
-    modifier: Modifier = Modifier
+    onNavToAddDay : ()->Unit,
 ) {
     var showDatePicker by remember { mutableStateOf(false) }
 
@@ -175,9 +177,7 @@ private fun CreateTripPage(
             IconTextButton(
                 icon = com.zzz.core.R.drawable.add ,
                 text = "Add Day" ,
-                onClick = {
-
-                }
+                onClick = onNavToAddDay
             )
         }
         if(tripState.days.isEmpty()){
@@ -279,8 +279,10 @@ private fun CreateTripPage(
 
 @Preview
 @Composable
-private fun HoePrev() {
-    WanderaTheme {
-        CreateRoot()
+private fun HomePrev() {
+    WanderaTheme { 
+        CreateRoot(
+            onNavToAddDay = {}
+        )
     }
 }

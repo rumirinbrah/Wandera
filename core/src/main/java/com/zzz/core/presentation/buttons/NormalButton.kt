@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Shapes
 import androidx.compose.material3.Text
@@ -21,6 +22,7 @@ import androidx.compose.ui.unit.sp
 fun NormalButton(
     title : String,
     onClick :()->Unit,
+    contentDescription : String? = null,
     enabled : Boolean = false,
     fontSize : TextUnit = 15.sp,
     horizontalPadding : Dp = 16.dp,
@@ -31,9 +33,12 @@ fun NormalButton(
 ) {
     Box(
         modifier
+            .widthIn(100.dp,150.dp)
             .clip(Shapes().large)
             .background(background)
-            .clickable {
+            .clickable(
+                onClickLabel = contentDescription
+            ) {
                 if(enabled){
                     onClick()
                 }

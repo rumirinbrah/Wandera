@@ -12,7 +12,10 @@ sealed class CreateAction {
 
     //day
     data class OnDayTitleChange(val title : String) : CreateAction()
-    data class OnAddTodoLocation(val todo : TodoLocation) : CreateAction()
+    data class OnAddTodoLocation(val title: String , val isTodo : Boolean) : CreateAction()
+    data class OnDeleteTodoLocation(val todoLocation: TodoLocation) : CreateAction()
+    data class OnDialogVisibilityChange(val visible : Boolean) : CreateAction()
+//    data class OnTodoTitleChange(val title : String) : CreateAction()
     data object OnSaveDay : CreateAction()
 
     data object OnSave : CreateAction()
