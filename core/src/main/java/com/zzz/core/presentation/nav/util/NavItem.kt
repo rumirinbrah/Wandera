@@ -13,7 +13,7 @@ internal val bottomItems = listOf(
     NavItem(
         R.drawable.bike_nav,
         "Trips",
-        Screen.HomeScreen
+        Screen.HomeGraph
     ),
     NavItem(
         R.drawable.alarm_nav,
