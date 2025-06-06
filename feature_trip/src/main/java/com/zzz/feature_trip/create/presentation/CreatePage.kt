@@ -1,6 +1,7 @@
 package com.zzz.feature_trip.create.presentation
 
 import android.util.Log
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -10,8 +11,11 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -49,6 +53,7 @@ import com.zzz.core.presentation.text_field.RoundedTextField
 import com.zzz.core.theme.WanderaTheme
 import com.zzz.feature_trip.R
 import com.zzz.feature_trip.create.presentation.components.IndicatorCard
+import com.zzz.feature_trip.create.presentation.components.ItineraryItem
 import com.zzz.feature_trip.create.presentation.states.CreateAction
 import com.zzz.feature_trip.create.presentation.states.DayState
 import com.zzz.feature_trip.create.presentation.states.TripState
@@ -180,9 +185,32 @@ private fun CreateTripPage(
                 onClick = onNavToAddDay
             )
         }
-        if(tripState.days.isEmpty()){
+        AnimatedVisibility(tripState.days.isEmpty()){
             IndicatorCard("Added itinerary will appear here")
         }
+        Column(
+            Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            tripState.days.onEach { dayWithTodos->
+                ItineraryItem(
+                    dayWithTodos,
+                    onClick = {id->
+                        onAction(CreateAction.FetchDayById(id))
+                        onNavToAddDay()
+                    }
+                )
+            }
+        }
+//        LazyColumn(
+//            Modifier.fillMaxWidth()
+//                .heightIn(0.dp,400.dp),
+//            verticalArrangement = Arrangement.spacedBy(8.dp),
+//        ) {
+//            items(tripState.days){dayWithTodos->
+//                ItineraryItem(dayWithTodos)
+//            }
+//        }
 
         VerticalSpace(5.dp)
         //docs

@@ -31,7 +31,7 @@ fun Navigation(
         ){
             NavHost(
                 navController = navController,
-                startDestination = Screen.RecentsScreen
+                startDestination = Screen.HomeGraph
             ) {
 
                 //HOME

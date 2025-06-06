@@ -13,8 +13,10 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import com.zzz.core.presentation.nav.util.Screen
+import com.zzz.feature_trip.create.presentation.AddDayRoot
 import com.zzz.feature_trip.create.presentation.CreateRoot
 import com.zzz.feature_trip.create.presentation.CreateViewModel
+import com.zzz.feature_trip.create.presentation.states.CreateAction
 import org.koin.androidx.compose.koinViewModel
 
 fun NavGraphBuilder.homeNavGraph(navController : NavHostController){
@@ -53,12 +55,20 @@ fun NavGraphBuilder.homeNavGraph(navController : NavHostController){
             }
             val createViewModel = koinViewModel<CreateViewModel>(viewModelStoreOwner = parentEntry)
 
-            val state by createViewModel.tripState.collectAsStateWithLifecycle()
 
+            AddDayRoot(
+                onDiscard = {
+                    //clear day state
+                    navController.navigateUp()
+                    createViewModel.onAction(CreateAction.OnDiscard)
+                } ,
+                saveAndNavigateUp = {
+                    //already saved, nav up
+                    navController.navigateUp()
+                },
+                createViewModel = createViewModel
+            )
 
-            Box(Modifier.fillMaxSize()){
-                Text("TITLE IS "+state.tripTitle, fontSize = 20.sp)
-            }
         }
     }
 

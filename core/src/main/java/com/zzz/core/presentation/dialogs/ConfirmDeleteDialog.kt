@@ -16,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -24,10 +25,11 @@ import com.zzz.core.presentation.components.VerticalSpace
 import com.zzz.core.theme.WanderaTheme
 
 @Composable
-fun ConfirmDeleteDialog(
-    title : String,
-    onDelete:()->Unit,
-    onCancel:()->Unit,
+fun ConfirmActionDialog(
+    title : String ,
+    actionText : String,
+    onConfirm:()->Unit ,
+    onCancel:()->Unit ,
     modifier: Modifier = Modifier
 )
 {
@@ -48,7 +50,12 @@ fun ConfirmDeleteDialog(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             VerticalSpace(5.dp)
-            Text(title , fontWeight = FontWeight.Bold , fontSize = 18.sp)
+            Text(
+                title ,
+                fontWeight = FontWeight.Bold ,
+                fontSize = 18.sp,
+                textAlign = TextAlign.Center
+            )
             Row (
                 Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
@@ -64,12 +71,12 @@ fun ConfirmDeleteDialog(
                 }
                 Button(
                     modifier = Modifier.weight(1f),
-                    onClick = onDelete,
+                    onClick = onConfirm,
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.errorContainer
                     )
                 ) {
-                    Text("Delete", color = MaterialTheme.colorScheme.onErrorContainer)
+                    Text(actionText, color = MaterialTheme.colorScheme.onErrorContainer)
                 }
             }
         }
@@ -80,9 +87,10 @@ fun ConfirmDeleteDialog(
 @Composable
 private fun DeletePrev() {
     WanderaTheme {
-        ConfirmDeleteDialog(
+        ConfirmActionDialog(
             title = "Are yo sure u wann delete?",
-            onDelete = {},
+            actionText = "Discard",
+            onConfirm = {},
             onCancel = {}
         )
     }

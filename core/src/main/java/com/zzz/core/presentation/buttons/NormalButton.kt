@@ -23,7 +23,7 @@ fun NormalButton(
     title : String,
     onClick :()->Unit,
     contentDescription : String? = null,
-    enabled : Boolean = false,
+    enabled : Boolean = true,
     fontSize : TextUnit = 15.sp,
     horizontalPadding : Dp = 16.dp,
     verticalPadding : Dp = 8.dp,

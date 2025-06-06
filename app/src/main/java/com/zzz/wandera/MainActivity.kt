@@ -23,32 +23,16 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             WanderaTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Box(
-                        Modifier.fillMaxSize()
-                            .padding(innerPadding),
-                    ){
-                        AddDayRoot()
-                    }
-                }
-                //Navigation()
+//                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+//                    Box(
+//                        Modifier.fillMaxSize()
+//                            .padding(innerPadding),
+//                    ){
+//                        AddDayRoot()
+//                    }
+//                }
+                Navigation()
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String , modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!" ,
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    WanderaTheme {
-        Greeting("Android")
     }
 }

@@ -10,11 +10,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -30,12 +29,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.zzz.core.presentation.buttons.CircularIconButton
 import com.zzz.core.presentation.buttons.NormalButton
 import com.zzz.core.presentation.components.VerticalSpace
-import com.zzz.core.presentation.dialogs.DialogWithTextField
+import com.zzz.core.presentation.dialogs.ConfirmActionDialog
 import com.zzz.core.presentation.dialogs.OptionSelectorDialog
 import com.zzz.core.presentation.text_field.RoundedTextField
 import com.zzz.core.theme.WanderaTheme
-import com.zzz.data.trip.model.TodoLocation
-import com.zzz.feature_trip.R
 import com.zzz.feature_trip.create.presentation.components.TodoLocationItem
 import com.zzz.feature_trip.create.presentation.states.CreateAction
 import com.zzz.feature_trip.create.presentation.states.DayState
@@ -43,6 +40,8 @@ import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun AddDayRoot(
+    onDiscard: () -> Unit ,
+    saveAndNavigateUp : ()->Unit ,
     createViewModel: CreateViewModel = koinViewModel()
 ) {
     val dayState by createViewModel.dayState.collectAsStateWithLifecycle()
@@ -50,9 +49,18 @@ fun AddDayRoot(
 
     AddDayPage(
         dayState = dayState,
-        dayNo = tripState.days.size+1,
+        dayNo = dayState.dayNo ?: (tripState.days.size + 1) ,
+        onDiscard = onDiscard,
         onAction = {action->
-            createViewModel.onAction(action)
+            when(action){
+                CreateAction.OnSaveDay->{
+                    createViewModel.onAction(action)
+                    saveAndNavigateUp()
+                }
+                else->{
+                    createViewModel.onAction(action)
+                }
+            }
         }
     )
 }
@@ -61,14 +69,16 @@ fun AddDayRoot(
 private fun AddDayPage(
     dayState : DayState,
     dayNo : Int = 0,
+    onDiscard :()->Unit,
     onAction :(CreateAction) ->Unit,
 ) {
     var backHandlerDialog  by remember { mutableStateOf(false) }
 
     BackHandler {
-
+        if(!backHandlerDialog){
+            backHandlerDialog = true
+        }
     }
-
     Column(
         Modifier
             .fillMaxSize()
@@ -84,7 +94,7 @@ private fun AddDayPage(
             NormalButton(
                 title = "Cancel" ,
                 onClick = {
-
+                    backHandlerDialog = true
                 },
                 contentDescription = "cancel",
                 background = MaterialTheme.colorScheme.errorContainer,
@@ -94,7 +104,7 @@ private fun AddDayPage(
             NormalButton(
                 title = "Save" ,
                 onClick = {
-
+                    onAction(CreateAction.OnSaveDay)
                 },
                 contentDescription = "save",
                 verticalPadding = 4.dp
@@ -152,7 +162,7 @@ private fun AddDayPage(
         }
         LazyColumn(
             Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(5.dp)
+            verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
 
             items(
@@ -181,6 +191,20 @@ private fun AddDayPage(
                 }
             )
         }
+        //Back handler dialog
+        if(backHandlerDialog){
+            ConfirmActionDialog(
+                title = "Are you sure you want to go back? All the changes will be discarded",
+                actionText = "Discard",
+                onConfirm = {
+                    backHandlerDialog = false
+                    onDiscard()
+                },
+                onCancel = {
+                    backHandlerDialog = false
+                }
+            )
+        }
 
 
     }
@@ -191,6 +215,10 @@ private fun AddDayPage(
 @Composable
 private fun AddDayPrev() {
     WanderaTheme {
-        AddDayPage(DayState(),1) { }
+        AddDayPage(
+            DayState() ,
+            1 ,
+            onDiscard = {}
+        ) { }
     }
 }

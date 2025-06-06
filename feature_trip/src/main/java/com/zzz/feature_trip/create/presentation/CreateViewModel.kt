@@ -4,12 +4,14 @@ import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.zzz.data.trip.DayWithTodos
 import com.zzz.data.trip.model.Day
 import com.zzz.data.trip.model.TodoLocation
 import com.zzz.data.trip.source.TripSource
 import com.zzz.feature_trip.create.presentation.states.CreateAction
 import com.zzz.feature_trip.create.presentation.states.DayState
 import com.zzz.feature_trip.create.presentation.states.TripState
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -26,9 +28,15 @@ class CreateViewModel(
     private val _dayState = MutableStateFlow(DayState())
     val dayState = _dayState.asStateFlow()
 
+    private var dayId = 0L
+    private var dayNo = 1
+
+
+
     fun onAction(action: CreateAction){
         when(action){
 
+            //-----DAY-----
             //title
             is CreateAction.OnDayTitleChange -> {
                 onDayTitleChange(action.title)
@@ -44,8 +52,15 @@ class CreateViewModel(
             is CreateAction.OnDialogVisibilityChange->{
                 onDialogVisibilityChange(action.visible)
             }
+            //fetch
+            is CreateAction.FetchDayById ->{
+                fetchDayById(action.id)
+            }
             CreateAction.OnSaveDay ->{
-
+                onAddDay()
+            }
+            CreateAction.OnDiscard ->{
+                resetDayState()
             }
 
             is CreateAction.OnTripTitleChange -> {
@@ -99,13 +114,29 @@ class CreateViewModel(
         }
     }
 
-    private fun onAddDay(day: Day) {
+    private fun onAddDay() {
         viewModelScope.launch {
+            val day = Day(
+                id=dayId,
+                dayNo = _tripState.value.days.size+1,
+                locationName = _dayState.value.dayTitle,
+                isDone = false,
+                tripId = 0
+            )
+            println("Adding day ${day.locationName}")
+            val dayWithTodos = DayWithTodos(
+                day = day,
+                todosAndLocations = _dayState.value.todoLocations
+            )
+
             _tripState.update {
                 it.copy(
-                    days = it.days + day
+                    days = it.days + dayWithTodos
                 )
             }
+            dayId++
+            dayNo++
+            resetDayState()
         }
     }
 
@@ -115,6 +146,30 @@ class CreateViewModel(
                 it.copy(
                     dialogVisible = visible
                 )
+            }
+        }
+    }
+    private fun fetchDayById(id : Long){
+        viewModelScope.launch {
+            val day = _tripState.value.days.find { it.day.id == id } ?: return@launch
+
+            _dayState.update {
+                it.copy(
+                    dayNo = day.day.dayNo,
+                    dayTitle = day.day.locationName,
+                    todoLocations = day.todosAndLocations
+                )
+            }
+        }
+    }
+    fun getDayNo() : Int{
+        return dayNo
+    }
+    private fun resetDayState(){
+        viewModelScope.launch {
+            delay(300)
+            _dayState.update {
+                DayState()
             }
         }
     }
