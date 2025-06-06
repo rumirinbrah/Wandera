@@ -24,7 +24,7 @@ fun BottomNavBar(
     navController : NavHostController,
     modifier: Modifier = Modifier
 ) {
-    var currentSelected by remember { mutableStateOf<Screen>(Screen.HomeScreen) }
+    var currentSelected by remember { mutableStateOf<Screen>(Screen.HomeGraph) }
 
     Row(
         modifier
