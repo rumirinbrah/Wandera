@@ -10,12 +10,14 @@ sealed class CreateAction {
     data class OnDateSelect(val start: Long , val end: Long) : CreateAction()
     data class OnDocumentUpload(val docUri: Uri) : CreateAction()
 
-    //day
 
+    //day
     data class OnDayTitleChange(val title: String) : CreateAction()
     data class OnAddTodoLocation(val title: String , val isTodo: Boolean): CreateAction()
     data class OnDeleteTodoLocation(val todoLocation: TodoLocation): CreateAction()
     data class OnDialogVisibilityChange(val visible: Boolean): CreateAction()
+
+    data class OnPickImage(val imageUri : Uri) : CreateAction()
 
     data class FetchDayById(val id: Long): CreateAction()
     data object OnSaveDay: CreateAction()

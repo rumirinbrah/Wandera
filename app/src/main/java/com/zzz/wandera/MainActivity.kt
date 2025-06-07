@@ -24,15 +24,15 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             WanderaTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Box(
-                        Modifier.fillMaxSize()
-                            .padding(innerPadding),
-                    ){
-                        DayDetailsRoot(navigateUp = {})
-                    }
-                }
-                //Navigation()
+//                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+//                    Box(
+//                        Modifier.fillMaxSize()
+//                            .padding(innerPadding),
+//                    ){
+//                        DayDetailsRoot(navigateUp = {})
+//                    }
+//                }
+                Navigation()
             }
         }
     }

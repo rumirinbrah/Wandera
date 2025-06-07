@@ -1,6 +1,9 @@
 package com.zzz.feature_trip.create.presentation
 
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -71,6 +74,13 @@ private fun AddDayPage(
     onAction: (CreateAction) -> Unit ,
 ) {
     var backHandlerDialog by remember { mutableStateOf(false) }
+    val imagePicker = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia()
+    ) {uri->
+        uri?.let {
+            onAction(CreateAction.OnPickImage(uri))
+        }
+    }
 
     BackHandler {
         if (!dayState.uiEnabled) {
@@ -154,7 +164,7 @@ private fun AddDayPage(
         NormalButton(
             title = "Add image" ,
             onClick = {
-
+                imagePicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
             },
             contentDescription = "Add image for the location",
             shape = RoundedCornerShape(50)

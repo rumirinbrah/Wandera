@@ -40,13 +40,20 @@ class CreateViewModel(
             is CreateAction.OnDayTitleChange -> {
                 onDayTitleChange(action.title)
             }
+            //img
+            is CreateAction.OnPickImage->{
+                onPickImage(action.imageUri)
+            }
+
             //add
             is CreateAction.OnAddTodoLocation -> {
                 onAddTodo(action.title,action.isTodo)
             }
+            //delete
             is CreateAction.OnDeleteTodoLocation->{
                 onDeleteTodo(action.todoLocation)
             }
+
             //dialog
             is CreateAction.OnDialogVisibilityChange->{
                 onDialogVisibilityChange(action.visible)
@@ -55,6 +62,7 @@ class CreateViewModel(
             is CreateAction.FetchDayById ->{
                 fetchDayById(action.id)
             }
+
             CreateAction.OnSaveDay ->{
                 onAddDay()
             }
@@ -84,6 +92,15 @@ class CreateViewModel(
         viewModelScope.launch {
             _dayState.update {
                 it.copy(dayTitle = title)
+            }
+        }
+    }
+
+    //img
+    private fun onPickImage(uri : Uri){
+        viewModelScope.launch {
+            _dayState.update {
+                it.copy(image = uri)
             }
         }
     }

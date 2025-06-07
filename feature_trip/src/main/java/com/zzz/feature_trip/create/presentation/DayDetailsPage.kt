@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.GenericShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.IconButton
@@ -59,7 +60,7 @@ fun DayDetailsRoot(
 ) {
     val dayState by createViewModel.dayState.collectAsStateWithLifecycle()
     DayDetailsPage(
-        DayState(dayTitle = "Dolomites") ,
+        dayState,//,
         navigateUp = {
             navigateUp()
             createViewModel.onAction(CreateAction.OnDiscard)
@@ -92,7 +93,7 @@ fun DayDetailsPage(
                 contentDescription = "" ,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .fillMaxHeight(0.45f) ,
+                    .fillMaxHeight(0.45f),
                 contentScale = ContentScale.Crop
             )
             DayTitleCard(
@@ -105,7 +106,7 @@ fun DayDetailsPage(
                     .align(Alignment.TopStart) ,
                 icon = com.zzz.core.R.drawable.arrow_back ,
                 contentDescription = "Go back" ,
-                background = Color.DarkGray.copy(0.4f) ,
+                background = Color.DarkGray.copy(0.5f) ,
                 onClick = {
                     //navigateUp()
                 } ,
@@ -113,62 +114,67 @@ fun DayDetailsPage(
         }
         Box(
             Modifier
-                .fillMaxWidth()
-                .offset(y = -(50.dp))
+                .fillMaxSize()
         ) {
             Box(
                 Modifier
-                    .fillMaxWidth()
-                    .height(100.dp)
-                    .drawBehind {
-                        drawArc(
-                            background ,
-                            startAngle = 0f ,
-                            sweepAngle = -180f ,
-                            useCenter = true ,
-                            size = Size(width = size.width , height = size.height)
-                        )
-                    }
-            )
+                    .offset(y = -(50.dp))
+            ){
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .drawBehind {
+                            drawArc(
+                                background ,
+                                startAngle = 0f ,
+                                sweepAngle = -180f ,
+                                useCenter = true ,
+                                size = Size(width = size.width , height = 100.dp.toPx())
+                            )
+                        }
+                )
+            }
+
             Column(
                 Modifier
                     .fillMaxWidth()
-                    .padding(16.dp) ,
+                    .padding(horizontal = 16.dp) ,
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Spacer(Modifier.fillMaxHeight(0.1f))
+                //Spacer(Modifier.fillMaxHeight(0.1f))
                 Text(
                     "Places to visit/TODOs" ,
                     fontSize = 18.sp ,
                     fontWeight = FontWeight.Bold ,
                 )
                 LazyColumn(
-                    Modifier.fillMaxWidth()
-                        .fillMaxHeight() ,
+                    Modifier.fillMaxWidth() ,
                     verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    items(
-                        50
-                    ){
-                        TodoLocationItem(
-                            TodoLocation(title = "HEHEHEHEH") ,
-                            modifier = Modifier ,
-                            onDeleteTodo = {
-                            } ,
-                            isViewOnly = true
-                        )
-                    }
-//                    items(dayState.todoLocations) { todo ->
+//                    items(
+//                        50
+//                    ){
 //                        TodoLocationItem(
-//                            todo ,
+//                            TodoLocation(title = "HEHEHEHEH") ,
 //                            modifier = Modifier ,
 //                            onDeleteTodo = {
 //                            } ,
 //                            isViewOnly = true
 //                        )
 //                    }
+                    items(dayState.todoLocations) { todo ->
+                        TodoLocationItem(
+                            todo ,
+                            modifier = Modifier ,
+                            onDeleteTodo = {
+                            } ,
+                            isViewOnly = true
+                        )
+                    }
                 }
             }
+        }
+
 
             /*
             Column(
@@ -187,11 +193,14 @@ fun DayDetailsPage(
             }
 
              */
-        }
+        //}
     }
 
 
 }
+/*
+
+ */
 
 @Preview
 @Composable
