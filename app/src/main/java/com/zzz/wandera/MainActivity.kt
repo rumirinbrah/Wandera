@@ -15,6 +15,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.zzz.wandera.nav.Navigation
 import com.zzz.core.theme.WanderaTheme
 import com.zzz.feature_trip.create.presentation.AddDayRoot
+import com.zzz.feature_trip.create.presentation.DayDetailsRoot
 
 
 class MainActivity : ComponentActivity() {
@@ -23,15 +24,15 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             WanderaTheme {
-//                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-//                    Box(
-//                        Modifier.fillMaxSize()
-//                            .padding(innerPadding),
-//                    ){
-//                        AddDayRoot()
-//                    }
-//                }
-                Navigation()
+                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                    Box(
+                        Modifier.fillMaxSize()
+                            .padding(innerPadding),
+                    ){
+                        DayDetailsRoot(navigateUp = {})
+                    }
+                }
+                //Navigation()
             }
         }
     }

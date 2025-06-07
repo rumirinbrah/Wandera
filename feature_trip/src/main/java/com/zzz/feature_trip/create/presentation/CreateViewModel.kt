@@ -16,7 +16,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlin.random.Random
 
 class CreateViewModel(
     private val tripSource : TripSource
@@ -157,7 +156,8 @@ class CreateViewModel(
                 it.copy(
                     dayNo = day.day.dayNo,
                     dayTitle = day.day.locationName,
-                    todoLocations = day.todosAndLocations
+                    todoLocations = day.todosAndLocations,
+                    uiEnabled = false
                 )
             }
         }

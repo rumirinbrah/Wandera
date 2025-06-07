@@ -17,6 +17,9 @@ sealed class Screen {
         @Serializable
         data object AddDayScreen
 
+        @Serializable
+        data object DayDetailsScreen
+
     }
 
     @Serializable

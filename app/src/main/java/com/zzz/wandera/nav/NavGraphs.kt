@@ -16,6 +16,7 @@ import com.zzz.core.presentation.nav.util.Screen
 import com.zzz.feature_trip.create.presentation.AddDayRoot
 import com.zzz.feature_trip.create.presentation.CreateRoot
 import com.zzz.feature_trip.create.presentation.CreateViewModel
+import com.zzz.feature_trip.create.presentation.DayDetailsRoot
 import com.zzz.feature_trip.create.presentation.states.CreateAction
 import org.koin.androidx.compose.koinViewModel
 
@@ -39,6 +40,9 @@ fun NavGraphBuilder.homeNavGraph(navController : NavHostController){
             CreateRoot(
                 onNavToAddDay = {
                     navController.navigate(Screen.HomeGraph.AddDayScreen)
+                },
+                onNavToDayDetails = {
+                    navController.navigate(Screen.HomeGraph.DayDetailsScreen)
                 },
                 createViewModel
             )
@@ -69,6 +73,18 @@ fun NavGraphBuilder.homeNavGraph(navController : NavHostController){
                 createViewModel = createViewModel
             )
 
+        }
+        composable<Screen.HomeGraph.DayDetailsScreen> {backStack->
+            val parentEntry = remember(backStack) {
+                navController.getBackStackEntry(Screen.HomeGraph)
+            }
+            val createViewModel = koinViewModel<CreateViewModel>(viewModelStoreOwner = parentEntry)
+            DayDetailsRoot(
+                navigateUp = {
+                    navController.navigateUp()
+                } ,
+                createViewModel
+            )
         }
     }
 

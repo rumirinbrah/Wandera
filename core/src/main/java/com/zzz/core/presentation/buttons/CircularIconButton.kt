@@ -12,7 +12,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -27,6 +29,9 @@ fun CircularIconButton(
     contentDescription : String,
     onClick : ()->Unit,
     modifier: Modifier = Modifier,
+    background : Color = MaterialTheme.colorScheme.primary,
+    onBackground : Color = MaterialTheme.colorScheme.onPrimary,
+    alpha : Float = 1f,
     iconSize : Dp = 25.dp,
     buttonSize : Dp = 50.dp
 ) {
@@ -34,7 +39,8 @@ fun CircularIconButton(
     Box(
         modifier.clip(CircleShape)
             .size(buttonSize)
-            .background(MaterialTheme.colorScheme.primary)
+            .alpha(alpha)
+            .background(background)
             .clickable {
                 onClick()
             }
@@ -44,7 +50,7 @@ fun CircularIconButton(
         Icon(
             painter = painterResource(icon) ,
             contentDescription = contentDescription,
-            tint = MaterialTheme.colorScheme.onPrimary,
+            tint = onBackground,
             modifier = Modifier.size(iconSize)
         )
     }

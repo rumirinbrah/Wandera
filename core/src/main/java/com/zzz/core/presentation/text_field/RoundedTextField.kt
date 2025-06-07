@@ -23,6 +23,7 @@ fun RoundedTextField(
     placeholder :String,
     onValueChange : (String)->Unit,
     singleLine : Boolean = false,
+    enabled : Boolean = true,
     maxLines : Int = 10,
     imeAction : ImeAction = ImeAction.Unspecified,
     background : Color = MaterialTheme.colorScheme.primaryContainer,
@@ -39,12 +40,15 @@ fun RoundedTextField(
             unfocusedContainerColor = background,
             focusedContainerColor = background,
             focusedIndicatorColor = background,
-            unfocusedIndicatorColor = background
+            unfocusedIndicatorColor = background,
+            disabledContainerColor = background,
+            disabledTextColor = onBackground
         ),
         placeholder = {
             Text(placeholder, color = onBackground.copy(0.5f))
         },
         singleLine = singleLine,
+        enabled = enabled,
         maxLines = maxLines,
         shape = RoundedCornerShape(40),
         keyboardActions = KeyboardActions(

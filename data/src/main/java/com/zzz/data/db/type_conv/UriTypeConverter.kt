@@ -20,4 +20,17 @@ class UriTypeConverter {
         }
     }
 
+    @TypeConverter
+    fun uriToString(uri: Uri) : String{
+        return uri.toString()
+    }
+    @TypeConverter
+    fun stringToUri(string : String) : Uri?{
+        return try {
+            Uri.parse(string)
+        }catch (e : Exception){
+            null
+        }
+    }
+
 }

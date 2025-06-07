@@ -13,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
@@ -27,6 +28,7 @@ fun NormalButton(
     fontSize : TextUnit = 15.sp,
     horizontalPadding : Dp = 16.dp,
     verticalPadding : Dp = 8.dp,
+    shape: Shape = Shapes().large,
     background : Color = MaterialTheme.colorScheme.primary,
     onBackground : Color = MaterialTheme.colorScheme.onPrimary,
     modifier: Modifier = Modifier
@@ -34,7 +36,7 @@ fun NormalButton(
     Box(
         modifier
             .widthIn(100.dp,150.dp)
-            .clip(Shapes().large)
+            .clip(shape)
             .background(background)
             .clickable(
                 onClickLabel = contentDescription

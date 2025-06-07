@@ -1,5 +1,6 @@
 package com.zzz.data.trip.model
 
+import android.net.Uri
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
@@ -30,6 +31,7 @@ data class Day(
     val id : Long = 0,
     val dayNo : Int,
     val locationName : String,
+    val image : Uri? = null,
     val isDone : Boolean = false,
     val tripId : Long
 )

@@ -22,6 +22,7 @@ import com.zzz.feature_trip.R
 fun TodoLocationItem(
     todo: TodoLocation,
     onDeleteTodo : (TodoLocation) ->Unit,
+    isViewOnly : Boolean = false,
     modifier: Modifier = Modifier
 ) {
 
@@ -47,16 +48,19 @@ fun TodoLocationItem(
             )
             Text(todo.title)
         }
-        IconButton(
-            onClick = {
-                onDeleteTodo(todo)
+        if(!isViewOnly){
+            IconButton(
+                onClick = {
+                    onDeleteTodo(todo)
+                }
+            ) {
+                Icon(
+                    painter = painterResource(com.zzz.core.R.drawable.delete) ,
+                    contentDescription = "delete ${todo.title}",
+                )
             }
-        ) {
-            Icon(
-                painter = painterResource(com.zzz.core.R.drawable.delete) ,
-                contentDescription = "delete ${todo.title}",
-            )
         }
+
     }
 
 

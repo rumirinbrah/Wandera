@@ -10,10 +10,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,23 +41,22 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun AddDayRoot(
     onDiscard: () -> Unit ,
-    saveAndNavigateUp : ()->Unit ,
+    saveAndNavigateUp: () -> Unit ,
     createViewModel: CreateViewModel = koinViewModel()
 ) {
     val dayState by createViewModel.dayState.collectAsStateWithLifecycle()
-    val tripState by createViewModel.tripState.collectAsStateWithLifecycle()
 
     AddDayPage(
-        dayState = dayState,
-        dayNo = dayState.dayNo ?: (tripState.days.size + 1) ,
-        onDiscard = onDiscard,
-        onAction = {action->
-            when(action){
-                CreateAction.OnSaveDay->{
+        dayState = dayState ,
+        onDiscard = onDiscard ,
+        onAction = { action ->
+            when (action) {
+                CreateAction.OnSaveDay -> {
                     createViewModel.onAction(action)
                     saveAndNavigateUp()
                 }
-                else->{
+
+                else -> {
                     createViewModel.onAction(action)
                 }
             }
@@ -67,16 +66,19 @@ fun AddDayRoot(
 
 @Composable
 private fun AddDayPage(
-    dayState : DayState,
-    dayNo : Int = 0,
-    onDiscard :()->Unit,
-    onAction :(CreateAction) ->Unit,
+    dayState: DayState ,
+    onDiscard: () -> Unit ,
+    onAction: (CreateAction) -> Unit ,
 ) {
-    var backHandlerDialog  by remember { mutableStateOf(false) }
+    var backHandlerDialog by remember { mutableStateOf(false) }
 
     BackHandler {
-        if(!backHandlerDialog){
-            backHandlerDialog = true
+        if (!dayState.uiEnabled) {
+            onDiscard()
+        } else {
+            if (!backHandlerDialog) {
+                backHandlerDialog = true
+            }
         }
     }
     Column(
@@ -85,35 +87,39 @@ private fun AddDayPage(
             .background(MaterialTheme.colorScheme.background)
             .padding(16.dp) ,
         verticalArrangement = Arrangement.spacedBy(8.dp)
-    ){
-        Row (
-            Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
+    ) {
+        Row(
+            Modifier.fillMaxWidth() ,
+            horizontalArrangement = Arrangement.SpaceBetween ,
             verticalAlignment = Alignment.CenterVertically
-        ){
+        ) {
             NormalButton(
                 title = "Cancel" ,
                 onClick = {
                     backHandlerDialog = true
-                },
-                contentDescription = "cancel",
-                background = MaterialTheme.colorScheme.errorContainer,
-                onBackground = MaterialTheme.colorScheme.onErrorContainer,
-                verticalPadding = 4.dp,
+                } ,
+                contentDescription = "cancel" ,
+                background = MaterialTheme.colorScheme.errorContainer ,
+                onBackground = MaterialTheme.colorScheme.onErrorContainer ,
+                verticalPadding = 4.dp ,
             )
             NormalButton(
                 title = "Save" ,
                 onClick = {
                     onAction(CreateAction.OnSaveDay)
-                },
-                contentDescription = "save",
+                } ,
+                contentDescription = "save" ,
                 verticalPadding = 4.dp
             )
         }
 
         VerticalSpace(5.dp)
         Text(
-            "DAY $dayNo" ,
+            if (dayState.uiEnabled) {
+                "NEW DAY"
+            } else {
+                dayState.dayTitle
+            } ,
             fontSize = 18.sp ,
             fontWeight = FontWeight.Bold ,
             modifier = Modifier.align(Alignment.CenterHorizontally)
@@ -129,48 +135,66 @@ private fun AddDayPage(
         RoundedTextField(
             value = dayState.dayTitle ,
             placeholder = "Where are you headed?" ,
-            onValueChange = {value->
+            onValueChange = { value ->
                 onAction(CreateAction.OnDayTitleChange(value))
             } ,
-            imeAction = ImeAction.Done,
-            singleLine = true,
-            modifier = Modifier.fillMaxWidth()
+            imeAction = ImeAction.Done ,
+            singleLine = true ,
+            modifier = Modifier.fillMaxWidth() ,
+            enabled = dayState.uiEnabled
+        )
+
+        //image
+        VerticalSpace(5.dp)
+        Text(
+            "Have a photo of the location?" ,
+            fontSize = 16.sp ,
+            fontWeight = FontWeight.Bold ,
+        )
+        NormalButton(
+            title = "Add image" ,
+            onClick = {
+
+            },
+            contentDescription = "Add image for the location",
+            shape = RoundedCornerShape(50)
         )
 
         //toddooos
         VerticalSpace(5.dp)
-        Row (
-            Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
+        Row(
+            Modifier.fillMaxWidth() ,
+            horizontalArrangement = Arrangement.SpaceBetween ,
             verticalAlignment = Alignment.CenterVertically
-        ){
+        ) {
 
             Text(
                 "Places to visit/TODOs" ,
                 fontSize = 16.sp ,
                 fontWeight = FontWeight.Bold ,
             )
-
-            CircularIconButton(
-                icon = com.zzz.core.R.drawable.add ,
-                contentDescription = "Add a TODO" ,
-                onClick = {
-                    onAction(CreateAction.OnDialogVisibilityChange(true))
-                },
-                iconSize = 30.dp
-            )
+            if (dayState.uiEnabled) {
+                CircularIconButton(
+                    icon = com.zzz.core.R.drawable.add ,
+                    contentDescription = "Add a TODO" ,
+                    onClick = {
+                        onAction(CreateAction.OnDialogVisibilityChange(true))
+                    } ,
+                    iconSize = 30.dp
+                )
+            }
         }
         LazyColumn(
-            Modifier.fillMaxWidth(),
+            Modifier.fillMaxWidth() ,
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
 
             items(
                 items = dayState.todoLocations
-            ){todo->
+            ) { todo ->
                 TodoLocationItem(
-                    todo,
-                    modifier = Modifier,
+                    todo ,
+                    modifier = Modifier ,
                     onDeleteTodo = {
                         onAction(CreateAction.OnDeleteTodoLocation(it))
                     }
@@ -179,12 +203,12 @@ private fun AddDayPage(
         }
 
         //add dialog
-        if(dayState.dialogVisible){
+        if (dayState.dialogVisible) {
             OptionSelectorDialog(
                 title = "Enter title" ,
                 textFieldPlaceholder = "Title" ,
-                onDone = {title,isTodo->
-                    onAction(CreateAction.OnAddTodoLocation(title,isTodo))
+                onDone = { title , isTodo ->
+                    onAction(CreateAction.OnAddTodoLocation(title , isTodo))
                 } ,
                 onDismiss = {
                     onAction(CreateAction.OnDialogVisibilityChange(false))
@@ -192,14 +216,14 @@ private fun AddDayPage(
             )
         }
         //Back handler dialog
-        if(backHandlerDialog){
+        if (backHandlerDialog) {
             ConfirmActionDialog(
-                title = "Are you sure you want to go back? All the changes will be discarded",
-                actionText = "Discard",
+                title = "Are you sure you want to go back? All the changes will be discarded" ,
+                actionText = "Discard" ,
                 onConfirm = {
                     backHandlerDialog = false
                     onDiscard()
-                },
+                } ,
                 onCancel = {
                     backHandlerDialog = false
                 }
@@ -217,7 +241,6 @@ private fun AddDayPrev() {
     WanderaTheme {
         AddDayPage(
             DayState() ,
-            1 ,
             onDiscard = {}
         ) { }
     }
