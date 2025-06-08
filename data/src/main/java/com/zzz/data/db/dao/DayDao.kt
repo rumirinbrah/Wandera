@@ -2,6 +2,7 @@ package com.zzz.data.db.dao
 
 import androidx.room.Dao
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
@@ -13,12 +14,15 @@ import kotlinx.coroutines.flow.Flow
 internal abstract class DayDao {
 
     //add
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.ABORT)
     abstract suspend fun addDay(day: Day) : Long
 
     //update
     @Update
     abstract suspend fun updateDay(day: Day)
+
+    @Query("update day_table set locationName = :newTitle where id = :id")
+    abstract suspend fun updateDayById(id : Long, newTitle : String)
 
     //delete
     @Query("delete from day_table where id = :id")
@@ -33,5 +37,8 @@ internal abstract class DayDao {
     @Transaction
     @Query("select * from day_table where tripId = :tripId")
     abstract fun getDaysWithTodosByTripId(tripId : Long) : Flow<List<DayWithTodos>>
+
+    @Query("select * from day_table where tripId = :tripId")
+    abstract fun getDaysByTripId(tripId: Long) : Flow<List<Day>>
 
 }

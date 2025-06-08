@@ -5,7 +5,6 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.zzz.core.presentation.events.UIEvents
-import com.zzz.data.trip.DayWithTodos
 import com.zzz.data.trip.model.Day
 import com.zzz.data.trip.model.TodoLocation
 import com.zzz.data.trip.model.Trip
@@ -14,14 +13,23 @@ import com.zzz.data.trip.source.TodoSource
 import com.zzz.data.trip.source.TripSource
 import com.zzz.feature_trip.create.presentation.states.CreateAction
 import com.zzz.feature_trip.create.presentation.states.DayState
+import com.zzz.feature_trip.create.presentation.states.SessionData
 import com.zzz.feature_trip.create.presentation.states.TripState
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -32,20 +40,39 @@ class CreateViewModel(
     private val todoSource: TodoSource
 ) : ViewModel() {
 
-    private val _tripState = MutableStateFlow(TripState())
-    val tripState = _tripState.asStateFlow()
+    private var sessionData = SessionData()
 
-    private var tripRoomId = 0
+    private val _tripState = MutableStateFlow(TripState())
+    internal val tripState = _tripState.asStateFlow()
 
     private val _dayState = MutableStateFlow(DayState())
-    val dayState = _dayState.asStateFlow()
+    internal val dayState = _dayState.asStateFlow()
+
+    private val _days = MutableStateFlow<List<Day>>(emptyList())
+    val days = _days.stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(5000L),
+        _days.value
+    )
+
+    private val _todos = MutableStateFlow<List<TodoLocation>>(emptyList())
+    val todos = _todos.stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(5000L),
+        _todos.value
+    )
 
     private val _events = Channel<UIEvents>()
     val events = _events.receiveAsFlow()
 
-    private var dayId = 0L
-    private var dayNo = 1
+    private var daysFlowJob : Job? = null
 
+
+    init {
+        Log.d("createVm" , "CreateViewModel init")
+        createTripSession()
+        getTripDaysFlow()
+    }
 
     fun onAction(action: CreateAction) {
         when (action) {
@@ -53,6 +80,10 @@ class CreateViewModel(
             is CreateAction.DayActions -> {
 
                 when (action) {
+                    CreateAction.DayActions.CreateDaySession ->{
+                        createDaySession()
+                    }
+
                     //title
                     is CreateAction.DayActions.OnDayTitleChange -> {
                         onDayTitleChange(action.title)
@@ -63,11 +94,11 @@ class CreateViewModel(
                     }
                     //add todos
                     is CreateAction.DayActions.OnAddTodoLocation -> {
-                        onAddTodo(action.title , action.isTodo)
+                        onAddTodo( action.title , action.isTodo )
                     }
                     //delete todos
                     is CreateAction.DayActions.OnDeleteTodoLocation -> {
-                        onDeleteTodo(action.todoLocation)
+                        deleteTodoByDayId(action.id)
                     }
                     //discard dialog
                     is CreateAction.DayActions.OnDialogVisibilityChange -> {
@@ -75,19 +106,22 @@ class CreateViewModel(
                     }
 
                     is CreateAction.DayActions.OnDeleteDay -> {
-                        deleteDayById(action.id)
+                        deleteTodoByDayId(action.id)
                     }
                     //fetch
                     is CreateAction.DayActions.FetchDayById -> {
                         fetchDayById(action.id)
                     }
                     //discard
-                    CreateAction.DayActions.OnDiscard -> {
-                        resetDayState()
+                    CreateAction.DayActions.OnDiscardCreation -> {
+                        discardDayCreation()
                     }
                     //save day
                     CreateAction.DayActions.OnSaveDay -> {
                         onAddDay()
+                    }
+                    CreateAction.DayActions.OnUpdateDay ->{
+                        updateDay()
                     }
                 }
             }
@@ -111,6 +145,9 @@ class CreateViewModel(
                 }
             }
 
+            CreateAction.OnDiscardTripCreation ->{
+                discardTripCreation()
+            }
             CreateAction.OnSave -> {
                 saveTrip()
             }
@@ -138,54 +175,62 @@ class CreateViewModel(
 
     private fun onAddTodo(title: String , isTodo: Boolean) {
         viewModelScope.launch {
-            //assigning random id for lazy col animations...reassign to 0 while dao ops
-            val todo = TodoLocation(
-                title = title ,
-                isTodo = isTodo
-            )
-            _dayState.update {
-                it.copy(
-                    todoLocations = it.todoLocations + todo ,
-                    dialogVisible = false
-                )
-            }
+            Log.d("CreateVM" , "onAddTodo : Adding todo $title...")
+
+            val todoLoc = TodoLocation(dayId = sessionData.dayId , title = title , isTodo = isTodo)
+            todoSource.addTodo(todoLoc)
         }
     }
 
-    private fun onDeleteTodo(todoLocation: TodoLocation) {
+    /**
+     * Delete TODOs references by the Day id
+     */
+    private fun deleteTodoByDayId(id: Long) {
         viewModelScope.launch {
-            _dayState.update {
-                it.copy(
-                    todoLocations = it.todoLocations - todoLocation
-                )
-            }
+            todoSource.deleteTodo(id)
         }
     }
 
     private fun onAddDay() {
         viewModelScope.launch {
-            val day = Day(
-                id = dayId ,
-                locationName = _dayState.value.dayTitle ,
-                image = _dayState.value.image ,
-                isDone = false ,
-                tripId = 0
-            )
-            println("Adding day ${day.locationName}")
-            val dayWithTodos = DayWithTodos(
-                day = day ,
-                todosAndLocations = _dayState.value.todoLocations
-            )
+            withContext(Dispatchers.IO) {
+                val day = Day(
+                    id = sessionData.dayId,
+                    locationName = _dayState.value.dayTitle ,
+                    image = _dayState.value.image ,
+                    isDone = false ,
+                    tripId = sessionData.tripId
+                )
 
-            _tripState.update {
-                it.copy(
-                    days = it.days + dayWithTodos
+                val dayId = daySource.updateDay(day)
+
+                Log.d("CreateVM" , "onAddDay : Added day ${day.locationName}")
+                Log.d("CreateVM" , "onAddDay : Day id $dayId")
+
+
+//                _dayState.value.todoLocations.onEach { todoLoc ->
+//                    launch {
+//                        todoSource.addTodo(todoLoc.copy(dayId = dayId))
+//                    }
+//                }
+
+                sessionData = sessionData.copy(
+                    dayIds = sessionData.dayIds + sessionData.dayId
                 )
             }
-            println("adding id $dayId")
-            dayId += 1
-            dayNo++
+
             resetDayState()
+        }
+    }
+
+    /**
+     * Updates title of the day
+     */
+    private fun updateDay() {
+        viewModelScope.launch {
+            //update day
+            daySource.updateDayById(sessionData.dayId , _dayState.value.dayTitle)
+
         }
     }
 
@@ -199,34 +244,34 @@ class CreateViewModel(
         }
     }
 
-    private fun deleteDayById(id: Long) {
-        viewModelScope.launch {
-            val days = _tripState.value.days
-            val filtered = days.filter { todo ->
-                todo.day.id != id
-            }
-            println(filtered)
-            _tripState.update {
-                it.copy(days =filtered.toList())
-            }
-        }
-    }
-
+    /**
+     * Fetch Day entry by id
+     */
     private fun fetchDayById(id: Long) {
         viewModelScope.launch {
-            val day = _tripState.value.days.find { it.day.id == id } ?: return@launch
+            val day = daySource.getDayById(id)
+            sessionData = sessionData.copy(dayId = id)
 
             _dayState.update {
                 it.copy(
                     dayTitle = day.day.locationName ,
                     image = day.day.image ,
                     todoLocations = day.todosAndLocations ,
-                    uiEnabled = false
+                    isUpdating = true
                 )
             }
         }
     }
 
+    /**
+     * Deletes the session Day entry in the table & gets rid of all the added TODOs as well
+     */
+    private fun discardDayCreation(){
+        viewModelScope.launch {
+            daySource.deleteDayById(sessionData.dayId)
+            resetDayState()
+        }
+    }
 
     private fun resetDayState() {
         viewModelScope.launch {
@@ -234,6 +279,7 @@ class CreateViewModel(
             _dayState.update {
                 DayState()
             }
+            sessionData = sessionData.copy(dayId = 0)
         }
     }
 
@@ -268,11 +314,17 @@ class CreateViewModel(
         }
     }
 
+    private fun discardTripCreation(){
+        viewModelScope.launch {
+            delay(400)
+            tripSource.deleteTripById(sessionData.tripId)
+            resetTripState()
+        }
+    }
+
+
     //========= SAVE =========
     private fun saveTrip() {
-        //step 1 - Save Trip, get id
-        //step 2 - Save Day, get id
-        //step 3 - Save Todos by Day id
         viewModelScope.launch {
             _tripState.update {
                 it.copy(saving = true)
@@ -294,6 +346,7 @@ class CreateViewModel(
             //save day
             withContext(Dispatchers.IO) {
                 val trip = Trip(
+                    id = sessionData.tripId,
                     tripName = _tripState.value.tripTitle.trim() ,
                     startDate = _tripState.value.startDate!! ,
                     endDate = _tripState.value.endDate!! ,
@@ -302,44 +355,20 @@ class CreateViewModel(
                 val tripId = tripSource.addTrip(trip)
                 Log.d("CreateVM" , "saveTrip: Trip saved, TripId - $tripId")
 
-                coroutineScope {
 
-                    _tripState.value.days.onEach { dayWithTodos ->
-                        launch {
-
-                            val day = Day(
-                                locationName = dayWithTodos.day.locationName.trim() ,
-                                tripId = tripId ,
-                                image = dayWithTodos.day.image
-                            )
-                            Log.d("CreateVM" , "saveTrip: Saving day, ${day.locationName}")
-
-                            val dayId = daySource.addDay(day)
-                            Log.d("CreateVM" , "saveTrip: DAY saved, DayId - $dayId")
-
-                            dayWithTodos.todosAndLocations.onEach { todoLoc ->
-                                val todo = TodoLocation(
-                                    title = todoLoc.title.trim() ,
-                                    isTodo = todoLoc.isTodo ,
-                                    dayId = dayId
-                                )
-                                todoSource.addTodo(todo)
-                            }
-                            Log.d("CreateVM" , "saveTrip: All TODOS saved!, DayId - $dayId")
-                        }
-
-                    }
-                }
             }
             Log.d("CreateVM" , "saveTrip: All entities SAVED!")
             _tripState.update {
                 it.copy(saving = false)
             }
-            resetDayState()
+            //resetDayState()
             resetTripState()
         }
     }
 
+    /**
+     * Validates trip title & the dates
+     */
     private fun validateUserInput(
         tripNameEmpty: () -> Unit ,
         tripDatesNull: () -> Unit ,
@@ -359,17 +388,101 @@ class CreateViewModel(
 
     }
 
+    /**
+     * Resets trip state, day state & session data
+     */
     private fun resetTripState() {
         viewModelScope.launch {
             _tripState.update {
                 TripState()
             }
+            _dayState.update {
+                DayState()
+            }
+            sessionData = SessionData()
+        }
+    }
+
+    /**
+     * This function creates an entry into the DB for session management
+     * @return - Id of the entry, can be used to clear data if user cancels creation
+     */
+    private fun createTripSession() {
+        viewModelScope.launch {
+            val tempTrip = Trip(
+                tripName = "null" ,
+                startDate = 0L ,
+                endDate = 0L
+            )
+            val id = tripSource.addTrip(tempTrip)
+            sessionData = sessionData.copy(tripId = id)
+            Log.d("CreateVM" , "createTripSession: Session id $id")
+
+        }
+    }
+    /**
+     * This function creates an entry for Day into the DB for session management
+     * @return - Id of the entry, can be used to clear data if user cancels creation
+     */
+    private fun createDaySession() {
+        viewModelScope.launch {
+            val tempDay = Day(
+                locationName = "",
+                tripId = sessionData.tripId
+            )
+            val id = daySource.addDay(tempDay)
+            sessionData = sessionData.copy(dayId = id)
+            Log.d("CreateVM" , "createTripSession: Session Day id $id")
+            //start listening to todos
+            getDayTodosFlow()
+        }
+    }
+
+    //DB GET REQs
+    private fun getTripDaysFlow(){
+        viewModelScope.launch {
+            if(sessionData.tripId == 0L) return@launch
+            daySource.getDaysByTripId(sessionData.tripId)
+                .flowOn(Dispatchers.IO)
+                .catch {
+                    Log.d("CreateVM" , "getTripDaysFlow: Error")
+                    if(it is CancellationException){
+                        throw  it
+                    }else{
+                        it.printStackTrace()
+                    }
+                }
+                .collect{days->
+                    _days.update {
+                        days
+                    }
+                }
+        }
+    }
+    private fun getDayTodosFlow(){
+        daysFlowJob = viewModelScope.launch {
+            todoSource.getTodosByDayId(sessionData.dayId)
+                .flowOn(Dispatchers.IO)
+                .catch {
+                    Log.d("CreateVM" , "getDayTodosFlow: Error")
+
+                    if(it is CancellationException){
+                        throw  it
+                    }else{
+                        it.printStackTrace()
+                    }
+                }
+                .collect{todoLocs->
+                    _todos.update {
+                        todoLocs
+                    }
+                }
         }
     }
 
     override fun onCleared() {
         super.onCleared()
-        Log.d("viewmodel" , "Clearing CreateViewModel")
+        Log.d("createVm" , "Clearing CreateViewModel")
     }
 }
 /*

@@ -7,7 +7,9 @@ import kotlinx.coroutines.flow.Flow
 interface DaySource {
 
     //GET
-    fun getDaysByTripId(id : Long) : Flow<List<DayWithTodos>>
+    fun getDaysWithTodosByTripId(id : Long) : Flow<List<DayWithTodos>>
+
+    fun getDaysByTripId(tripId : Long) : Flow<List<Day>>
 
     //get
     suspend fun getDayById(id: Long) : DayWithTodos
@@ -17,6 +19,7 @@ interface DaySource {
 
     //update
     suspend fun updateDay(day: Day)
+    suspend fun updateDayById(id: Long, newTitle : String)
 
     //delete
     suspend fun deleteDayById(id : Long)

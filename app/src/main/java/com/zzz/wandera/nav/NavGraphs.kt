@@ -60,7 +60,7 @@ fun NavGraphBuilder.homeNavGraph(navController : NavHostController){
                 onDiscard = {
                     //clear day state
                     navController.navigateUp()
-                    createViewModel.onAction(CreateAction.DayActions.OnDiscard)
+                    createViewModel.onAction(CreateAction.DayActions.OnDiscardCreation)
                 } ,
                 saveAndNavigateUp = {
                     //already saved, nav up

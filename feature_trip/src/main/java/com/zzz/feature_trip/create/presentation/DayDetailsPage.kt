@@ -1,7 +1,6 @@
 package com.zzz.feature_trip.create.presentation
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.animation.Animatable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -17,7 +16,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
@@ -48,7 +46,7 @@ fun DayDetailsRoot(
         dayState,//,
         navigateUp = {
             navigateUp()
-            createViewModel.onAction(CreateAction.DayActions.OnDiscard)
+            createViewModel.onAction(CreateAction.DayActions.OnDiscardCreation)
         }
     )
 }
