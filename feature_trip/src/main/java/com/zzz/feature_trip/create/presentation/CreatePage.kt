@@ -45,6 +45,7 @@ import com.zzz.core.presentation.events.ObserveAsEvents
 import com.zzz.core.presentation.events.UIEvents
 import com.zzz.core.presentation.text_field.RoundedTextField
 import com.zzz.core.theme.WanderaTheme
+import com.zzz.data.trip.model.Day
 import com.zzz.feature_trip.create.presentation.components.IndicatorCard
 import com.zzz.feature_trip.create.presentation.components.ItineraryItem
 import com.zzz.feature_trip.create.presentation.states.CreateAction
@@ -63,13 +64,13 @@ fun CreateRoot(
 ) {
 
     val tripState by createViewModel.tripState.collectAsStateWithLifecycle()
-    val dayState by createViewModel.dayState.collectAsStateWithLifecycle()
+    val days by createViewModel.days.collectAsStateWithLifecycle()
 
     val uiEvents = createViewModel.events
 
     CreateTripPage(
         tripState,
-        dayState,
+        days,
         events = uiEvents,
         onAction = {action->
             createViewModel.onAction(action)
@@ -83,7 +84,7 @@ fun CreateRoot(
 @Composable
 private fun CreateTripPage(
     tripState : TripState,
-    dayState : DayState,
+    days : List<Day>,
     events : Flow<UIEvents>,
     onAction :(CreateAction)->Unit,
     onNavToAddDay : ()->Unit,
@@ -103,6 +104,7 @@ private fun CreateTripPage(
             }
             UIEvents.Success -> {
                 Toast.makeText(context , "Saved!" , Toast.LENGTH_SHORT).show()
+                navigateUp()
             }
         }
     }
@@ -211,9 +213,9 @@ private fun CreateTripPage(
                 Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                tripState.days.onEach { dayWithTodos->
+                days.onEach {day->
                     ItineraryItem(
-                        dayWithTodos,
+                        day,
                         onClick = {id->
                             onAction(CreateAction.DayActions.FetchDayById(id))
                             onNavToDayDetails()
@@ -225,6 +227,7 @@ private fun CreateTripPage(
                         }
                     )
                 }
+
             }
 
 
@@ -261,7 +264,7 @@ private fun CreateTripPage(
                     }
                 )
             }
-            if(tripState.days.isEmpty()){
+            if(tripState.uploadedDocs.isEmpty()){
                 IndicatorCard("Added documents will appear here")
             }
 

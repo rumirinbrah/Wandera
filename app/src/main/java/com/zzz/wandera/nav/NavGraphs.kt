@@ -38,7 +38,7 @@ fun NavGraphBuilder.homeNavGraph(navController : NavHostController){
                     navController.navigate(Screen.HomeGraph.DayDetailsScreen)
                 },
                 navigateUp = {
-
+                    navController.navigateUp()
                 },
                 createViewModel
             )

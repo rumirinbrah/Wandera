@@ -52,7 +52,7 @@ fun DayDetailsRoot(
 }
 
 @Composable
-fun DayDetailsPage(
+private fun DayDetailsPage(
     dayState: DayState ,
     navigateUp: () -> Unit ,
     modifier: Modifier = Modifier

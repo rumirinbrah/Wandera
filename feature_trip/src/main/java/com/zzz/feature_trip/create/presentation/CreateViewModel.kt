@@ -50,28 +50,32 @@ class CreateViewModel(
 
     private val _days = MutableStateFlow<List<Day>>(emptyList())
     val days = _days.stateIn(
-        viewModelScope,
-        SharingStarted.WhileSubscribed(5000L),
+        viewModelScope ,
+        SharingStarted.WhileSubscribed(5000L) ,
         _days.value
     )
 
     private val _todos = MutableStateFlow<List<TodoLocation>>(emptyList())
     val todos = _todos.stateIn(
-        viewModelScope,
-        SharingStarted.WhileSubscribed(5000L),
+        viewModelScope ,
+        SharingStarted.WhileSubscribed(5000L) ,
         _todos.value
     )
 
     private val _events = Channel<UIEvents>()
     val events = _events.receiveAsFlow()
 
-    private var daysFlowJob : Job? = null
+    private var daysFlowJob: Job? = null
 
 
     init {
         Log.d("createVm" , "CreateViewModel init")
-        createTripSession()
-        getTripDaysFlow()
+
+        createTripSession(
+            onDone = {
+                getTripDaysFlow()
+            }
+        )
     }
 
     fun onAction(action: CreateAction) {
@@ -80,7 +84,7 @@ class CreateViewModel(
             is CreateAction.DayActions -> {
 
                 when (action) {
-                    CreateAction.DayActions.CreateDaySession ->{
+                    CreateAction.DayActions.CreateDaySession -> {
                         createDaySession()
                     }
 
@@ -94,7 +98,7 @@ class CreateViewModel(
                     }
                     //add todos
                     is CreateAction.DayActions.OnAddTodoLocation -> {
-                        onAddTodo( action.title , action.isTodo )
+                        onAddTodo(action.title , action.isTodo)
                     }
                     //delete todos
                     is CreateAction.DayActions.OnDeleteTodoLocation -> {
@@ -106,7 +110,7 @@ class CreateViewModel(
                     }
 
                     is CreateAction.DayActions.OnDeleteDay -> {
-                        deleteTodoByDayId(action.id)
+                        deleteDayById(action.id)
                     }
                     //fetch
                     is CreateAction.DayActions.FetchDayById -> {
@@ -120,7 +124,8 @@ class CreateViewModel(
                     CreateAction.DayActions.OnSaveDay -> {
                         onAddDay()
                     }
-                    CreateAction.DayActions.OnUpdateDay ->{
+
+                    CreateAction.DayActions.OnUpdateDay -> {
                         updateDay()
                     }
                 }
@@ -145,9 +150,10 @@ class CreateViewModel(
                 }
             }
 
-            CreateAction.OnDiscardTripCreation ->{
+            CreateAction.OnDiscardTripCreation -> {
                 discardTripCreation()
             }
+
             CreateAction.OnSave -> {
                 saveTrip()
             }
@@ -179,6 +185,9 @@ class CreateViewModel(
 
             val todoLoc = TodoLocation(dayId = sessionData.dayId , title = title , isTodo = isTodo)
             todoSource.addTodo(todoLoc)
+            _dayState.update {
+                it.copy(dialogVisible = false)
+            }
         }
     }
 
@@ -195,7 +204,7 @@ class CreateViewModel(
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 val day = Day(
-                    id = sessionData.dayId,
+                    id = sessionData.dayId ,
                     locationName = _dayState.value.dayTitle ,
                     image = _dayState.value.image ,
                     isDone = false ,
@@ -220,6 +229,11 @@ class CreateViewModel(
             }
 
             resetDayState()
+        }
+    }
+    private fun deleteDayById(dayId : Long){
+        viewModelScope.launch {
+            daySource.deleteDayById(dayId)
         }
     }
 
@@ -266,8 +280,9 @@ class CreateViewModel(
     /**
      * Deletes the session Day entry in the table & gets rid of all the added TODOs as well
      */
-    private fun discardDayCreation(){
+    private fun discardDayCreation() {
         viewModelScope.launch {
+            Log.d("CreateVM" , "discardDayCreation : Discard day ${sessionData.dayId}")
             daySource.deleteDayById(sessionData.dayId)
             resetDayState()
         }
@@ -314,7 +329,7 @@ class CreateViewModel(
         }
     }
 
-    private fun discardTripCreation(){
+    private fun discardTripCreation() {
         viewModelScope.launch {
             delay(400)
             tripSource.deleteTripById(sessionData.tripId)
@@ -346,13 +361,13 @@ class CreateViewModel(
             //save day
             withContext(Dispatchers.IO) {
                 val trip = Trip(
-                    id = sessionData.tripId,
+                    id = sessionData.tripId ,
                     tripName = _tripState.value.tripTitle.trim() ,
                     startDate = _tripState.value.startDate!! ,
                     endDate = _tripState.value.endDate!! ,
                     documents = _tripState.value.uploadedDocs
                 )
-                val tripId = tripSource.addTrip(trip)
+                val tripId = tripSource.updateTrip(trip)
                 Log.d("CreateVM" , "saveTrip: Trip saved, TripId - $tripId")
 
 
@@ -361,6 +376,7 @@ class CreateViewModel(
             _tripState.update {
                 it.copy(saving = false)
             }
+            _events.send(UIEvents.Success)
             //resetDayState()
             resetTripState()
         }
@@ -407,7 +423,7 @@ class CreateViewModel(
      * This function creates an entry into the DB for session management
      * @return - Id of the entry, can be used to clear data if user cancels creation
      */
-    private fun createTripSession() {
+    private fun createTripSession(onDone: () -> Unit) {
         viewModelScope.launch {
             val tempTrip = Trip(
                 tripName = "null" ,
@@ -417,9 +433,11 @@ class CreateViewModel(
             val id = tripSource.addTrip(tempTrip)
             sessionData = sessionData.copy(tripId = id)
             Log.d("CreateVM" , "createTripSession: Session id $id")
-
+            onDone()
         }
+
     }
+
     /**
      * This function creates an entry for Day into the DB for session management
      * @return - Id of the entry, can be used to clear data if user cancels creation
@@ -427,7 +445,7 @@ class CreateViewModel(
     private fun createDaySession() {
         viewModelScope.launch {
             val tempDay = Day(
-                locationName = "",
+                locationName = "" ,
                 tripId = sessionData.tripId
             )
             val id = daySource.addDay(tempDay)
@@ -439,40 +457,45 @@ class CreateViewModel(
     }
 
     //DB GET REQs
-    private fun getTripDaysFlow(){
+    private fun getTripDaysFlow() {
         viewModelScope.launch {
-            if(sessionData.tripId == 0L) return@launch
+            if (sessionData.tripId == 0L) {
+                Log.d("CreateVM" , "getTripDaysFlow: Invalid session ID, returning...")
+                return@launch
+            }
             daySource.getDaysByTripId(sessionData.tripId)
                 .flowOn(Dispatchers.IO)
                 .catch {
                     Log.d("CreateVM" , "getTripDaysFlow: Error")
-                    if(it is CancellationException){
-                        throw  it
-                    }else{
+                    if (it is CancellationException) {
+                        throw it
+                    } else {
                         it.printStackTrace()
                     }
                 }
-                .collect{days->
+                .collect { days ->
+                    Log.d("CreateVM" , "getTripDaysFlow: List size is $days")
                     _days.update {
                         days
                     }
                 }
         }
     }
-    private fun getDayTodosFlow(){
+
+    private fun getDayTodosFlow() {
         daysFlowJob = viewModelScope.launch {
             todoSource.getTodosByDayId(sessionData.dayId)
                 .flowOn(Dispatchers.IO)
                 .catch {
                     Log.d("CreateVM" , "getDayTodosFlow: Error")
 
-                    if(it is CancellationException){
-                        throw  it
-                    }else{
+                    if (it is CancellationException) {
+                        throw it
+                    } else {
                         it.printStackTrace()
                     }
                 }
-                .collect{todoLocs->
+                .collect { todoLocs ->
                     _todos.update {
                         todoLocs
                     }

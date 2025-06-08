@@ -22,16 +22,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.zzz.data.trip.DayWithTodos
+import com.zzz.data.trip.model.Day
 
 @Composable
 fun ItineraryItem(
-    dayWithTodos: DayWithTodos ,
+    day: Day ,
     onClick : (id : Long)->Unit,
     onEdit : (id : Long)->Unit,
     onDelete : (id : Long)->Unit,
     modifier: Modifier = Modifier
 ) {
-    val day = remember { dayWithTodos.day }
+
     Row(
         modifier
             .fillMaxWidth()
