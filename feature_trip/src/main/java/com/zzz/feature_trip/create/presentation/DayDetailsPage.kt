@@ -48,7 +48,7 @@ fun DayDetailsRoot(
         dayState,//,
         navigateUp = {
             navigateUp()
-            createViewModel.onAction(CreateAction.OnDiscard)
+            createViewModel.onAction(CreateAction.DayActions.OnDiscard)
         }
     )
 }
@@ -196,7 +196,6 @@ fun DayDetailsPrev(
         DayDetailsPage(
             dayState = DayState(
                 dayTitle = "Dolomites" ,
-                dayNo = 1
             ) ,
             navigateUp = {}
         )

@@ -7,7 +7,9 @@ import org.koin.dsl.module
 val createModule = module {
     viewModel {
         CreateViewModel(
-            tripSource = get()
+            tripSource = get(),
+            daySource = get(),
+            todoSource = get()
         )
     }
 }

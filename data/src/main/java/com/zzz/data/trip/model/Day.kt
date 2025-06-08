@@ -29,7 +29,6 @@ otherwise, it has to go through all the entries looking for affected mofos
 data class Day(
     @PrimaryKey(autoGenerate = true)
     val id : Long = 0,
-    val dayNo : Int,
     val locationName : String,
     val image : Uri? = null,
     val isDone : Boolean = false,

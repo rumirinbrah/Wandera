@@ -19,8 +19,8 @@ internal class DaySourceImpl(
         return dayDao.getDayById(id)
     }
 
-    override suspend fun addDay(day: Day) {
-        dayDao.addDay(day)
+    override suspend fun addDay(day: Day) : Long {
+        return dayDao.addDay(day)
     }
 
     override suspend fun updateDay(day: Day) {

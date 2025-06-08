@@ -13,7 +13,7 @@ interface TripSource {
     suspend fun getTripById(id: Long) : TripWithDaysAndTodos
 
     //add
-    suspend fun addTrip(trip: Trip)
+    suspend fun addTrip(trip: Trip) : Long
 
     //update
     suspend fun updateTrip(trip: Trip)

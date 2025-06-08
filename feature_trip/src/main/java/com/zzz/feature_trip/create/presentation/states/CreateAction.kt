@@ -5,26 +5,45 @@ import com.zzz.data.trip.model.TodoLocation
 
 sealed class CreateAction {
 
-    //trip
+    sealed class TripActions : CreateAction(){
+        //trip
+        data class OnTripTitleChange(val title: String) : TripActions()
+        data class OnDateSelect(val start: Long , val end: Long) : TripActions()
+        data class OnDocumentUpload(val docUri: Uri) : TripActions()
+    }
+    /*
     data class OnTripTitleChange(val title: String) : CreateAction()
-    data class OnDateSelect(val start: Long , val end: Long) : CreateAction()
-    data class OnDocumentUpload(val docUri: Uri) : CreateAction()
+        data class OnDateSelect(val start: Long , val end: Long) : CreateAction()
+        data class OnDocumentUpload(val docUri: Uri) : CreateAction()
 
+        data class OnDayTitleChange(val title: String) : CreateAction()
+        data class OnAddTodoLocation(val title: String , val isTodo: Boolean): CreateAction()
+        data class OnDeleteTodoLocation(val todoLocation: TodoLocation): CreateAction()
+        data class OnDialogVisibilityChange(val visible: Boolean): CreateAction()
 
+        data class OnPickImage(val imageUri : Uri) : CreateAction()
+
+        data class FetchDayById(val id: Long): CreateAction()
+        data object OnSaveDay: CreateAction()
+        data object OnDiscard: CreateAction()
+     */
+
+    sealed class DayActions : CreateAction(){
+        data class OnDayTitleChange(val title: String) : DayActions()
+        data class OnAddTodoLocation(val title: String , val isTodo: Boolean) : DayActions()
+        data class OnDeleteTodoLocation(val todoLocation: TodoLocation) : DayActions()
+        data class OnDialogVisibilityChange(val visible: Boolean) : DayActions()
+
+        data class OnPickImage(val imageUri : Uri): DayActions()
+
+        data class FetchDayById(val id: Long): DayActions()
+        data object OnSaveDay: DayActions()
+        data object OnDiscard: DayActions()
+    }
     //day
-    data class OnDayTitleChange(val title: String) : CreateAction()
-    data class OnAddTodoLocation(val title: String , val isTodo: Boolean): CreateAction()
-    data class OnDeleteTodoLocation(val todoLocation: TodoLocation): CreateAction()
-    data class OnDialogVisibilityChange(val visible: Boolean): CreateAction()
-
-    data class OnPickImage(val imageUri : Uri) : CreateAction()
-
-    data class FetchDayById(val id: Long): CreateAction()
-    data object OnSaveDay: CreateAction()
-    data object OnDiscard: CreateAction()
 
 
-//    data class OnTodoTitleChange(val title : String) : CreateAction()
+
 
 
     data object OnSave : CreateAction()

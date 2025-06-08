@@ -14,7 +14,7 @@ internal abstract class TripDao {
 
     //add
     @Insert
-    abstract suspend fun insertTrip(trip: Trip)
+    abstract suspend fun insertTrip(trip: Trip) : Long
 
     //update
     @Update

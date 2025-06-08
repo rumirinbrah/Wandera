@@ -9,5 +9,6 @@ data class TripState(
     val startDate : Long? = null,
     val endDate : Long? = null,
     val days : List<DayWithTodos> = emptyList(),
-    val uploadedDocs : List<Uri> = emptyList()
+    val uploadedDocs : List<Uri> = emptyList(),
+    val saving : Boolean = false
 )

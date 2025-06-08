@@ -13,7 +13,7 @@ interface DaySource {
     suspend fun getDayById(id: Long) : DayWithTodos
 
     //add
-    suspend fun addDay(day: Day)
+    suspend fun addDay(day: Day) : Long
 
     //update
     suspend fun updateDay(day: Day)

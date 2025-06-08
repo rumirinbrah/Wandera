@@ -37,6 +37,9 @@ fun NavGraphBuilder.homeNavGraph(navController : NavHostController){
                 onNavToDayDetails = {
                     navController.navigate(Screen.HomeGraph.DayDetailsScreen)
                 },
+                navigateUp = {
+
+                },
                 createViewModel
             )
         }
@@ -57,7 +60,7 @@ fun NavGraphBuilder.homeNavGraph(navController : NavHostController){
                 onDiscard = {
                     //clear day state
                     navController.navigateUp()
-                    createViewModel.onAction(CreateAction.OnDiscard)
+                    createViewModel.onAction(CreateAction.DayActions.OnDiscard)
                 } ,
                 saveAndNavigateUp = {
                     //already saved, nav up

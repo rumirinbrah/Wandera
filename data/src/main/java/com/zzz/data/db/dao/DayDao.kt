@@ -14,7 +14,7 @@ internal abstract class DayDao {
 
     //add
     @Insert
-    abstract suspend fun addDay(day: Day)
+    abstract suspend fun addDay(day: Day) : Long
 
     //update
     @Update

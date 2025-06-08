@@ -6,7 +6,6 @@ import com.zzz.data.trip.model.TodoLocation
 data class DayState(
     val dayTitle : String = "" ,
     val image : Uri? = null,
-    val dayNo : Int? = null ,
     val uiEnabled : Boolean = true ,
     val todoLocations : List<TodoLocation> = emptyList() ,
     val dialogVisible : Boolean = false

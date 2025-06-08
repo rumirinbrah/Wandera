@@ -14,5 +14,6 @@ data class Trip(
     val tripName : String,
     val startDate : Long,
     val endDate : Long,
-    val documents : List<Uri> = emptyList()
+    val documents : List<Uri> = emptyList(),
+    val dateCreated : Long = System.currentTimeMillis()
 )

@@ -57,7 +57,7 @@ fun AddDayRoot(
         onDiscard = onDiscard ,
         onAction = { action ->
             when (action) {
-                CreateAction.OnSaveDay -> {
+                CreateAction.DayActions.OnSaveDay -> {
                     createViewModel.onAction(action)
                     saveAndNavigateUp()
                 }
@@ -81,7 +81,7 @@ private fun AddDayPage(
         contract = ActivityResultContracts.PickVisualMedia()
     ) {uri->
         uri?.let {
-            onAction(CreateAction.OnPickImage(uri))
+            onAction(CreateAction.DayActions.OnPickImage(uri))
         }
     }
 
@@ -119,7 +119,7 @@ private fun AddDayPage(
             NormalButton(
                 title = "Save" ,
                 onClick = {
-                    onAction(CreateAction.OnSaveDay)
+                    onAction(CreateAction.DayActions.OnSaveDay)
                 } ,
                 contentDescription = "save" ,
                 verticalPadding = 4.dp
@@ -145,7 +145,7 @@ private fun AddDayPage(
             value = dayState.dayTitle ,
             placeholder = "Where are you headed?" ,
             onValueChange = { value ->
-                onAction(CreateAction.OnDayTitleChange(value))
+                onAction(CreateAction.DayActions.OnDayTitleChange(value))
             } ,
             imeAction = ImeAction.Done ,
             singleLine = true ,
@@ -194,7 +194,7 @@ private fun AddDayPage(
                     icon = com.zzz.core.R.drawable.add ,
                     contentDescription = "Add a TODO" ,
                     onClick = {
-                        onAction(CreateAction.OnDialogVisibilityChange(true))
+                        onAction(CreateAction.DayActions.OnDialogVisibilityChange(true))
                     } ,
                     iconSize = 30.dp
                 )
@@ -212,7 +212,7 @@ private fun AddDayPage(
                     todo ,
                     modifier = Modifier ,
                     onDeleteTodo = {
-                        onAction(CreateAction.OnDeleteTodoLocation(it))
+                        onAction(CreateAction.DayActions.OnDeleteTodoLocation(it))
                     }
                 )
             }
@@ -224,10 +224,10 @@ private fun AddDayPage(
                 title = "Enter title" ,
                 textFieldPlaceholder = "Title" ,
                 onDone = { title , isTodo ->
-                    onAction(CreateAction.OnAddTodoLocation(title , isTodo))
+                    onAction(CreateAction.DayActions.OnAddTodoLocation(title , isTodo))
                 } ,
                 onDismiss = {
-                    onAction(CreateAction.OnDialogVisibilityChange(false))
+                    onAction(CreateAction.DayActions.OnDialogVisibilityChange(false))
                 }
             )
         }
