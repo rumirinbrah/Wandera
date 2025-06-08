@@ -24,6 +24,8 @@ class CreateViewModel(
     private val _tripState = MutableStateFlow(TripState())
     val tripState = _tripState.asStateFlow()
 
+    private var tripRoomId = 0
+
     private val _dayState = MutableStateFlow(DayState())
     val dayState = _dayState.asStateFlow()
 
@@ -136,6 +138,7 @@ class CreateViewModel(
                 id=dayId,
                 dayNo = _tripState.value.days.size+1,
                 locationName = _dayState.value.dayTitle,
+                image = _dayState.value.image,
                 isDone = false,
                 tripId = 0
             )
@@ -173,6 +176,7 @@ class CreateViewModel(
                 it.copy(
                     dayNo = day.day.dayNo,
                     dayTitle = day.day.locationName,
+                    image = day.day.image,
                     todoLocations = day.todosAndLocations,
                     uiEnabled = false
                 )

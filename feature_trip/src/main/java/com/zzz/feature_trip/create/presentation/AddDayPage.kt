@@ -4,6 +4,7 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -31,6 +33,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.zzz.core.presentation.buttons.CircularIconButton
 import com.zzz.core.presentation.buttons.NormalButton
+import com.zzz.core.presentation.components.ImageComponent
 import com.zzz.core.presentation.components.VerticalSpace
 import com.zzz.core.presentation.dialogs.ConfirmActionDialog
 import com.zzz.core.presentation.dialogs.OptionSelectorDialog
@@ -125,11 +128,7 @@ private fun AddDayPage(
 
         VerticalSpace(5.dp)
         Text(
-            if (dayState.uiEnabled) {
-                "NEW DAY"
-            } else {
-                dayState.dayTitle
-            } ,
+            "NEW DAY" ,
             fontSize = 18.sp ,
             fontWeight = FontWeight.Bold ,
             modifier = Modifier.align(Alignment.CenterHorizontally)
@@ -169,6 +168,13 @@ private fun AddDayPage(
             contentDescription = "Add image for the location",
             shape = RoundedCornerShape(50)
         )
+        AnimatedVisibility(dayState.image!=null) {
+            ImageComponent(
+                title = dayState.dayTitle,
+                imageUri = dayState.image,
+                modifier = Modifier.size(70.dp)
+            )
+        }
 
         //toddooos
         VerticalSpace(5.dp)
@@ -183,7 +189,7 @@ private fun AddDayPage(
                 fontSize = 16.sp ,
                 fontWeight = FontWeight.Bold ,
             )
-            if (dayState.uiEnabled) {
+
                 CircularIconButton(
                     icon = com.zzz.core.R.drawable.add ,
                     contentDescription = "Add a TODO" ,
@@ -192,7 +198,7 @@ private fun AddDayPage(
                     } ,
                     iconSize = 30.dp
                 )
-            }
+
         }
         LazyColumn(
             Modifier.fillMaxWidth() ,

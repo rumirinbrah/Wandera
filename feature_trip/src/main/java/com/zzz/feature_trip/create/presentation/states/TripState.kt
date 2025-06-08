@@ -11,4 +11,3 @@ data class TripState(
     val days : List<DayWithTodos> = emptyList(),
     val uploadedDocs : List<Uri> = emptyList()
 )
-

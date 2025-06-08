@@ -95,6 +95,7 @@ fun OptionSelectorDialog(
                     unfocusedIndicatorColor = MaterialTheme.colorScheme.primaryContainer,
                     focusedIndicatorColor = MaterialTheme.colorScheme.primaryContainer
                 ),
+                singleLine = true,
                 modifier = Modifier,
 
             )
