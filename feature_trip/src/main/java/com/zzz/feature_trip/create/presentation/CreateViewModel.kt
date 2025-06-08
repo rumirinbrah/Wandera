@@ -48,11 +48,11 @@ class CreateViewModel(
 
 
     fun onAction(action: CreateAction) {
-        when ( action) {
+        when (action) {
             //=========== DAY ===========
             is CreateAction.DayActions -> {
 
-                when(action){
+                when (action) {
                     //title
                     is CreateAction.DayActions.OnDayTitleChange -> {
                         onDayTitleChange(action.title)
@@ -63,7 +63,7 @@ class CreateViewModel(
                     }
                     //add todos
                     is CreateAction.DayActions.OnAddTodoLocation -> {
-                        onAddTodo(action.title,action.isTodo)
+                        onAddTodo(action.title , action.isTodo)
                     }
                     //delete todos
                     is CreateAction.DayActions.OnDeleteTodoLocation -> {
@@ -72,6 +72,10 @@ class CreateViewModel(
                     //discard dialog
                     is CreateAction.DayActions.OnDialogVisibilityChange -> {
                         onDialogVisibilityChange(action.visible)
+                    }
+
+                    is CreateAction.DayActions.OnDeleteDay -> {
+                        deleteDayById(action.id)
                     }
                     //fetch
                     is CreateAction.DayActions.FetchDayById -> {
@@ -90,11 +94,11 @@ class CreateViewModel(
 
             //=========== TRIP ===========
             is CreateAction.TripActions -> {
-                when(action){
+                when (action) {
 
                     // date
                     is CreateAction.TripActions.OnDateSelect -> {
-                        onDateSelect(action.start,action.end)
+                        onDateSelect(action.start , action.end)
                     }
                     //doc
                     is CreateAction.TripActions.OnDocumentUpload -> {
@@ -178,7 +182,8 @@ class CreateViewModel(
                     days = it.days + dayWithTodos
                 )
             }
-            dayId++
+            println("adding id $dayId")
+            dayId += 1
             dayNo++
             resetDayState()
         }
@@ -190,6 +195,19 @@ class CreateViewModel(
                 it.copy(
                     dialogVisible = visible
                 )
+            }
+        }
+    }
+
+    private fun deleteDayById(id: Long) {
+        viewModelScope.launch {
+            val days = _tripState.value.days
+            val filtered = days.filter { todo ->
+                todo.day.id != id
+            }
+            println(filtered)
+            _tripState.update {
+                it.copy(days =filtered.toList())
             }
         }
     }
@@ -287,28 +305,28 @@ class CreateViewModel(
                 coroutineScope {
 
                     _tripState.value.days.onEach { dayWithTodos ->
-                            launch {
+                        launch {
 
-                                val day = Day(
-                                    locationName = dayWithTodos.day.locationName.trim() ,
-                                    tripId = tripId ,
-                                    image = dayWithTodos.day.image
+                            val day = Day(
+                                locationName = dayWithTodos.day.locationName.trim() ,
+                                tripId = tripId ,
+                                image = dayWithTodos.day.image
+                            )
+                            Log.d("CreateVM" , "saveTrip: Saving day, ${day.locationName}")
+
+                            val dayId = daySource.addDay(day)
+                            Log.d("CreateVM" , "saveTrip: DAY saved, DayId - $dayId")
+
+                            dayWithTodos.todosAndLocations.onEach { todoLoc ->
+                                val todo = TodoLocation(
+                                    title = todoLoc.title.trim() ,
+                                    isTodo = todoLoc.isTodo ,
+                                    dayId = dayId
                                 )
-                                Log.d("CreateVM" , "saveTrip: Saving day, ${day.locationName}")
-
-                                val dayId = daySource.addDay(day)
-                                Log.d("CreateVM" , "saveTrip: DAY saved, DayId - $dayId")
-
-                                dayWithTodos.todosAndLocations.onEach { todoLoc ->
-                                    val todo = TodoLocation(
-                                        title = todoLoc.title.trim() ,
-                                        isTodo = todoLoc.isTodo ,
-                                        dayId = dayId
-                                    )
-                                    todoSource.addTodo(todo)
-                                }
-                                Log.d("CreateVM" , "saveTrip: All TODOS saved!, DayId - $dayId")
+                                todoSource.addTodo(todo)
                             }
+                            Log.d("CreateVM" , "saveTrip: All TODOS saved!, DayId - $dayId")
+                        }
 
                     }
                 }
@@ -348,6 +366,7 @@ class CreateViewModel(
             }
         }
     }
+
     override fun onCleared() {
         super.onCleared()
         Log.d("viewmodel" , "Clearing CreateViewModel")

@@ -10,6 +10,8 @@ sealed class CreateAction {
         data class OnTripTitleChange(val title: String) : TripActions()
         data class OnDateSelect(val start: Long , val end: Long) : TripActions()
         data class OnDocumentUpload(val docUri: Uri) : TripActions()
+
+
     }
     /*
     data class OnTripTitleChange(val title: String) : CreateAction()
@@ -37,6 +39,8 @@ sealed class CreateAction {
         data class OnPickImage(val imageUri : Uri): DayActions()
 
         data class FetchDayById(val id: Long): DayActions()
+        data class OnDeleteDay(val id : Long) : DayActions()
+
         data object OnSaveDay: DayActions()
         data object OnDiscard: DayActions()
     }

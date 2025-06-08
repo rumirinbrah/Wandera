@@ -218,7 +218,8 @@ private fun CreateTripPage(
                         },
                         onEdit = {},
                         onDelete = {id->
-
+                            println("id is $id")
+                            onAction(CreateAction.DayActions.OnDeleteDay(id))
                         }
                     )
                 }
