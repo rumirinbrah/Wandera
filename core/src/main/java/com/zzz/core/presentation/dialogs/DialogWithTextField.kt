@@ -3,6 +3,7 @@ package com.zzz.core.presentation.dialogs
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
@@ -10,6 +11,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Shapes
@@ -31,12 +33,16 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.zzz.core.presentation.components.VerticalSpace
 
+/**
+ * @author zyzz
+ */
 @Composable
 fun DialogWithTextField(
     title: String ,
     textFieldPlaceholder: String ,
     onDone: (title: String) -> Unit ,
-    onDismiss : ()->Unit,
+    onDismiss: () -> Unit ,
+    dismissEnabled: Boolean = true ,
     modifier: Modifier = Modifier
 ) {
     val keyboard = LocalSoftwareKeyboardController.current
@@ -45,8 +51,10 @@ fun DialogWithTextField(
 
     Dialog(
         onDismissRequest = {
-            onDismiss()
-            text = ""
+            if (dismissEnabled) {
+                onDismiss()
+                text = ""
+            }
         }
     ) {
         Column(
@@ -54,8 +62,8 @@ fun DialogWithTextField(
                 .clip(Shapes().large)
                 .fillMaxWidth()
                 .background(MaterialTheme.colorScheme.surface)
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
+                .padding(16.dp) ,
+            horizontalAlignment = Alignment.CenterHorizontally ,
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             VerticalSpace(15.dp)
@@ -85,16 +93,32 @@ fun DialogWithTextField(
                 modifier = Modifier
             )
 
-            Button(
-                modifier = Modifier.widthIn(100.dp,150.dp),
-                onClick = {
-                    onDone(text.trim())
-                    text = ""
-                },
-                enabled = text.trim().isNotEmpty()
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                Text("Done")
+                Button(
+                    modifier = Modifier.widthIn(100.dp , 150.dp) ,
+                    onClick = {
+                        onDismiss()
+                    } ,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.errorContainer ,
+                    )
+                ) {
+                    Text("Cancel" , color = MaterialTheme.colorScheme.onErrorContainer)
+                }
+                Button(
+                    modifier = Modifier.widthIn(100.dp , 150.dp) ,
+                    onClick = {
+                        onDone(text.trim())
+                        text = ""
+                    } ,
+                    enabled = text.trim().isNotEmpty()
+                ) {
+                    Text("Done")
+                }
             }
+
         }
     }
 }

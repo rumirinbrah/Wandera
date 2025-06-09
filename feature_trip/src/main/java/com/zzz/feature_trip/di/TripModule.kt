@@ -9,7 +9,8 @@ val createModule = module {
         CreateViewModel(
             tripSource = get(),
             daySource = get(),
-            todoSource = get()
+            todoSource = get(),
+            docSource = get()
         )
     }
 }

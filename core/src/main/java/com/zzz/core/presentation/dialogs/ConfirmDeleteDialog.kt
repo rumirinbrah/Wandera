@@ -24,6 +24,9 @@ import androidx.compose.ui.window.Dialog
 import com.zzz.core.presentation.components.VerticalSpace
 import com.zzz.core.theme.WanderaTheme
 
+/**
+ * @author zyzz
+ */
 @Composable
 fun ConfirmActionDialog(
     title : String ,

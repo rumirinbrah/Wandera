@@ -6,25 +6,29 @@ import androidx.room.TypeConverters
 import com.zzz.data.db.dao.DayDao
 import com.zzz.data.db.dao.TodoDao
 import com.zzz.data.db.dao.TripDao
+import com.zzz.data.db.dao.UserDocDao
 import com.zzz.data.db.type_conv.UriTypeConverter
 import com.zzz.data.trip.model.Day
 import com.zzz.data.trip.model.TodoLocation
 import com.zzz.data.trip.model.Trip
+import com.zzz.data.trip.model.UserDocument
 
 @Database(
     entities = [
         Trip::class ,
         Day::class ,
-        TodoLocation::class
+        TodoLocation::class ,
+        UserDocument::class
     ] ,
-    version = 1,
+    version = 1 ,
     exportSchema = false
 )
 @TypeConverters(value = [UriTypeConverter::class])
-internal abstract class WanderaDatabase :RoomDatabase(){
+internal abstract class WanderaDatabase : RoomDatabase() {
 
-    abstract val tripDao : TripDao
-    abstract val dayDao : DayDao
-    abstract val todoDao : TodoDao
+    abstract val tripDao: TripDao
+    abstract val dayDao: DayDao
+    abstract val todoDao: TodoDao
+    abstract val userDocDao : UserDocDao
 
 }

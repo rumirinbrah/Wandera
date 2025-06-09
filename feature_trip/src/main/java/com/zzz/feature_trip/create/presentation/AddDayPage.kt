@@ -1,8 +1,6 @@
 package com.zzz.feature_trip.create.presentation
 
 import androidx.activity.compose.BackHandler
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -43,6 +41,9 @@ import com.zzz.feature_trip.create.presentation.states.CreateAction
 import com.zzz.feature_trip.create.presentation.states.DayState
 import org.koin.androidx.compose.koinViewModel
 
+/**
+ * @author zyzz
+ */
 @Composable
 fun AddDayRoot(
     navigateUp: () -> Unit ,
@@ -70,6 +71,9 @@ fun AddDayRoot(
     )
 }
 
+/**
+ * @author zyzz
+ */
 @Composable
 private fun AddDayPage(
     dayState: DayState ,
@@ -78,13 +82,6 @@ private fun AddDayPage(
     onAction: (CreateAction) -> Unit ,
 ) {
     var backHandlerDialog by remember { mutableStateOf(false) }
-    val imagePicker = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.PickVisualMedia()
-    ) { uri ->
-        uri?.let {
-            onAction(CreateAction.DayActions.OnPickImage(uri))
-        }
-    }
 
     LaunchedEffect(Unit) {
         if(!dayState.isUpdating){

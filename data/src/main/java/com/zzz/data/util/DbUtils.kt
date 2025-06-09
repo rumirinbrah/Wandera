@@ -6,5 +6,6 @@ internal object DbUtils {
     const val TRIP_TABLE_NAME = "trip_table"
     const val DAY_TABLE_NAME = "day_table"
     const val TODO_LOCATION_TABLE_NAME = "todo_location_table"
+    const val DOCUMENT_TABLE_NAME = "document_table"
     const val RECENT_TRIPS_TABLE_NAME = "recent_trips_table"
 }

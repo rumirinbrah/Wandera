@@ -8,9 +8,11 @@ import com.zzz.core.presentation.events.UIEvents
 import com.zzz.data.trip.model.Day
 import com.zzz.data.trip.model.TodoLocation
 import com.zzz.data.trip.model.Trip
+import com.zzz.data.trip.model.UserDocument
 import com.zzz.data.trip.source.DaySource
 import com.zzz.data.trip.source.TodoSource
 import com.zzz.data.trip.source.TripSource
+import com.zzz.data.trip.source.UserDocSource
 import com.zzz.feature_trip.create.presentation.states.CreateAction
 import com.zzz.feature_trip.create.presentation.states.DayState
 import com.zzz.feature_trip.create.presentation.states.SessionData
@@ -25,6 +27,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -34,7 +37,8 @@ import kotlinx.coroutines.withContext
 class CreateViewModel(
     private val tripSource: TripSource ,
     private val daySource: DaySource ,
-    private val todoSource: TodoSource
+    private val todoSource: TodoSource,
+    private val docSource : UserDocSource
 ) : ViewModel() {
 
     private var sessionData = SessionData()
@@ -59,10 +63,19 @@ class CreateViewModel(
         _todos.value
     )
 
+    private val _docs = MutableStateFlow<List<UserDocument>>(emptyList())
+    val docs = _docs.stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(5000L),
+        _docs.value
+    )
+
+
     private val _events = Channel<UIEvents>()
     val events = _events.receiveAsFlow()
 
-    private var todosFlowJob: Job? = null
+    private var collectTodosJob: Job? = null
+    private var collectDocsJob: Job? = null
 
 
     init {
@@ -71,6 +84,7 @@ class CreateViewModel(
         createTripSession(
             onDone = {
                 getTripDaysFlow()
+                getUserDocsFlow()
             }
         )
     }
@@ -122,7 +136,7 @@ class CreateViewModel(
                     }
                     //save day
                     CreateAction.DayActions.OnSaveDay -> {
-                        saveDay()
+                        //saveDay()
                     }
 
                     CreateAction.DayActions.OnUpdateDay -> {
@@ -141,7 +155,13 @@ class CreateViewModel(
                     }
                     //doc
                     is CreateAction.TripActions.OnDocumentUpload -> {
-                        onDocUpload(action.docUri)
+                        uploadDocument(action.docUri,action.docName)
+                    }
+                    is CreateAction.TripActions.OnDocumentUpdate->{
+                        updateDocument(action.docId,action.newName)
+                    }
+                    is CreateAction.TripActions.DeleteDocument->{
+                        deleteDocument(action.docId)
                     }
                     //title
                     is CreateAction.TripActions.OnTripTitleChange -> {
@@ -316,9 +336,9 @@ class CreateViewModel(
     private fun resetDayState() {
         viewModelScope.launch {
             delay(300)
-            todosFlowJob?.let {
+            collectTodosJob?.let {
                 Log.d("CreateVM" , "resetDayState : Cancelling TODO flows job")
-                todosFlowJob?.cancel()
+                collectTodosJob?.cancel()
             }
             _dayState.update {
                 DayState()
@@ -349,12 +369,30 @@ class CreateViewModel(
         }
     }
 
-    private fun onDocUpload(docUri: Uri) {
+    private fun uploadDocument(docUri: Uri , docName : String) {
         viewModelScope.launch {
-            _tripState.update {
-                it.copy(
-                    uploadedDocs = it.uploadedDocs + docUri
+            withContext(Dispatchers.IO){
+                val doc = UserDocument(
+                    docName = docName,
+                    uri= docUri,
+                    tripId = sessionData.tripId
                 )
+                val id = docSource.addDocument(doc)
+                Log.d("CreateVM" , "uploadDocument: Added doc $docName $id")
+
+            }
+
+        }
+    }
+    private fun deleteDocument(docId : Long){
+        viewModelScope.launch {
+            docSource.deleteDocumentById(docId)
+        }
+    }
+    private fun updateDocument(docId : Long , newName : String){
+        viewModelScope.launch {
+            withContext(Dispatchers.IO){
+                docSource.updateDocumentById(docId,newName)
             }
         }
     }
@@ -490,6 +528,7 @@ class CreateViewModel(
     }
 
     //DB GET REQs
+    //Days flow
     private fun getTripDaysFlow() {
         viewModelScope.launch {
             if (sessionData.tripId == 0L) {
@@ -506,6 +545,13 @@ class CreateViewModel(
                         it.printStackTrace()
                     }
                 }
+                .onCompletion {
+                    if(it != null && it is CancellationException){
+                        throw it
+                    }
+                    Log.d("CreateVM" , "getTripDaysFlow: Flow completed")
+
+                }
                 .collect { days ->
                     Log.d("CreateVM" , "getTripDaysFlow: List size is ${days.size}")
                     _days.update {
@@ -517,7 +563,7 @@ class CreateViewModel(
 
     //TODOs flow
     private fun getDayTodosFlow() {
-        todosFlowJob = viewModelScope.launch {
+        collectTodosJob = viewModelScope.launch {
             todoSource.getTodosByDayId(sessionData.dayId)
                 .flowOn(Dispatchers.IO)
                 .catch {
@@ -539,9 +585,41 @@ class CreateViewModel(
         }
     }
 
+    //Docs flow
+    private fun getUserDocsFlow(){
+        collectDocsJob = viewModelScope.launch {
+            docSource.getUserDocumentsByTripId(sessionData.tripId)
+                .flowOn(Dispatchers.IO)
+                .catch {
+                    Log.d("CreateVM" , "getUserDocsFlow: Error")
+                    if (it is CancellationException) {
+                        throw it
+                    } else {
+                        it.message?.let { errorMsg->
+                            _events.trySend(UIEvents.Error(errorMsg))
+                        }
+                        it.printStackTrace()
+                    }
+                }
+                .collect{newDocs->
+                    _docs.update {
+                        newDocs
+                    }
+                }
+        }
+    }
+
     override fun onCleared() {
         super.onCleared()
         Log.d("createVm" , "Clearing CreateViewModel")
+        collectTodosJob?.let {
+            Log.d("CreateVM" , "onCleared : Cancelling TODO flows job")
+            collectTodosJob?.cancel()
+        }
+        collectDocsJob?.let {
+            Log.d("CreateVM" , "onCleared : Cancelling DOC flows job")
+            collectTodosJob?.cancel()
+        }
     }
 }
 /*

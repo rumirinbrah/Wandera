@@ -9,6 +9,9 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.zzz.core.R
 
+/**
+ * @author zyzz
+ */
 @Composable
 fun ImageComponent(
     title : String,

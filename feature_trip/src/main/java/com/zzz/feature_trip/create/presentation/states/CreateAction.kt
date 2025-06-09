@@ -8,7 +8,9 @@ sealed class CreateAction {
     sealed class TripActions : CreateAction(){
         data class OnTripTitleChange(val title: String) : TripActions()
         data class OnDateSelect(val start: Long , val end: Long) : TripActions()
-        data class OnDocumentUpload(val docUri: Uri) : TripActions()
+        data class OnDocumentUpload(val docUri: Uri, val docName : String) : TripActions()
+        data class OnDocumentUpdate(val docId : Long ,val newName : String) : TripActions()
+        data class DeleteDocument(val docId : Long ):TripActions()
 
 
     }

@@ -50,8 +50,11 @@ import com.zzz.core.presentation.events.UIEvents
 import com.zzz.core.presentation.text_field.RoundedTextField
 import com.zzz.core.theme.WanderaTheme
 import com.zzz.data.trip.model.Day
+import com.zzz.data.trip.model.UserDocument
+import com.zzz.feature_trip.create.presentation.components.DocumentCard
 import com.zzz.feature_trip.create.presentation.components.IndicatorCard
 import com.zzz.feature_trip.create.presentation.components.ItineraryItem
+import com.zzz.feature_trip.create.presentation.components.UploadDocumentComponent
 import com.zzz.feature_trip.create.presentation.states.CreateAction
 import com.zzz.feature_trip.create.presentation.states.TripState
 import com.zzz.feature_trip.create.util.toFormattedDate
@@ -69,12 +72,14 @@ fun CreateRoot(
 
     val tripState by createViewModel.tripState.collectAsStateWithLifecycle()
     val days by createViewModel.days.collectAsStateWithLifecycle()
+    val docs by createViewModel.docs.collectAsStateWithLifecycle()
 
     val uiEvents = createViewModel.events
 
     CreateTripPage(
         tripState,
         days,
+        docs,
         events = uiEvents,
         onAction = {action->
             createViewModel.onAction(action)
@@ -89,6 +94,7 @@ fun CreateRoot(
 private fun CreateTripPage(
     tripState : TripState,
     days : List<Day>,
+    docs : List<UserDocument>,
     events : Flow<UIEvents>,
     onAction :(CreateAction)->Unit,
     onNavToAddDay : ()->Unit,
@@ -244,7 +250,9 @@ private fun CreateTripPage(
             }
 
 
+            //docs
             VerticalSpace(5.dp)
+            /*
             //docs
             Column {
                 Text(
@@ -277,8 +285,28 @@ private fun CreateTripPage(
                     }
                 )
             }
-            if(tripState.uploadedDocs.isEmpty()){
+
+             */
+            UploadDocumentComponent(
+                onAddDoc = { uri,name->
+                    onAction(CreateAction.TripActions.OnDocumentUpload(uri,name))
+                }
+            )
+            if(docs.isEmpty()){
                 IndicatorCard("Added documents will appear here")
+            }
+            Column(
+                Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ){
+                docs.onEach {document->
+                    DocumentCard(
+                        document = document,
+                        onDelete = {docId->
+                            onAction(CreateAction.TripActions.DeleteDocument(docId))
+                        }
+                    )
+                }
             }
 
             //translate

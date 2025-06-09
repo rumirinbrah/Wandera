@@ -5,9 +5,11 @@ import com.zzz.data.db.WanderaDatabase
 import com.zzz.data.db.repos.DaySourceImpl
 import com.zzz.data.db.repos.TodoSourceImpl
 import com.zzz.data.db.repos.TripSourceImpl
+import com.zzz.data.db.repos.UserDocSourceImpl
 import com.zzz.data.trip.source.DaySource
 import com.zzz.data.trip.source.TodoSource
 import com.zzz.data.trip.source.TripSource
+import com.zzz.data.trip.source.UserDocSource
 import com.zzz.data.util.DbUtils
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
@@ -42,6 +44,12 @@ val dbModule = module {
         val db = get<WanderaDatabase>()
 
         TodoSourceImpl(todoDao = db.todoDao)
+    }
+
+    //======= DOC SRC =========
+    single<UserDocSource> {
+        val db = get<WanderaDatabase>()
+        UserDocSourceImpl(userDocDao = db.userDocDao)
     }
 
 }
