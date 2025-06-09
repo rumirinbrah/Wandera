@@ -34,8 +34,8 @@ fun NavGraphBuilder.homeNavGraph(navController : NavHostController){
                 onNavToAddDay = {
                     navController.navigate(Screen.HomeGraph.AddDayScreen)
                 },
-                onNavToDayDetails = {
-                    navController.navigate(Screen.HomeGraph.DayDetailsScreen)
+                onEditDay = {
+                    navController.navigate(Screen.HomeGraph.AddDayScreen)
                 },
                 navigateUp = {
                     navController.navigateUp()
@@ -47,7 +47,6 @@ fun NavGraphBuilder.homeNavGraph(navController : NavHostController){
         composable<Screen.HomeGraph.AddDayScreen> {backStack->
             /*
             not necessary to use remember here(doing for recovering process death scenarios)
-
              */
 
             val parentEntry = remember(backStack) {
@@ -57,13 +56,7 @@ fun NavGraphBuilder.homeNavGraph(navController : NavHostController){
 
 
             AddDayRoot(
-                onDiscard = {
-                    //clear day state
-                    navController.navigateUp()
-                    createViewModel.onAction(CreateAction.DayActions.OnDiscardCreation)
-                } ,
-                saveAndNavigateUp = {
-                    //already saved, nav up
+                navigateUp = {
                     navController.navigateUp()
                 },
                 createViewModel = createViewModel

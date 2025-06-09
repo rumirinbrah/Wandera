@@ -12,7 +12,9 @@ interface DaySource {
     fun getDaysByTripId(tripId : Long) : Flow<List<Day>>
 
     //get
-    suspend fun getDayById(id: Long) : DayWithTodos
+    suspend fun getDayWithTodosById(id: Long) : DayWithTodos
+
+    suspend fun getDayById(dayId : Long) : Day
 
     //add
     suspend fun addDay(day: Day) : Long

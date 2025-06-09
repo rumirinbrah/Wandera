@@ -24,10 +24,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -65,7 +62,7 @@ class CreateViewModel(
     private val _events = Channel<UIEvents>()
     val events = _events.receiveAsFlow()
 
-    private var daysFlowJob: Job? = null
+    private var todosFlowJob: Job? = null
 
 
     init {
@@ -86,6 +83,9 @@ class CreateViewModel(
                 when (action) {
                     CreateAction.DayActions.CreateDaySession -> {
                         createDaySession()
+                    }
+                    CreateAction.DayActions.ClearDayState->{
+                        resetDayState()
                     }
 
                     //title
@@ -122,7 +122,7 @@ class CreateViewModel(
                     }
                     //save day
                     CreateAction.DayActions.OnSaveDay -> {
-                        onAddDay()
+                        saveDay()
                     }
 
                     CreateAction.DayActions.OnUpdateDay -> {
@@ -200,8 +200,15 @@ class CreateViewModel(
         }
     }
 
-    private fun onAddDay() {
+    private fun saveDay() {
         viewModelScope.launch {
+            val isValid= validateDayInput(
+                onTitleInvalid = {
+                    _events.trySend(UIEvents.Error("Please enter a valid title"))
+                }
+            )
+            if(!isValid) return@launch
+
             withContext(Dispatchers.IO) {
                 val day = Day(
                     id = sessionData.dayId ,
@@ -216,13 +223,6 @@ class CreateViewModel(
                 Log.d("CreateVM" , "onAddDay : Added day ${day.locationName}")
                 Log.d("CreateVM" , "onAddDay : Day id $dayId")
 
-
-//                _dayState.value.todoLocations.onEach { todoLoc ->
-//                    launch {
-//                        todoSource.addTodo(todoLoc.copy(dayId = dayId))
-//                    }
-//                }
-
                 sessionData = sessionData.copy(
                     dayIds = sessionData.dayIds + sessionData.dayId
                 )
@@ -231,23 +231,45 @@ class CreateViewModel(
             resetDayState()
         }
     }
+    private fun validateDayInput(
+        onTitleInvalid : ()->Unit
+    ) : Boolean{
+        if(_dayState.value.dayTitle.isBlank()){
+            onTitleInvalid()
+            return false
+        }
+        return true
+    }
+
+    /**
+     * Delete Day entity by id
+     */
     private fun deleteDayById(dayId : Long){
         viewModelScope.launch {
             daySource.deleteDayById(dayId)
         }
     }
-
     /**
      * Updates title of the day
      */
     private fun updateDay() {
         viewModelScope.launch {
+            val day = Day(
+                id= sessionData.dayId,
+                locationName = _dayState.value.dayTitle,
+                image = _dayState.value.image,
+                tripId = sessionData.tripId
+            )
             //update day
-            daySource.updateDayById(sessionData.dayId , _dayState.value.dayTitle)
-
+            //daySource.updateDayById(sessionData.dayId , _dayState.value.dayTitle)
+            daySource.updateDay(day)
+            resetDayState()
         }
     }
 
+    /**
+     * Add TODOs dialog
+     */
     private fun onDialogVisibilityChange(visible: Boolean) {
         viewModelScope.launch {
             _dayState.update {
@@ -266,11 +288,14 @@ class CreateViewModel(
             val day = daySource.getDayById(id)
             sessionData = sessionData.copy(dayId = id)
 
+            //start fetching todos
+            getDayTodosFlow()
+            Log.d("CreateVM" , "fetchDayById : Image uri is ${day.image?.toString()}")
+
             _dayState.update {
                 it.copy(
-                    dayTitle = day.day.locationName ,
-                    image = day.day.image ,
-                    todoLocations = day.todosAndLocations ,
+                    dayTitle = day.locationName ,
+                    image = day.image ,
                     isUpdating = true
                 )
             }
@@ -291,6 +316,10 @@ class CreateViewModel(
     private fun resetDayState() {
         viewModelScope.launch {
             delay(300)
+            todosFlowJob?.let {
+                Log.d("CreateVM" , "resetDayState : Cancelling TODO flows job")
+                todosFlowJob?.cancel()
+            }
             _dayState.update {
                 DayState()
             }
@@ -308,6 +337,7 @@ class CreateViewModel(
         }
     }
 
+    //TODO - Add constraints
     private fun onDateSelect(start: Long , end: Long) {
         viewModelScope.launch {
             _tripState.update {
@@ -329,6 +359,9 @@ class CreateViewModel(
         }
     }
 
+    /**
+     * Deletes the session trip resulting in deletion of child table entries as well
+     */
     private fun discardTripCreation() {
         viewModelScope.launch {
             delay(400)
@@ -341,9 +374,6 @@ class CreateViewModel(
     //========= SAVE =========
     private fun saveTrip() {
         viewModelScope.launch {
-            _tripState.update {
-                it.copy(saving = true)
-            }
             val isValid = validateUserInput(
                 tripNameEmpty = {
                     _events.trySend(UIEvents.Error("Please enter a trip name"))
@@ -357,6 +387,9 @@ class CreateViewModel(
                 return@launch
             }
             Log.d("CreateVM" , "saveTrip: Input valid, saving...")
+            _tripState.update {
+                it.copy(saving = true)
+            }
 
             //save day
             withContext(Dispatchers.IO) {
@@ -474,7 +507,7 @@ class CreateViewModel(
                     }
                 }
                 .collect { days ->
-                    Log.d("CreateVM" , "getTripDaysFlow: List size is $days")
+                    Log.d("CreateVM" , "getTripDaysFlow: List size is ${days.size}")
                     _days.update {
                         days
                     }
@@ -482,16 +515,19 @@ class CreateViewModel(
         }
     }
 
+    //TODOs flow
     private fun getDayTodosFlow() {
-        daysFlowJob = viewModelScope.launch {
+        todosFlowJob = viewModelScope.launch {
             todoSource.getTodosByDayId(sessionData.dayId)
                 .flowOn(Dispatchers.IO)
                 .catch {
                     Log.d("CreateVM" , "getDayTodosFlow: Error")
-
                     if (it is CancellationException) {
                         throw it
                     } else {
+                        it.message?.let { errorMsg->
+                            _events.trySend(UIEvents.Error(errorMsg))
+                        }
                         it.printStackTrace()
                     }
                 }

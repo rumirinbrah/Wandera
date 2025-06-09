@@ -19,10 +19,10 @@ sealed class CreateAction {
 
         data class OnDayTitleChange(val title: String) : DayActions()
         data class OnAddTodoLocation( val title: String , val isTodo: Boolean) : DayActions()
-        data class OnDeleteTodoLocation(val id: Long) : DayActions()
-        data class OnDialogVisibilityChange(val visible: Boolean) : DayActions()
-
         data class OnPickImage(val imageUri : Uri): DayActions()
+        data class OnDeleteTodoLocation(val id: Long) : DayActions()
+
+        data class OnDialogVisibilityChange(val visible: Boolean) : DayActions()
 
         data class FetchDayById(val id: Long): DayActions()
         data class OnDeleteDay(val id : Long) : DayActions()
@@ -30,6 +30,7 @@ sealed class CreateAction {
         data object OnSaveDay: DayActions()
         data object OnUpdateDay : DayActions()
         data object OnDiscardCreation: DayActions()
+        data object ClearDayState : DayActions()
     }
 
     data object OnSave : CreateAction()

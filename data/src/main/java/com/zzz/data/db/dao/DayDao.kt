@@ -31,7 +31,10 @@ internal abstract class DayDao {
     //get by id
     @Transaction
     @Query("select * from day_table where id = :dayId")
-    abstract suspend fun getDayById(dayId : Long) : DayWithTodos
+    abstract suspend fun getDayWithTodos(dayId : Long) : DayWithTodos
+
+    @Query("select * from day_table where id =:dayId")
+    abstract suspend fun getDayById(dayId : Long) : Day
 
     //GET
     @Transaction

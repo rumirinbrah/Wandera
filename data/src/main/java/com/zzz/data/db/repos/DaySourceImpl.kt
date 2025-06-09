@@ -19,8 +19,12 @@ internal class DaySourceImpl(
         return dayDao.getDaysByTripId(tripId)
     }
 
-    override suspend fun getDayById(id: Long): DayWithTodos {
-        return dayDao.getDayById(id)
+    override suspend fun getDayWithTodosById(id: Long): DayWithTodos {
+        return dayDao.getDayWithTodos(id)
+    }
+
+    override suspend fun getDayById(dayId: Long): Day {
+        return dayDao.getDayById(dayId)
     }
 
     override suspend fun addDay(day: Day) : Long {

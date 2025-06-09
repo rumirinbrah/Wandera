@@ -30,6 +30,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.zzz.core.presentation.buttons.CircularIconButton
 import com.zzz.core.presentation.components.ImageComponent
 import com.zzz.core.theme.WanderaTheme
+import com.zzz.data.trip.model.Day
+import com.zzz.data.trip.model.TodoLocation
 import com.zzz.feature_trip.create.presentation.components.DayTitleCard
 import com.zzz.feature_trip.create.presentation.components.TodoLocationItem
 import com.zzz.feature_trip.create.presentation.states.CreateAction
@@ -42,8 +44,12 @@ fun DayDetailsRoot(
     createViewModel: CreateViewModel = koinViewModel()
 ) {
     val dayState by createViewModel.dayState.collectAsStateWithLifecycle()
+    val todos by createViewModel.todos.collectAsStateWithLifecycle()
+
+
     DayDetailsPage(
-        dayState,//,
+        dayState,
+        todos,
         navigateUp = {
             navigateUp()
             createViewModel.onAction(CreateAction.DayActions.OnDiscardCreation)
@@ -54,6 +60,7 @@ fun DayDetailsRoot(
 @Composable
 private fun DayDetailsPage(
     dayState: DayState ,
+    todos : List<TodoLocation>,
     navigateUp: () -> Unit ,
     modifier: Modifier = Modifier
 ) {
@@ -145,7 +152,7 @@ private fun DayDetailsPage(
 //                            isViewOnly = true
 //                        )
 //                    }
-                    items(dayState.todoLocations) { todo ->
+                    items(todos) { todo ->
                         TodoLocationItem(
                             todo ,
                             modifier = Modifier ,
@@ -159,24 +166,6 @@ private fun DayDetailsPage(
         }
 
 
-            /*
-            Column(
-                Modifier.fillMaxWidth() ,
-                verticalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                dayState.todoLocations.onEach { todo ->
-                    TodoLocationItem(
-                        todo ,
-                        modifier = Modifier ,
-                        onDeleteTodo = {
-                        } ,
-                        isViewOnly = true
-                    )
-                }
-            }
-
-             */
-        //}
     }
 
 
@@ -195,6 +184,7 @@ fun DayDetailsPrev(
             dayState = DayState(
                 dayTitle = "Dolomites" ,
             ) ,
+            todos = emptyList(),
             navigateUp = {}
         )
     }

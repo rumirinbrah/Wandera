@@ -1,6 +1,7 @@
 package com.zzz.data.db.type_conv
 
 import android.net.Uri
+import android.util.Log
 import androidx.room.TypeConverter
 
 
@@ -21,13 +22,20 @@ class UriTypeConverter {
     }
 
     @TypeConverter
-    fun uriToString(uri: Uri) : String{
-        return uri.toString()
+    fun uriToString(uri: Uri?) : String?{
+        Log.d("typeConv" , "uriToString : Image uri is ${uri?.toString()}")
+
+        return uri?.toString()
     }
     @TypeConverter
-    fun stringToUri(string : String) : Uri?{
+    fun stringToUri(string : String?) : Uri?{
         return try {
-            Uri.parse(string)
+            Log.d("typeConv" , "stringToUri : Uri string is $string")
+
+            string?.let {
+                Uri.parse(string)
+            }
+
         }catch (e : Exception){
             null
         }

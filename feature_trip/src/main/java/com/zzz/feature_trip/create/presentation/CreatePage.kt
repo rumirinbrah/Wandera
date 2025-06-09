@@ -14,9 +14,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -24,6 +26,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -39,6 +42,7 @@ import com.zzz.core.presentation.buttons.ElevatedIconTextButton
 import com.zzz.core.presentation.buttons.IconTextButton
 import com.zzz.core.presentation.buttons.NormalButton
 import com.zzz.core.presentation.components.VerticalSpace
+import com.zzz.core.presentation.components.WanderaSnackbar
 import com.zzz.core.presentation.dialogs.DateRangePickerDialog
 import com.zzz.core.presentation.dialogs.LoadingDialog
 import com.zzz.core.presentation.events.ObserveAsEvents
@@ -49,16 +53,16 @@ import com.zzz.data.trip.model.Day
 import com.zzz.feature_trip.create.presentation.components.IndicatorCard
 import com.zzz.feature_trip.create.presentation.components.ItineraryItem
 import com.zzz.feature_trip.create.presentation.states.CreateAction
-import com.zzz.feature_trip.create.presentation.states.DayState
 import com.zzz.feature_trip.create.presentation.states.TripState
 import com.zzz.feature_trip.create.util.toFormattedDate
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun CreateRoot(
     onNavToAddDay : ()->Unit,
-    onNavToDayDetails :()->Unit,
+    onEditDay :()->Unit,
     navigateUp: () -> Unit,
     createViewModel: CreateViewModel = koinViewModel() ,
 ) {
@@ -76,7 +80,7 @@ fun CreateRoot(
             createViewModel.onAction(action)
         },
         onNavToAddDay = onNavToAddDay,
-        onNavToDayDetails = onNavToDayDetails,
+        onEditDay = onEditDay,
         navigateUp = navigateUp
     )
 }
@@ -88,10 +92,12 @@ private fun CreateTripPage(
     events : Flow<UIEvents>,
     onAction :(CreateAction)->Unit,
     onNavToAddDay : ()->Unit,
-    onNavToDayDetails : ()->Unit,
+    onEditDay : ()->Unit,
     navigateUp : ()->Unit
 ) {
     var showDatePicker by remember { mutableStateOf(false) }
+
+    val snackbarState = remember {  SnackbarHostState() }
 
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
@@ -100,7 +106,13 @@ private fun CreateTripPage(
     ObserveAsEvents(events) {event->
         when(event){
             is UIEvents.Error -> {
-                Toast.makeText(context , event.errorMsg , Toast.LENGTH_SHORT).show()
+                scope.launch {
+                    snackbarState.showSnackbar(
+                        message = event.errorMsg,
+                        actionLabel = "Dismiss",
+                        duration = SnackbarDuration.Short
+                    )
+                }
             }
             UIEvents.Success -> {
                 Toast.makeText(context , "Saved!" , Toast.LENGTH_SHORT).show()
@@ -161,6 +173,7 @@ private fun CreateTripPage(
                     onClick = {
                         //launch date dialog
                         showDatePicker = true
+
                     } ,
                     iconSize = 30.dp
                 )
@@ -206,7 +219,7 @@ private fun CreateTripPage(
                     onClick = onNavToAddDay
                 )
             }
-            AnimatedVisibility(tripState.days.isEmpty()){
+            AnimatedVisibility(days.isEmpty()){
                 IndicatorCard("Added itinerary will appear here")
             }
             Column(
@@ -218,7 +231,7 @@ private fun CreateTripPage(
                         day,
                         onClick = {id->
                             onAction(CreateAction.DayActions.FetchDayById(id))
-                            onNavToDayDetails()
+                            onEditDay()
                         },
                         onEdit = {},
                         onDelete = {id->
@@ -325,6 +338,15 @@ private fun CreateTripPage(
         if (tripState.saving){
             LoadingDialog(modifier = Modifier.align(Alignment.Center))
         }
+        SnackbarHost(
+            hostState = snackbarState,
+            modifier = Modifier.align(Alignment.BottomCenter)
+                .padding(vertical = 4.dp, horizontal = 8.dp)
+        ){
+            WanderaSnackbar(
+                it
+            )
+        }
     }
 
 }
@@ -335,7 +357,7 @@ private fun HomePrev() {
     WanderaTheme { 
         CreateRoot(
             onNavToAddDay = {},
-            onNavToDayDetails = {},
+            onEditDay = {},
             navigateUp = {}
         )
     }
