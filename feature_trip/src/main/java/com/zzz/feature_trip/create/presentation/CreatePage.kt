@@ -3,6 +3,8 @@ package com.zzz.feature_trip.create.presentation
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.OverscrollEffect
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -10,7 +12,14 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.overscroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
@@ -19,6 +28,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -58,6 +68,7 @@ import com.zzz.feature_trip.create.presentation.components.UploadDocumentCompone
 import com.zzz.feature_trip.create.presentation.states.CreateAction
 import com.zzz.feature_trip.create.presentation.states.TripState
 import com.zzz.feature_trip.create.util.toFormattedDate
+import com.zzz.feature_trip.home.presentation.components.OverlappedImagesRow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
@@ -73,6 +84,8 @@ fun CreateRoot(
     val tripState by createViewModel.tripState.collectAsStateWithLifecycle()
     val days by createViewModel.days.collectAsStateWithLifecycle()
     val docs by createViewModel.docs.collectAsStateWithLifecycle()
+
+
 
     val uiEvents = createViewModel.events
 
@@ -90,6 +103,7 @@ fun CreateRoot(
     )
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun CreateTripPage(
     tripState : TripState,
@@ -101,12 +115,14 @@ private fun CreateTripPage(
     onEditDay : ()->Unit,
     navigateUp : ()->Unit
 ) {
-    var showDatePicker by remember { mutableStateOf(false) }
-
     val snackbarState = remember {  SnackbarHostState() }
+
 
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
+
+    var showDatePicker by remember { mutableStateOf(false) }
+
 
 
     ObserveAsEvents(events) {event->
@@ -295,19 +311,29 @@ private fun CreateTripPage(
             if(docs.isEmpty()){
                 IndicatorCard("Added documents will appear here")
             }
-            Column(
-                Modifier.fillMaxWidth(),
+            LazyColumn(
+                Modifier.fillMaxWidth()
+                    .heightIn(max = 400.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
-            ){
-                docs.onEach {document->
+            ) {
+                items(
+                    items = docs,
+                    key = {
+                        it.id
+                    }
+                ){document->
                     DocumentCard(
                         document = document,
                         onDelete = {docId->
                             onAction(CreateAction.TripActions.DeleteDocument(docId))
-                        }
+                        },
+                        modifier = Modifier.animateItem(
+
+                        )
                     )
                 }
             }
+
 
             //translate
             VerticalSpace(5.dp)
