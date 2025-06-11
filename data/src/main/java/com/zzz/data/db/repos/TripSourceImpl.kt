@@ -26,7 +26,7 @@ internal class TripSourceImpl(
         tripDao.updateTrip(trip)
     }
 
-    override suspend fun deleteTripById(id: Long) {
-        tripDao.deleteTripById(id)
+    override suspend fun deleteTripById(id: Long) : Int {
+        return tripDao.deleteTripById(id)
     }
 }

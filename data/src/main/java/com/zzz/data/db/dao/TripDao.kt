@@ -22,7 +22,7 @@ internal abstract class TripDao {
 
     //delete
     @Query("DELETE from trip_table where id = :id")
-    abstract suspend fun deleteTripById(id :Long)
+    abstract suspend fun deleteTripById(id :Long) : Int
 
     //GET by id
     @Transaction

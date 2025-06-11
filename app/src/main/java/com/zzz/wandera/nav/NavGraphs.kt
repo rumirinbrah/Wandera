@@ -11,21 +11,32 @@ import com.zzz.feature_trip.create.presentation.CreateRoot
 import com.zzz.feature_trip.create.presentation.CreateViewModel
 import com.zzz.feature_trip.create.presentation.DayDetailsRoot
 import com.zzz.feature_trip.create.presentation.states.CreateAction
+import com.zzz.feature_trip.home.presentation.HomeRoot
 import org.koin.androidx.compose.koinViewModel
 
-fun NavGraphBuilder.homeNavGraph(navController : NavHostController){
+fun NavGraphBuilder.homeNavGraph(
+    navController : NavHostController,
+    navBarVisible : (Boolean)->Unit
+){
     navigation<Screen.HomeGraph>(
-        startDestination = Screen.HomeGraph.CreateTripScreen
+        startDestination = Screen.HomeGraph.HomeScreen
     ){
 
         //home
         composable<Screen.HomeGraph.HomeScreen> {
+            navBarVisible(true)
 
+            HomeRoot(
+                navToCreateTrip = {
+                    navController.navigate(Screen.HomeGraph.CreateTripScreen)
+                }
+            )
         }
         //home -> create
         composable<Screen.HomeGraph.CreateTripScreen> {backStack->
+            navBarVisible(false)
             val parentEntry = remember(backStack) {
-                navController.getBackStackEntry(Screen.HomeGraph)
+                navController.getBackStackEntry(Screen.HomeGraph.CreateTripScreen)
             }
             val createViewModel = koinViewModel<CreateViewModel>(viewModelStoreOwner = parentEntry)
 
@@ -50,7 +61,7 @@ fun NavGraphBuilder.homeNavGraph(navController : NavHostController){
              */
 
             val parentEntry = remember(backStack) {
-                navController.getBackStackEntry(Screen.HomeGraph)
+                navController.getBackStackEntry(Screen.HomeGraph.CreateTripScreen)
             }
             val createViewModel = koinViewModel<CreateViewModel>(viewModelStoreOwner = parentEntry)
 

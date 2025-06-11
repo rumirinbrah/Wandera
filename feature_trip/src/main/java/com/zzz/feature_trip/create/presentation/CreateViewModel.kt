@@ -403,7 +403,9 @@ class CreateViewModel(
     private fun discardTripCreation() {
         viewModelScope.launch {
             delay(400)
-            tripSource.deleteTripById(sessionData.tripId)
+            val id = tripSource.deleteTripById(sessionData.tripId)
+            Log.d("CreateVM" , "discardTripCreation : Deleted trip $id")
+
             resetTripState()
         }
     }
@@ -461,7 +463,6 @@ class CreateViewModel(
         tripDatesNull: () -> Unit ,
     ): Boolean {
         val trip = _tripState.value
-        val day = _dayState.value
         //trip name
         if (trip.tripTitle.isBlank()) {
             tripNameEmpty()

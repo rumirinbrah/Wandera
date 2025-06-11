@@ -19,6 +19,6 @@ interface TripSource {
     suspend fun updateTrip(trip: Trip)
 
     //delete
-    suspend fun deleteTripById(id : Long)
+    suspend fun deleteTripById(id : Long) : Int
 
 }
