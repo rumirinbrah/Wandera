@@ -15,6 +15,8 @@ val createModule = module {
         )
     }
     viewModel {
-        HomeViewModel()
+        HomeViewModel(
+            tripSource = get()
+        )
     }
 }

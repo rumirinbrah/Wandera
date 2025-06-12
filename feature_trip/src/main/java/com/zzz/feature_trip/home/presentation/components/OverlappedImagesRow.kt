@@ -47,7 +47,6 @@ internal fun OverlappedImagesRow(
 
     Box(
         modifier
-            .background(MaterialTheme.colorScheme.background)
             .padding(4.dp)
     ) {
         images.take(maxImagesVisible).onEachIndexed { index , uri ->

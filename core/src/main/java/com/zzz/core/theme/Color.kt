@@ -22,4 +22,6 @@ val lightErrorContainer = Color(0xFFD70000)
 val lightOnErrorContainer = Color(0xFFFFFFFF)
 
 val light = Color(0xFFFFFFFF)
+val nightSky = Color(0xFF322838)
+val daySky = Color(0xFF5A93BC)
 

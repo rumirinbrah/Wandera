@@ -129,7 +129,7 @@ private fun CreateTripPage(
                 }
             }
             UIEvents.Success -> {
-                Toast.makeText(context , "Saved!" , Toast.LENGTH_SHORT).show()
+                //Toast.makeText(context , "Saved!" , Toast.LENGTH_SHORT).show()
                 navigateUp()
             }
         }
@@ -377,6 +377,7 @@ private fun CreateTripPage(
                 title = "Save" ,
                 onClick = {
                     onAction(CreateAction.OnSave)
+                    //navigateUp()
                 },
                 background = MaterialTheme.colorScheme.onBackground,
                 modifier = Modifier.fillMaxWidth()

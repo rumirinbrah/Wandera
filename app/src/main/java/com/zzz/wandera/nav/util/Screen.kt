@@ -28,4 +28,7 @@ sealed class Screen {
     @Serializable
     data object TranslateScreen : Screen()
 
+    @Serializable
+    data object ThemeScreen : Screen()
+
 }

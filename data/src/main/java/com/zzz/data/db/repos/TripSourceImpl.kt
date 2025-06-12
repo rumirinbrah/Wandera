@@ -1,6 +1,7 @@
 package com.zzz.data.db.repos
 
 import com.zzz.data.db.dao.TripDao
+import com.zzz.data.trip.TripWithDays
 import com.zzz.data.trip.source.TripSource
 import com.zzz.data.trip.TripWithDaysAndTodos
 import com.zzz.data.trip.model.Trip
@@ -12,6 +13,10 @@ internal class TripSourceImpl(
 
     override fun getTrips(): Flow<List<TripWithDaysAndTodos>> {
         return tripDao.getTrips()
+    }
+
+    override fun getTripsWithUserDocs(): Flow<List<TripWithDays>> {
+        return tripDao.getTripsWithDays()
     }
 
     override suspend fun getTripById(id: Long): TripWithDaysAndTodos {

@@ -1,5 +1,6 @@
 package com.zzz.wandera.nav
 
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
@@ -12,6 +13,7 @@ import com.zzz.feature_trip.create.presentation.CreateViewModel
 import com.zzz.feature_trip.create.presentation.DayDetailsRoot
 import com.zzz.feature_trip.create.presentation.states.CreateAction
 import com.zzz.feature_trip.home.presentation.HomeRoot
+import com.zzz.feature_trip.home.presentation.HomeViewModel
 import org.koin.androidx.compose.koinViewModel
 
 fun NavGraphBuilder.homeNavGraph(
@@ -21,20 +23,36 @@ fun NavGraphBuilder.homeNavGraph(
     navigation<Screen.HomeGraph>(
         startDestination = Screen.HomeGraph.HomeScreen
     ){
-
         //home
-        composable<Screen.HomeGraph.HomeScreen> {
-            navBarVisible(true)
+        composable<Screen.HomeGraph.HomeScreen> {backStack->
+
+            LaunchedEffect(Unit) {
+                navBarVisible(true)
+            }
+            val parentEntry = remember(backStack) {
+                navController.getBackStackEntry(Screen.HomeGraph)
+            }
+            val homeViewModel = koinViewModel<HomeViewModel>(viewModelStoreOwner = parentEntry)
 
             HomeRoot(
                 navToCreateTrip = {
                     navController.navigate(Screen.HomeGraph.CreateTripScreen)
-                }
+                },
+                navToThemeSettings = {
+                    navController.navigate(Screen.ThemeScreen)
+                },
+                onNavBarVisibilityChange = {visible->
+                    println("calling visibility change for $visible")
+                    navBarVisible(visible)
+                },
+                homeViewModel = homeViewModel
             )
         }
         //home -> create
         composable<Screen.HomeGraph.CreateTripScreen> {backStack->
-            navBarVisible(false)
+            LaunchedEffect(Unit) {
+                navBarVisible(false)
+            }
             val parentEntry = remember(backStack) {
                 navController.getBackStackEntry(Screen.HomeGraph.CreateTripScreen)
             }

@@ -431,7 +431,6 @@ class CreateViewModel(
                 it.copy(saving = true)
             }
 
-            //save day
             withContext(Dispatchers.IO) {
                 val trip = Trip(
                     id = sessionData.tripId ,
@@ -446,10 +445,13 @@ class CreateViewModel(
 
             }
             Log.d("CreateVM" , "saveTrip: All entities SAVED!")
-            _tripState.update {
-                it.copy(saving = false)
+            withContext(Dispatchers.Main.immediate){
+                delay(1000L)
+                _tripState.update {
+                    it.copy(saving = false)
+                }
+                _events.send(UIEvents.Success)
             }
-            _events.send(UIEvents.Success)
             //resetDayState()
             resetTripState()
         }

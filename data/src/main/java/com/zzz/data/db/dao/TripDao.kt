@@ -5,6 +5,7 @@ import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
+import com.zzz.data.trip.TripWithDays
 import com.zzz.data.trip.TripWithDaysAndTodos
 import com.zzz.data.trip.model.Trip
 import kotlinx.coroutines.flow.Flow
@@ -29,9 +30,14 @@ internal abstract class TripDao {
     @Query("SELECT * from trip_table where id = :id")
     abstract suspend fun getTripById(id : Long) : TripWithDaysAndTodos
 
-    //GET
+    //GET with days and todos
     @Transaction
     @Query("SELECT * from trip_table")
     abstract fun getTrips() : Flow<List<TripWithDaysAndTodos>>
+
+    //GET with user docs
+    @Transaction
+    @Query("select * from trip_table")
+    abstract fun getTripsWithDays() : Flow<List<TripWithDays>>
 
 }

@@ -5,6 +5,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorScheme = darkColorScheme(
     primary = lightPrimary ,
@@ -42,11 +43,18 @@ private val LightColorScheme = lightColorScheme(
 
 @Composable
 fun WanderaTheme(
-    darkTheme: Boolean = isSystemInDarkTheme() ,
+    useSystemTheme : Boolean = true,
+    darkThemePref : Boolean = false,
     content: @Composable () -> Unit
 ) {
-    val colorScheme = when {
+    val isSystemInDark : Boolean = isSystemInDarkTheme()
 
+    val darkTheme = if(useSystemTheme){
+        isSystemInDark
+    }else{
+        darkThemePref
+    }
+    val colorScheme = when {
         darkTheme -> DarkColorScheme
         else -> LightColorScheme
     }
