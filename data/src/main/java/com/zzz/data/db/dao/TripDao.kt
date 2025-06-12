@@ -28,7 +28,10 @@ internal abstract class TripDao {
     //GET by id
     @Transaction
     @Query("SELECT * from trip_table where id = :id")
-    abstract suspend fun getTripById(id : Long) : TripWithDaysAndTodos
+    abstract suspend fun tripWithDaysAndTodos(id : Long) : TripWithDaysAndTodos
+
+    @Query("select * from trip_table where id = :tripId")
+    abstract suspend fun getTripById(tripId : Long) : Trip
 
     //GET with days and todos
     @Transaction

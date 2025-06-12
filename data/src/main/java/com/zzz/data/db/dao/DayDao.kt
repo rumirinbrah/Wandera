@@ -44,4 +44,7 @@ internal abstract class DayDao {
     @Query("select * from day_table where tripId = :tripId")
     abstract fun getDaysByTripId(tripId: Long) : Flow<List<Day>>
 
+    @Query("select * from day_table where tripId = :tripId")
+    abstract suspend fun getDaysByTripIdOnce(tripId : Long) : List<Day>
+
 }

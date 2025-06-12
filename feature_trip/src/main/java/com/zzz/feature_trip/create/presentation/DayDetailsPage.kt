@@ -28,9 +28,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.zzz.core.presentation.buttons.CircularIconButton
-import com.zzz.core.presentation.components.ImageComponent
+import com.zzz.core.presentation.components.ImageComponentWithDefaultBackground
 import com.zzz.core.theme.WanderaTheme
-import com.zzz.data.trip.model.Day
 import com.zzz.data.trip.model.TodoLocation
 import com.zzz.feature_trip.create.presentation.components.DayTitleCard
 import com.zzz.feature_trip.create.presentation.components.TodoLocationItem
@@ -80,7 +79,7 @@ private fun DayDetailsPage(
         Box() {
 
 
-            ImageComponent(
+            ImageComponentWithDefaultBackground(
                 title = dayState.dayTitle,
                 imageUri = dayState.image,
                 modifier = Modifier.fillMaxWidth()

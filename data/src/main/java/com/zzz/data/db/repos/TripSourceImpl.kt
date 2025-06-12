@@ -19,8 +19,12 @@ internal class TripSourceImpl(
         return tripDao.getTripsWithDays()
     }
 
-    override suspend fun getTripById(id: Long): TripWithDaysAndTodos {
-        return tripDao.getTripById(id)
+    override suspend fun getTripWithDaysAndTodosById(id: Long): TripWithDaysAndTodos {
+        return tripDao.tripWithDaysAndTodos(id)
+    }
+
+    override suspend fun getTripById(tripId: Long): Trip {
+        return tripDao.getTripById(tripId)
     }
 
     override suspend fun addTrip(trip: Trip) :Long{

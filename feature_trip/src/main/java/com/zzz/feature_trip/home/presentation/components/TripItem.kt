@@ -36,7 +36,7 @@ import com.zzz.feature_trip.home.util.getDateDifference
 @Composable
 fun TripItem(
     tripWithDays: TripWithDays ,
-    onClick: () -> Unit ,
+    onClick: (tripId : Long) -> Unit ,
     modifier: Modifier = Modifier
 ) {
     val horizontalGradient = Brush.linearGradient(
@@ -65,7 +65,7 @@ fun TripItem(
             .background(horizontalGradient)
             .clickable(
                 onClick = {
-                    onClick()
+                    onClick(trip.id)
                 }
             )
             .padding(16.dp)

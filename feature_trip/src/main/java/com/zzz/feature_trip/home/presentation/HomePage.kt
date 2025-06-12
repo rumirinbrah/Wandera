@@ -20,11 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -37,16 +33,15 @@ import com.zzz.core.presentation.buttons.CircularIconButton
 import com.zzz.core.presentation.components.VerticalSpace
 import com.zzz.core.theme.WanderaTheme
 import com.zzz.data.trip.TripWithDays
-import com.zzz.feature_trip.R
 import com.zzz.feature_trip.home.presentation.components.TripItem
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.onCompletion
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun HomeRoot(
     navToCreateTrip : ()->Unit,
     navToThemeSettings : ()->Unit,
+    navToTripOverview : (tripId : Long)->Unit,
     onNavBarVisibilityChange : (visible : Boolean) ->Unit,
     homeViewModel: HomeViewModel = koinViewModel()
 ) {
@@ -57,6 +52,7 @@ fun HomeRoot(
         tripsWithDoc = tripsWithDoc,
         navToThemeSettings = navToThemeSettings,
         navToCreateTrip = navToCreateTrip,
+        navToTripOverview = navToTripOverview,
         onNavBarVisibilityChange = {
             onNavBarVisibilityChange(it)
         }
@@ -66,8 +62,9 @@ fun HomeRoot(
 @Composable
 private fun HomePage(
     tripsWithDoc : List<TripWithDays>,
-    navToThemeSettings : ()->Unit,
     navToCreateTrip : ()->Unit,
+    navToThemeSettings : ()->Unit,
+    navToTripOverview : (tripId : Long)->Unit,
     onNavBarVisibilityChange : (visible : Boolean) ->Unit
 ) {
     val lazyListState = rememberLazyListState()
@@ -158,7 +155,9 @@ private fun HomePage(
                     trip.trip.tripName
                     TripItem(
                         trip,
-                        onClick = {},
+                        onClick = {id->
+                            navToTripOverview(id)
+                        },
                         modifier = Modifier.animateItem()
                     )
 

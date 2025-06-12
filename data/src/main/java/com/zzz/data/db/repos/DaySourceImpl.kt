@@ -27,6 +27,10 @@ internal class DaySourceImpl(
         return dayDao.getDayById(dayId)
     }
 
+    override suspend fun getDaysByTripIdOnce(tripId: Long): List<Day> {
+        return dayDao.getDaysByTripIdOnce(tripId)
+    }
+
     override suspend fun addDay(day: Day) : Long {
         return dayDao.addDay(day)
     }

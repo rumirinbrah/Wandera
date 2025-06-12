@@ -11,6 +11,8 @@ interface DaySource {
 
     fun getDaysByTripId(tripId : Long) : Flow<List<Day>>
 
+    suspend fun getDaysByTripIdOnce(tripId: Long) : List<Day>
+
     //get
     suspend fun getDayWithTodosById(id: Long) : DayWithTodos
 

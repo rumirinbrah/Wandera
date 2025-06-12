@@ -18,7 +18,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.zzz.core.presentation.buttons.NormalButton
-import com.zzz.core.presentation.components.ImageComponent
+import com.zzz.core.presentation.components.ImageComponentWithDefaultBackground
 
 /**
  * @author zyzz
@@ -62,7 +62,7 @@ internal fun UploadImageComponent(
             )
         }
         AnimatedVisibility(image != null) {
-            ImageComponent(
+            ImageComponentWithDefaultBackground(
                 title = dayTitle ,
                 imageUri = image ,
                 modifier = Modifier.size(70.dp)

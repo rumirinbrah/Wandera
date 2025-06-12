@@ -43,15 +43,19 @@ class MainActivity : ComponentActivity() {
 //                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
 //                    val a = innerPadding
 //                    Box(
-//                        Modifier.fillMaxSize() ,
+//                        Modifier.fillMaxSize()
+//                            .padding(innerPadding),
 //                            //,
 //                        contentAlignment = Alignment.Center
 //                    ){
-//                        ChangeThemePage()
+//                        TripOverviewPage()
 //                    }
 //                }
                 Navigation(
-                    themeViewModel
+                    themeState,
+                    toggleDarkMode = {darkMode->
+                        themeViewModel.setDarkMode(darkMode)
+                    }
                 )
             }
         }

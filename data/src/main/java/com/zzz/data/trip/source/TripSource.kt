@@ -11,8 +11,10 @@ interface TripSource {
     fun getTrips() : Flow<List<TripWithDaysAndTodos>>
     fun getTripsWithUserDocs() : Flow<List<TripWithDays>>
 
+    suspend fun getTripById(tripId : Long) : Trip
+
     //get
-    suspend fun getTripById(id: Long) : TripWithDaysAndTodos
+    suspend fun getTripWithDaysAndTodosById(id: Long) : TripWithDaysAndTodos
 
     //add
     suspend fun addTrip(trip: Trip) : Long

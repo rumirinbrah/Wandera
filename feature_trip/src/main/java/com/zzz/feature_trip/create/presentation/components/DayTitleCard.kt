@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlin.math.max
@@ -20,6 +21,10 @@ import kotlin.math.max
 @Composable
 fun DayTitleCard(
     title : String,
+    fontSize : TextUnit = 30.sp,
+    fontWeight : FontWeight = FontWeight.ExtraBold,
+    maxLines : Int = 3,
+    lineHeight : TextUnit = 32.sp,
     alpha : Float = 0.4f,
     modifier: Modifier = Modifier
 ) {
@@ -29,12 +34,12 @@ fun DayTitleCard(
     ){
         Text(
             title,
-            fontSize = 30.sp,
+            fontSize = fontSize,
             color = Color.White,
-            fontWeight = FontWeight.ExtraBold,
-            maxLines = 3,
+            fontWeight = fontWeight,
+            maxLines = maxLines,
             overflow = TextOverflow.Ellipsis,
-            lineHeight = 32.sp,
+            lineHeight = lineHeight,
             modifier = Modifier.fillMaxWidth(0.6f)
         )
     }

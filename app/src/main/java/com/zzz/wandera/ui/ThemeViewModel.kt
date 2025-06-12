@@ -45,7 +45,3 @@ class ThemeViewModel(
 
 
 }
-data class ThemeState(
-    val isSystemDefault : Boolean = true,
-    val isDarkMode : Boolean = false,
-)

@@ -27,7 +27,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.zzz.core.presentation.components.ImageComponent
+import com.zzz.core.presentation.components.ImageComponentWithDefaultBackground
 import com.zzz.core.util.isMimeTypeImg
 import com.zzz.core.util.openImageInGallery
 import com.zzz.core.util.openPDF
@@ -73,7 +73,7 @@ fun DocumentCard(
                 overflow = TextOverflow.Ellipsis
             )
             AnimatedVisibility(isImage) {
-                ImageComponent(
+                ImageComponentWithDefaultBackground(
                     title = document.docName,
                     imageUri = document.uri,
                     modifier = Modifier.size(70.dp)

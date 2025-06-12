@@ -6,14 +6,17 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
+import androidx.navigation.toRoute
 import com.zzz.core.presentation.nav.util.Screen
 import com.zzz.feature_trip.create.presentation.AddDayRoot
 import com.zzz.feature_trip.create.presentation.CreateRoot
 import com.zzz.feature_trip.create.presentation.CreateViewModel
 import com.zzz.feature_trip.create.presentation.DayDetailsRoot
-import com.zzz.feature_trip.create.presentation.states.CreateAction
 import com.zzz.feature_trip.home.presentation.HomeRoot
 import com.zzz.feature_trip.home.presentation.HomeViewModel
+import com.zzz.feature_trip.overview.presentation.OverviewActions
+import com.zzz.feature_trip.overview.presentation.OverviewViewModel
+import com.zzz.feature_trip.overview.presentation.TripOverviewRoot
 import org.koin.androidx.compose.koinViewModel
 
 fun NavGraphBuilder.homeNavGraph(
@@ -44,6 +47,9 @@ fun NavGraphBuilder.homeNavGraph(
                 onNavBarVisibilityChange = {visible->
                     println("calling visibility change for $visible")
                     navBarVisible(visible)
+                },
+                navToTripOverview = {id->
+                    navController.navigate(Screen.HomeGraph.TripOverviewScreen(id))
                 },
                 homeViewModel = homeViewModel
             )
@@ -102,6 +108,21 @@ fun NavGraphBuilder.homeNavGraph(
                     navController.navigateUp()
                 } ,
                 createViewModel
+            )
+        }
+        composable<Screen.HomeGraph.TripOverviewScreen> { backStack->
+            val parentEntry = remember(backStack) {
+                navController.getBackStackEntry(Screen.HomeGraph)
+            }
+            val overviewViewModel = koinViewModel<OverviewViewModel>(viewModelStoreOwner = parentEntry)
+            val route = backStack.toRoute<Screen.HomeGraph.TripOverviewScreen>()
+            LaunchedEffect(Unit) {
+                navBarVisible(false)
+                overviewViewModel.onAction(OverviewActions.FetchTripData(route.tripId))
+            }
+
+            TripOverviewRoot(
+                overviewViewModel
             )
         }
     }

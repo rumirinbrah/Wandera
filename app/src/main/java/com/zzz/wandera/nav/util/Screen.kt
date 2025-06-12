@@ -20,6 +20,9 @@ sealed class Screen {
         @Serializable
         data object DayDetailsScreen
 
+        @Serializable
+        data class TripOverviewScreen(val tripId : Long)
+
     }
 
     @Serializable
