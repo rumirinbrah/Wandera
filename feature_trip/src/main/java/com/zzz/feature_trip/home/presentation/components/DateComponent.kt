@@ -1,0 +1,34 @@
+package com.zzz.feature_trip.home.presentation.components
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Shapes
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.zzz.feature_trip.create.util.toFormattedDate
+
+@Composable
+fun DateComponent(
+    startDate : Long,
+    endDate : Long,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier
+            .clip(Shapes().large)
+            .background(MaterialTheme.colorScheme.background)
+            .padding(8.dp)
+    ){
+        Text(
+            text = startDate.toFormattedDate() +"- ${endDate.toFormattedDate("dd MMM yy")}",
+            color = MaterialTheme.colorScheme.onBackground,
+            fontSize = 16.sp
+        )
+    }
+}
