@@ -13,6 +13,10 @@ internal class TodoSourceImpl(
         return todoDao.getTodosByDayId(id)
     }
 
+    override fun getTodosByDayIdOnce(id: Long): List<TodoLocation> {
+        return todoDao.getTodosByDayIdOnce(id)
+    }
+
     override suspend fun addTodo(todoLocation: TodoLocation) {
         todoDao.addTodo(todoLocation)
     }

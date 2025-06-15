@@ -1,6 +1,7 @@
 package com.zzz.feature_trip.create.presentation
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -10,19 +11,27 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -35,10 +44,12 @@ import com.zzz.core.presentation.dialogs.OptionSelectorDialog
 import com.zzz.core.presentation.text_field.RoundedTextField
 import com.zzz.core.theme.WanderaTheme
 import com.zzz.data.trip.model.TodoLocation
+import com.zzz.feature_trip.create.presentation.components.IndicatorCard
 import com.zzz.feature_trip.create.presentation.components.TodoLocationItem
 import com.zzz.feature_trip.create.presentation.components.UploadImageComponent
 import com.zzz.feature_trip.create.presentation.states.CreateAction
 import com.zzz.feature_trip.create.presentation.states.DayState
+import kotlinx.coroutines.delay
 import org.koin.androidx.compose.koinViewModel
 
 /**
@@ -82,6 +93,7 @@ private fun AddDayPage(
     onAction: (CreateAction) -> Unit ,
 ) {
     var backHandlerDialog by remember { mutableStateOf(false) }
+    val keyboardController = LocalSoftwareKeyboardController.current
 
     LaunchedEffect(Unit) {
         if(!dayState.isUpdating){
@@ -148,14 +160,6 @@ private fun AddDayPage(
                         navigateUp()
                     } ,
                 )
-//                NormalButton(
-//                    title = "Update title" ,
-//                    onClick = {
-//                        onAction(CreateAction.DayActions.OnUpdateDay)
-//                    } ,
-//                    contentDescription = "update title" ,
-//                    verticalPadding = 4.dp
-//                )
             }
         }
 
@@ -164,7 +168,7 @@ private fun AddDayPage(
             if (dayState.isUpdating) {
                 dayState.dayTitle
             } else {
-                "NEW DAY"
+                "NEW itinerary item"
             } ,
             fontSize = 18.sp ,
             fontWeight = FontWeight.Bold ,
@@ -200,30 +204,6 @@ private fun AddDayPage(
             },
             isViewOnly = dayState.isUpdating
         )
-        /*
-        Text(
-            "Have a photo of the location?" ,
-            fontSize = 16.sp ,
-            fontWeight = FontWeight.Bold ,
-        )
-        NormalButton(
-            title = "Select image" ,
-            onClick = {
-                imagePicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
-            } ,
-            contentDescription = "Add image for the location" ,
-            shape = RoundedCornerShape(50) ,
-            enabled = !dayState.isUpdating
-        )
-        AnimatedVisibility(dayState.image != null) {
-            ImageComponent(
-                title = dayState.dayTitle ,
-                imageUri = dayState.image ,
-                modifier = Modifier.size(70.dp)
-            )
-        }
-
-         */
 
         //toddooos
         VerticalSpace(5.dp)
@@ -249,6 +229,23 @@ private fun AddDayPage(
             )
 
         }
+        AnimatedVisibility(todos.isEmpty()) {
+            IndicatorCard(
+                text = buildAnnotatedString {
+                    append("You can add everything about your plans for the day here. For ex, ")
+                    withStyle(
+                        SpanStyle(
+                            fontWeight = FontWeight.Bold
+                        )
+                    ){
+                        append("'Visiting local market', 'Sky tree'")
+                    }
+                },
+                background = MaterialTheme.colorScheme.secondary.copy(0.3f),
+                onBackground = MaterialTheme.colorScheme.onSecondary
+            )
+        }
+        //"You can add everything about all your plans for the day here. For ex, 'Visiting local market' 'Sky tree'"
         LazyColumn(
             Modifier.fillMaxWidth() ,
             verticalArrangement = Arrangement.spacedBy(4.dp)
@@ -280,6 +277,12 @@ private fun AddDayPage(
                 } ,
                 onDismiss = {
                     onAction(CreateAction.DayActions.OnDialogVisibilityChange(false))
+                },
+                hideKeyboard = {
+                    keyboardController?.let {
+                        println("KB VISIBLE")
+                        keyboardController.hide()
+                    }
                 }
             )
         }

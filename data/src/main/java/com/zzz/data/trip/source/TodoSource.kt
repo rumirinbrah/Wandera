@@ -8,6 +8,8 @@ interface TodoSource {
     //GET
     fun getTodosByDayId(id : Long) : Flow<List<TodoLocation>>
 
+    fun getTodosByDayIdOnce(id : Long) : List<TodoLocation>
+
     //get
     //suspend fun getDayById(id: Long) : DayWithTodos
 

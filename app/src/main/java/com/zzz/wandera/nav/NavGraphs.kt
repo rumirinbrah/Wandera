@@ -11,7 +11,7 @@ import com.zzz.core.presentation.nav.util.Screen
 import com.zzz.feature_trip.create.presentation.AddDayRoot
 import com.zzz.feature_trip.create.presentation.CreateRoot
 import com.zzz.feature_trip.create.presentation.CreateViewModel
-import com.zzz.feature_trip.create.presentation.DayDetailsRoot
+import com.zzz.feature_trip.overview.presentation.DayDetailsRoot
 import com.zzz.feature_trip.home.presentation.HomeRoot
 import com.zzz.feature_trip.home.presentation.HomeViewModel
 import com.zzz.feature_trip.overview.presentation.OverviewActions
@@ -99,17 +99,23 @@ fun NavGraphBuilder.homeNavGraph(
 
         }
         composable<Screen.HomeGraph.DayDetailsScreen> {backStack->
+            LaunchedEffect(Unit) {
+                navBarVisible(false)
+            }
+
             val parentEntry = remember(backStack) {
                 navController.getBackStackEntry(Screen.HomeGraph)
             }
-            val createViewModel = koinViewModel<CreateViewModel>(viewModelStoreOwner = parentEntry)
+            val overviewViewModel = koinViewModel<OverviewViewModel>(viewModelStoreOwner = parentEntry)
             DayDetailsRoot(
                 navigateUp = {
                     navController.navigateUp()
                 } ,
-                createViewModel
+                overviewViewModel
             )
         }
+
+        //overview
         composable<Screen.HomeGraph.TripOverviewScreen> { backStack->
             val parentEntry = remember(backStack) {
                 navController.getBackStackEntry(Screen.HomeGraph)
@@ -122,7 +128,10 @@ fun NavGraphBuilder.homeNavGraph(
             }
 
             TripOverviewRoot(
-                overviewViewModel
+                overviewViewModel,
+                navigateToDayDetails = {
+                    navController.navigate(Screen.HomeGraph.DayDetailsScreen)
+                }
             )
         }
     }

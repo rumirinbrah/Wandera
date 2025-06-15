@@ -29,4 +29,7 @@ internal abstract class TodoDao {
     @Query("select * from todo_location_table where dayId = :dayId")
     abstract fun getTodosByDayId(dayId : Long) : Flow<List<TodoLocation>>
 
+    @Query("select * from todo_location_table where dayId = :dayId")
+    abstract fun getTodosByDayIdOnce(dayId : Long) : List<TodoLocation>
+
 }

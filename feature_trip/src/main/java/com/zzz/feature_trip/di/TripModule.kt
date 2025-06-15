@@ -23,7 +23,8 @@ val createModule = module {
     viewModel {
         OverviewViewModel(
             tripSource = get(),
-            daySource =get()
+            daySource =get(),
+            todoSource = get()
         )
     }
 }
