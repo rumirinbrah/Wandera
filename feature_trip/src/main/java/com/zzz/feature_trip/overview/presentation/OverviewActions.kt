@@ -8,4 +8,5 @@ sealed class OverviewActions {
     //user clicks on day through pager
     data class UpdateSelectedDay(val day: Day) : OverviewActions()
     data object ClearSelectedDay : OverviewActions()
+    data object ChangeItineraryLayout : OverviewActions()
 }

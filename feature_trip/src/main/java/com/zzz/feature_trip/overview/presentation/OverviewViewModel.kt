@@ -12,6 +12,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -43,6 +44,9 @@ class OverviewViewModel(
 
             OverviewActions.ClearSelectedDay -> {
                 clearSelectedDay()
+            }
+            OverviewActions.ChangeItineraryLayout -> {
+                changeItineraryLayout()
             }
         }
     }
@@ -102,6 +106,13 @@ class OverviewViewModel(
             delay(500)
             _overviewState.update {
                 it.copy(selectedDay = null)
+            }
+        }
+    }
+    private fun changeItineraryLayout(){
+        viewModelScope.launch {
+            _overviewState.update {
+                it.copy(itineraryPagerLayout = !it.itineraryPagerLayout)
             }
         }
     }

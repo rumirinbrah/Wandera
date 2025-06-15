@@ -11,22 +11,17 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -49,7 +44,6 @@ import com.zzz.feature_trip.create.presentation.components.TodoLocationItem
 import com.zzz.feature_trip.create.presentation.components.UploadImageComponent
 import com.zzz.feature_trip.create.presentation.states.CreateAction
 import com.zzz.feature_trip.create.presentation.states.DayState
-import kotlinx.coroutines.delay
 import org.koin.androidx.compose.koinViewModel
 
 /**
@@ -93,7 +87,6 @@ private fun AddDayPage(
     onAction: (CreateAction) -> Unit ,
 ) {
     var backHandlerDialog by remember { mutableStateOf(false) }
-    val keyboardController = LocalSoftwareKeyboardController.current
 
     LaunchedEffect(Unit) {
         if(!dayState.isUpdating){
@@ -277,12 +270,6 @@ private fun AddDayPage(
                 } ,
                 onDismiss = {
                     onAction(CreateAction.DayActions.OnDialogVisibilityChange(false))
-                },
-                hideKeyboard = {
-                    keyboardController?.let {
-                        println("KB VISIBLE")
-                        keyboardController.hide()
-                    }
                 }
             )
         }

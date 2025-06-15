@@ -9,6 +9,7 @@ internal data class OverviewState(
     val loading : Boolean = false,
     val trip : Trip? = null,
     val days : List<Day> = emptyList(),
+    val itineraryPagerLayout : Boolean = false,
     val selectedDay : DayWithTodos? = null,
     val docs : List<UserDocument> = emptyList()
 )

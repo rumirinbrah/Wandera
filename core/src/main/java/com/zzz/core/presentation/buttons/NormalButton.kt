@@ -31,7 +31,7 @@ fun NormalButton(
     fontSize : TextUnit = 15.sp,
     horizontalPadding : Dp = 16.dp,
     verticalPadding : Dp = 8.dp,
-    shape: Shape = Shapes().large,
+    shape: Shape = MaterialTheme.shapes.large,
     background : Color = MaterialTheme.colorScheme.primary,
     onBackground : Color = MaterialTheme.colorScheme.onPrimary,
     modifier: Modifier = Modifier

@@ -1,5 +1,12 @@
 package com.zzz.feature_trip.overview.presentation
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
+import androidx.compose.animation.with
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -8,6 +15,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.MaterialTheme
@@ -21,9 +30,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.zzz.core.presentation.buttons.NormalButton
 import com.zzz.core.presentation.components.DotsLoadingAnimation
 import com.zzz.core.presentation.components.VerticalSpace
+import com.zzz.core.presentation.headers.DateHeader
+import com.zzz.feature_trip.overview.presentation.components.ItineraryLayoutOptions
 import com.zzz.feature_trip.overview.presentation.components.ItineraryPager
+import com.zzz.feature_trip.overview.presentation.components.OverviewDayItem
 import com.zzz.feature_trip.overview.presentation.components.PagerBottomIndicator
 import com.zzz.feature_trip.overview.presentation.components.PagerItem
 import org.koin.androidx.compose.koinViewModel
@@ -77,25 +90,64 @@ private fun TripOverviewPage(
                     modifier = Modifier.align(Alignment.CenterHorizontally)
                 )
 
-                VerticalSpace(10.dp)
-                Text("20 May - 25 May 2025")
+                VerticalSpace()
+                DateHeader(
+                    startDate = state.trip?.startDate ?: 0,
+                    endDate = state.trip?.endDate ?: 0
+                )
 
                 VerticalSpace()
-                Text(
-                    "Itinerary",
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Medium
-                )
-                ItineraryPager(
-                    pagerState = pagerState,
-                    days = state.days,
-                    onDayClick = {
-                        //println("In overview pg, the day is ${it.locationName}")
-                        onAction(OverviewActions.UpdateSelectedDay(it))
-                        navigateToDayDetails()
+                ItineraryLayoutOptions(
+                    isPagerLayout = state.itineraryPagerLayout,
+                    onLayoutChange = {
+                        onAction(OverviewActions.ChangeItineraryLayout)
                     }
                 )
+                AnimatedContent(
+                    state.itineraryPagerLayout,
+                    transitionSpec = {
+                        fadeIn() togetherWith fadeOut()
+                    }
+                ) {pagerLayout->
+                    if(pagerLayout){
+                        ItineraryPager(
+                            pagerState = pagerState,
+                            days = state.days,
+                            onDayClick = {
+                                onAction(OverviewActions.UpdateSelectedDay(it))
+                                navigateToDayDetails()
+                            }
+                        )
+                    }else{
+                        LazyColumn(
+                            Modifier.fillMaxWidth(),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            items(
+                                state.days,
+                                key = {it.id}
+                            ){day->
+                                OverviewDayItem(
+                                    day ,
+                                    onClick = {}
+                                )
+                            }
+                        }
+                    }
+                }
 
+
+                VerticalSpace()
+                //delete
+                NormalButton(
+                    modifier = Modifier.fillMaxWidth(),
+                    background = MaterialTheme.colorScheme.errorContainer,
+                    onBackground = MaterialTheme.colorScheme.onErrorContainer,
+                    title = "Delete Trip",
+                    onClick = {
+
+                    }
+                )
 
             }
         }
