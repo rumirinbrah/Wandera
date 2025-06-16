@@ -1,4 +1,4 @@
-package com.zzz.feature_trip.overview.presentation
+package com.zzz.feature_trip.overview.presentation.viewmodel
 
 import com.zzz.data.trip.model.Day
 
@@ -8,5 +8,10 @@ sealed class OverviewActions {
     //user clicks on day through pager
     data class UpdateSelectedDay(val day: Day) : OverviewActions()
     data object ClearSelectedDay : OverviewActions()
+    data class UpdateDayStatus(val dayId : Long, val done : Boolean) : OverviewActions()
+
     data object ChangeItineraryLayout : OverviewActions()
+    data object CleanUpResources : OverviewActions()
+
+    data object DeleteTrip : OverviewActions()
 }

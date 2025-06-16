@@ -14,8 +14,8 @@ import com.zzz.feature_trip.create.presentation.CreateViewModel
 import com.zzz.feature_trip.overview.presentation.DayDetailsRoot
 import com.zzz.feature_trip.home.presentation.HomeRoot
 import com.zzz.feature_trip.home.presentation.HomeViewModel
-import com.zzz.feature_trip.overview.presentation.OverviewActions
-import com.zzz.feature_trip.overview.presentation.OverviewViewModel
+import com.zzz.feature_trip.overview.presentation.viewmodel.OverviewActions
+import com.zzz.feature_trip.overview.presentation.viewmodel.OverviewViewModel
 import com.zzz.feature_trip.overview.presentation.TripOverviewRoot
 import org.koin.androidx.compose.koinViewModel
 
@@ -131,6 +131,9 @@ fun NavGraphBuilder.homeNavGraph(
                 overviewViewModel,
                 navigateToDayDetails = {
                     navController.navigate(Screen.HomeGraph.DayDetailsScreen)
+                },
+                navigateUp = {
+                    navController.navigateUp()
                 }
             )
         }

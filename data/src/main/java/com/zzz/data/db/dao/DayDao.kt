@@ -24,6 +24,10 @@ internal abstract class DayDao {
     @Query("update day_table set locationName = :newTitle where id = :id")
     abstract suspend fun updateDayById(id : Long, newTitle : String)
 
+    //update status
+    @Query("update day_table set isDone =:done where id = :dayId ")
+    abstract suspend fun markDayAsDone(dayId : Long,done : Boolean)
+
     //delete
     @Query("delete from day_table where id = :id")
     abstract suspend fun deleteDayById(id : Long)

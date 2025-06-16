@@ -14,6 +14,7 @@ interface UserDocSource {
 
     //get
     fun getUserDocumentsByTripId(tripId : Long) : Flow<List<UserDocument>>
+    suspend fun getUserDocumentsByTripIdOnce(tripId : Long) : List<UserDocument>
 
 
 }

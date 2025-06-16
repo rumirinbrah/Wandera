@@ -8,9 +8,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.ColorMatrix
 import com.zzz.core.presentation.components.ImageComponent
 import com.zzz.core.presentation.components.TextWithBackground
 import com.zzz.core.theme.daySky
@@ -23,6 +26,17 @@ fun PagerItem(
     modifier: Modifier = Modifier
 ) {
 
+    val colorFilter = remember(day.isDone) {
+        println("Calculating filter")
+        if (day.isDone) {
+            ColorFilter.colorMatrix(ColorMatrix().apply {
+                setToSaturation(0f)
+            }
+            )
+        } else {
+            null
+        }
+    }
     Box(
         modifier
             .clip(CircleShape)
@@ -37,7 +51,8 @@ fun PagerItem(
         ImageComponent(
             imageUri = day.image,
             contentDescription = day.locationName,
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize(),
+            colorFilter = colorFilter
         )
         TextWithBackground(day.locationName)
     }

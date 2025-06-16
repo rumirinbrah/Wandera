@@ -13,6 +13,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 
+/**
+ * @author zyzz
+ * Shows the count of all pager items as well as the current position in pager
+ */
 @Composable
 fun PagerBottomIndicator(
     currentPage : Int,

@@ -11,6 +11,7 @@ internal class DaySourceImpl(
     private val dayDao: DayDao
 ) : DaySource {
 
+    //GET
     override fun getDaysWithTodosByTripId(id: Long): Flow<List<DayWithTodos>> {
         return dayDao.getDaysWithTodosByTripId(id)
     }
@@ -31,16 +32,22 @@ internal class DaySourceImpl(
         return dayDao.getDaysByTripIdOnce(tripId)
     }
 
+    //add
     override suspend fun addDay(day: Day) : Long {
         return dayDao.addDay(day)
     }
 
+    //updates
     override suspend fun updateDay(day: Day) {
         dayDao.updateDay(day)
     }
 
     override suspend fun updateDayById(id: Long , newTitle: String) {
         dayDao.updateDayById(id,newTitle)
+    }
+
+    override suspend fun markDayAsDone(dayId: Long , done: Boolean) {
+        dayDao.markDayAsDone(dayId,done)
     }
 
     override suspend fun deleteDayById(id: Long) {

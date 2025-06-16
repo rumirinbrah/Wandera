@@ -28,4 +28,8 @@ internal class UserDocSourceImpl(
     override fun getUserDocumentsByTripId(tripId: Long): Flow<List<UserDocument>> {
         return userDocDao.getDocumentsByTripId(tripId)
     }
+
+    override suspend fun getUserDocumentsByTripIdOnce(tripId: Long): List<UserDocument> {
+        return userDocDao.getDocumentsByTripIdOnce(tripId)
+    }
 }

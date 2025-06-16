@@ -24,6 +24,7 @@ interface DaySource {
     //update
     suspend fun updateDay(day: Day)
     suspend fun updateDayById(id: Long, newTitle : String)
+    suspend fun markDayAsDone(dayId: Long,done : Boolean)
 
     //delete
     suspend fun deleteDayById(id : Long)

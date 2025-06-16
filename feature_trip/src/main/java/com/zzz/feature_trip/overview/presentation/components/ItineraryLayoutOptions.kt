@@ -20,6 +20,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+/**
+ * @author zyzz
+ * To switch between pager and list layout for the itinerary
+ */
 @Composable
 internal fun ItineraryLayoutOptions(
     isPagerLayout : Boolean = true ,

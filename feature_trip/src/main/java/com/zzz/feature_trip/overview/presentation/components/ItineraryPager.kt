@@ -13,6 +13,9 @@ import androidx.compose.ui.unit.dp
 import com.zzz.data.trip.model.Day
 import kotlin.math.absoluteValue
 
+/**
+ * @author zyzz
+ */
 @Composable
 internal fun ItineraryPager(
     pagerState: PagerState,
@@ -28,7 +31,7 @@ internal fun ItineraryPager(
                 .height(400.dp),
             state = pagerState,
             key = {
-                it
+                days[it].id
             },
             pageSpacing = 10.dp
         ) {page->
@@ -42,6 +45,7 @@ internal fun ItineraryPager(
                         val scale =(1-pageOffset).coerceIn(0.95f,1f)
                         scaleX = scale
                         scaleY = scale
+
                     }
             )
         }

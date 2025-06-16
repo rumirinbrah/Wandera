@@ -20,7 +20,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -31,10 +30,13 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.zzz.core.presentation.buttons.CircularIconButton
 import com.zzz.core.presentation.components.ImageComponentWithDefaultBackground
+import com.zzz.core.presentation.components.VerticalSpace
 import com.zzz.core.theme.WanderaTheme
 import com.zzz.data.trip.DayWithTodos
-import com.zzz.feature_trip.create.presentation.components.DayTitleCard
 import com.zzz.feature_trip.create.presentation.components.TodoLocationItem
+import com.zzz.feature_trip.overview.presentation.components.DayTitleCard
+import com.zzz.feature_trip.overview.presentation.viewmodel.OverviewActions
+import com.zzz.feature_trip.overview.presentation.viewmodel.OverviewViewModel
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -68,7 +70,16 @@ private fun DayDetailsPage(
         dayWithTodos?.day
     }
     val todos = remember {
-        dayWithTodos?.todosAndLocations
+        println("DayDetailsPage : calc TODOS")
+        dayWithTodos?.todosAndLocations?.filter {
+            it.isTodo
+        }
+    }
+    val locations = remember {
+        println("DayDetailsPage : calc TODOS")
+        dayWithTodos?.todosAndLocations?.filter {
+            !it.isTodo
+        }
     }
 
     BackHandler {
@@ -142,16 +153,42 @@ private fun DayDetailsPage(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     //Spacer(Modifier.fillMaxHeight(0.1f))
-                    Text(
-                        "Places to visit/TODOs" ,
-                        fontSize = 18.sp ,
-                        fontWeight = FontWeight.Bold ,
-                    )
+
                     LazyColumn(
                         Modifier.fillMaxWidth() ,
                         verticalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
-                        items(todos!!) { todo ->
+                        item {
+                            Text(
+                                "TODOs" ,
+                                fontSize = 18.sp ,
+                                fontWeight = FontWeight.Bold ,
+                            )
+                        }
+                        items(
+                            todos!!,
+                            key = {it.id}
+                        ) { todo ->
+                            TodoLocationItem(
+                                todo ,
+                                modifier = Modifier ,
+                                onDeleteTodo = {
+                                } ,
+                                isViewOnly = true
+                            )
+                        }
+                        item {
+                            VerticalSpace()
+                            Text(
+                                "Places to visit" ,
+                                fontSize = 18.sp ,
+                                fontWeight = FontWeight.Bold ,
+                            )
+                        }
+                        items(
+                            locations!!,
+                            key = {it.id}
+                        ) { todo ->
                             TodoLocationItem(
                                 todo ,
                                 modifier = Modifier ,

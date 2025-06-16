@@ -18,6 +18,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlin.math.max
 
+/**
+ * @author zyzz
+ * Used in DayDetailsPage
+ * @param alpha - Opacity of text background
+ */
 @Composable
 internal fun DayTitleCard(
     title : String,

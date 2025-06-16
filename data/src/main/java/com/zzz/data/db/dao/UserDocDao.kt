@@ -29,6 +29,9 @@ internal abstract class UserDocDao {
     @Query("select * from document_table where tripId = :tripId")
     abstract fun getDocumentsByTripId(tripId : Long) : Flow<List<UserDocument>>
 
+    @Query("select * from document_table where tripId = :tripId")
+    abstract suspend fun getDocumentsByTripIdOnce(tripId: Long) : List<UserDocument>
+
 
 
 }

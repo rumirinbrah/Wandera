@@ -34,7 +34,7 @@ import com.zzz.core.util.openPDF
 import com.zzz.data.trip.model.UserDocument
 
 @Composable
-fun DocumentCard(
+internal fun DocumentCard(
     document: UserDocument,
     onDelete : (docId : Long)->Unit,
     modifier: Modifier = Modifier

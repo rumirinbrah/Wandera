@@ -2,7 +2,8 @@ package com.zzz.feature_trip.di
 
 import com.zzz.feature_trip.create.presentation.CreateViewModel
 import com.zzz.feature_trip.home.presentation.HomeViewModel
-import com.zzz.feature_trip.overview.presentation.OverviewViewModel
+import com.zzz.feature_trip.overview.presentation.viewmodel.OverviewViewModel
+import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 
@@ -24,7 +25,9 @@ val createModule = module {
         OverviewViewModel(
             tripSource = get(),
             daySource =get(),
-            todoSource = get()
+            todoSource = get(),
+            docSource = get(),
+            context = androidContext()
         )
     }
 }
