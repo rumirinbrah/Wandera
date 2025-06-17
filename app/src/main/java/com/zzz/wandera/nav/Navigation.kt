@@ -25,6 +25,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.zzz.wandera.nav.util.Screen
 import com.zzz.core.presentation.theme_change.ChangeThemePage
+import com.zzz.feature_translate.presentation.TranslateRoot
 import com.zzz.wandera.nav.util.BottomNavBar
 import com.zzz.wandera.ui.ThemeState
 
@@ -32,7 +33,6 @@ import com.zzz.wandera.ui.ThemeState
 fun Navigation(
     themeState : ThemeState,
     toggleDarkMode : (Boolean)->Unit,
-    modifier: Modifier = Modifier
 ) {
     val navController = rememberNavController()
     var navBarVisible by remember { mutableStateOf(true) }
@@ -78,7 +78,7 @@ fun Navigation(
                 }
                 //TRANSLATE
                 composable<Screen.TranslateScreen> {
-
+                    TranslateRoot()
                 }
                 //THEME
                 composable<Screen.ThemeScreen> {
