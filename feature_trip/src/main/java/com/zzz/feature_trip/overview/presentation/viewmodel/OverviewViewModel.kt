@@ -47,6 +47,7 @@ class OverviewViewModel(
         _days.value
     )
 
+
     private var collectDaysJob: Job? = null
 
     init {
@@ -186,6 +187,25 @@ class OverviewViewModel(
         }
     }
 
+
+
+    //!!!DELETE
+    private fun deleteTrip(){
+        viewModelScope.launch {
+
+            val tripId = _overviewState.value.trip?.id ?: return@launch
+
+            _overviewState.update {
+                it.copy(loading = true)
+            }
+            cleanUpResources()
+            tripSource.deleteTripById(tripId)
+            _overviewState.update {
+                it.copy(loading = false)
+            }
+        }
+    }
+
     //flows
     private fun collectDaysFlow(tripId: Long) {
         collectDaysJob = viewModelScope.launch {
@@ -218,27 +238,11 @@ class OverviewViewModel(
         }
     }
 
-    //!!!DELETE
-    private fun deleteTrip(){
-        viewModelScope.launch {
-
-            val tripId = _overviewState.value.trip?.id ?: return@launch
-
-            _overviewState.update {
-                it.copy(loading = true)
-            }
-            cleanUpResources()
-            tripSource.deleteTripById(tripId)
-            _overviewState.update {
-                it.copy(loading = false)
-            }
-        }
-    }
-
     //clean up
     private fun cleanUpResources() {
         viewModelScope.launch {
             delay(200)
+            _days.update { emptyList() }
             collectDaysJob?.let {
                 Log.d("overviewVM" , "cleanUpResources: Cancelling days job")
                 it.cancel()

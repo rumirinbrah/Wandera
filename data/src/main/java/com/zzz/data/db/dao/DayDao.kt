@@ -45,10 +45,18 @@ internal abstract class DayDao {
     @Query("select * from day_table where tripId = :tripId")
     abstract fun getDaysWithTodosByTripId(tripId : Long) : Flow<List<DayWithTodos>>
 
+    //flow
     @Query("select * from day_table where tripId = :tripId")
     abstract fun getDaysByTripId(tripId: Long) : Flow<List<Day>>
 
+    //single
     @Query("select * from day_table where tripId = :tripId")
     abstract suspend fun getDaysByTripIdOnce(tripId : Long) : List<Day>
+
+    //DONE and !DONE
+    @Query("select * from day_table where tripId = :tripId and isDone = :isDone")
+    abstract fun getDaysByStatus(tripId: Long, isDone : Boolean) : Flow<List<Day>>
+
+
 
 }

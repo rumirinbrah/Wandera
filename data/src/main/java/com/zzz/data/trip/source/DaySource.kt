@@ -10,8 +10,10 @@ interface DaySource {
     fun getDaysWithTodosByTripId(id : Long) : Flow<List<DayWithTodos>>
 
     fun getDaysByTripId(tripId : Long) : Flow<List<Day>>
-
     suspend fun getDaysByTripIdOnce(tripId: Long) : List<Day>
+
+    //days marked as done or !done
+    fun getDaysByStatus(tripId: Long, status : Boolean) : Flow<List<Day>>
 
     //get
     suspend fun getDayWithTodosById(id: Long) : DayWithTodos

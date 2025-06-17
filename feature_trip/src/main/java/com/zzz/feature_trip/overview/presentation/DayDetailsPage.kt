@@ -1,6 +1,7 @@
 package com.zzz.feature_trip.overview.presentation
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.Animatable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -15,12 +16,14 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -32,6 +35,8 @@ import com.zzz.core.presentation.buttons.CircularIconButton
 import com.zzz.core.presentation.components.ImageComponentWithDefaultBackground
 import com.zzz.core.presentation.components.VerticalSpace
 import com.zzz.core.theme.WanderaTheme
+import com.zzz.core.util.getBitmapFromUri
+import com.zzz.core.util.getColorFromBitmap
 import com.zzz.data.trip.DayWithTodos
 import com.zzz.feature_trip.create.presentation.components.TodoLocationItem
 import com.zzz.feature_trip.overview.presentation.components.DayTitleCard
@@ -65,7 +70,6 @@ private fun DayDetailsPage(
     val context = LocalContext.current
     val background = MaterialTheme.colorScheme.background
 
-
     val day = remember {
         dayWithTodos?.day
     }
@@ -82,13 +86,16 @@ private fun DayDetailsPage(
         }
     }
 
+
     BackHandler {
         navigateUp()
     }
     Column(
         modifier
             .fillMaxSize()
-            .background(background)
+            .background(
+                background
+            )
     ) {
         if (day == null) {
             Text(

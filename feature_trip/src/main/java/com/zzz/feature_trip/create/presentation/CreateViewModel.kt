@@ -81,12 +81,15 @@ class CreateViewModel(
     init {
         Log.d("createVm" , "CreateViewModel init")
 
+        /*
         createTripSession(
             onDone = {
                 getTripDaysFlow()
                 getUserDocsFlow()
             }
         )
+
+         */
     }
 
     fun onAction(action: CreateAction) {
@@ -166,6 +169,12 @@ class CreateViewModel(
                     //title
                     is CreateAction.TripActions.OnTripTitleChange -> {
                         onTripTitleChange(action.title)
+                    }
+                    CreateAction.TripActions.CreateSession ->{
+                        createTripSession {
+                            getTripDaysFlow()
+                            getUserDocsFlow()
+                        }
                     }
                 }
             }
@@ -506,6 +515,9 @@ class CreateViewModel(
             )
             val id = tripSource.addTrip(tempTrip)
             sessionData = sessionData.copy(tripId = id)
+            _tripState.update {
+                it.copy(sessionOngoing = true)
+            }
             Log.d("CreateVM" , "createTripSession: Session id $id")
             onDone()
         }

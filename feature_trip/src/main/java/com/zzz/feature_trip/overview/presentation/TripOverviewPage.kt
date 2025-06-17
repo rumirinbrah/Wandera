@@ -6,6 +6,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,6 +19,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -27,11 +29,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.zzz.core.presentation.buttons.IconTextButton
+import com.zzz.core.presentation.buttons.NormalButton
 import com.zzz.core.presentation.components.DotsLoadingAnimation
 import com.zzz.core.presentation.components.VerticalSpace
 import com.zzz.core.presentation.dialogs.ConfirmActionDialog
@@ -87,7 +91,9 @@ private fun TripOverviewPage(
 
     Box(
         Modifier.fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
+            .background(
+                MaterialTheme.colorScheme.background
+            )
     ){
         if(state.loading){
             Box(
@@ -147,7 +153,7 @@ private fun TripOverviewPage(
                         )
                     }else{
                         ItineraryList(
-                            days = days,
+                            days,
                             onClick = {
                                 onAction(OverviewActions.UpdateSelectedDay(it))
                                 navigateToDayDetails()
@@ -188,6 +194,7 @@ private fun TripOverviewPage(
 
 
                 VerticalSpace(30.dp)
+
                 //delete
                 IconTextButton(
                     modifier = Modifier.align(Alignment.CenterHorizontally),

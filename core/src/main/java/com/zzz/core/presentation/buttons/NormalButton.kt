@@ -1,6 +1,7 @@
 package com.zzz.core.presentation.buttons
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
@@ -29,6 +30,7 @@ fun NormalButton(
     contentDescription : String? = null,
     enabled : Boolean = true,
     fontSize : TextUnit = 15.sp,
+    border : Dp = 0.dp,
     horizontalPadding : Dp = 16.dp,
     verticalPadding : Dp = 8.dp,
     shape: Shape = MaterialTheme.shapes.large,
