@@ -14,7 +14,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Shapes
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
@@ -28,6 +27,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -76,7 +76,8 @@ fun DialogWithTextField(
                 onValueChange = { text = it } ,
                 placeholder = { Text(textFieldPlaceholder) } ,
                 keyboardOptions = KeyboardOptions(
-                    imeAction = ImeAction.Done
+                    imeAction = ImeAction.Done,
+                    capitalization = KeyboardCapitalization.Words
                 ) ,
                 keyboardActions = KeyboardActions(
                     onDone = {

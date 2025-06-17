@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
 
 /**
  * @author zyzz
@@ -56,7 +57,8 @@ fun RoundedTextField(
             }
         ),
         keyboardOptions = KeyboardOptions(
-            imeAction = imeAction
+            imeAction = imeAction,
+            capitalization = KeyboardCapitalization.Words
         )
     )
 }

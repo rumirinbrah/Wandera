@@ -55,6 +55,7 @@ import org.koin.androidx.compose.koinViewModel
 fun TripOverviewRoot(
     overviewViewModel: OverviewViewModel = koinViewModel() ,
     navigateToDayDetails : ()->Unit ,
+    navigateToEditTrip:(tripId : Long)->Unit,
     navigateUp : ()->Unit ,
 ) {
     val state by overviewViewModel.overviewState.collectAsStateWithLifecycle()
@@ -67,6 +68,7 @@ fun TripOverviewRoot(
             overviewViewModel.onAction(action)
         },
         navigateToDayDetails = navigateToDayDetails,
+        navigateToEditTrip = navigateToEditTrip,
         navigateUp = navigateUp
     )
 }
@@ -77,6 +79,7 @@ private fun TripOverviewPage(
     days : List<Day> ,
     onAction : (OverviewActions)->Unit ,
     navigateToDayDetails : ()->Unit ,
+    navigateToEditTrip:(tripId : Long)->Unit,
     navigateUp : ()->Unit ,
 ) {
     val pagerState = rememberPagerState() {
@@ -117,7 +120,9 @@ private fun TripOverviewPage(
                         navigateUp()
                     } ,
                     editTrip = {
-
+                        state.trip?.id?.let {
+                            navigateToEditTrip(it)
+                        }
                     }
                 )
 

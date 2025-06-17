@@ -1,7 +1,6 @@
 package com.zzz.feature_trip.create.presentation
 
 import android.util.Log
-import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
@@ -30,7 +29,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -110,7 +108,6 @@ private fun CreateTripPage(
 
 
     val scope = rememberCoroutineScope()
-    val context = LocalContext.current
 
     var showDatePicker by remember { mutableStateOf(false) }
     var showConfirmDiscardDialog by remember { mutableStateOf(false) }

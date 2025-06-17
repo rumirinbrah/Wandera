@@ -8,7 +8,6 @@ internal data class TripState(
     val tripTitle : String = "",
     val startDate : Long? = null,
     val endDate : Long? = null,
-    val uploadedDocs : List<Uri> = emptyList(),
     val saving : Boolean = false,
     val sessionOngoing : Boolean = false
 )

@@ -81,7 +81,6 @@ class CreateViewModel(
     init {
         Log.d("createVm" , "CreateViewModel init")
 
-        /*
         createTripSession(
             onDone = {
                 getTripDaysFlow()
@@ -89,7 +88,6 @@ class CreateViewModel(
             }
         )
 
-         */
     }
 
     fun onAction(action: CreateAction) {
@@ -170,12 +168,15 @@ class CreateViewModel(
                     is CreateAction.TripActions.OnTripTitleChange -> {
                         onTripTitleChange(action.title)
                     }
+
+                    //create session
                     CreateAction.TripActions.CreateSession ->{
                         createTripSession {
                             getTripDaysFlow()
                             getUserDocsFlow()
                         }
                     }
+
                 }
             }
 
@@ -186,6 +187,7 @@ class CreateViewModel(
             CreateAction.OnSave -> {
                 saveTrip()
             }
+
         }
     }
 
@@ -446,7 +448,6 @@ class CreateViewModel(
                     tripName = _tripState.value.tripTitle.trim() ,
                     startDate = _tripState.value.startDate!! ,
                     endDate = _tripState.value.endDate!! ,
-                    documents = _tripState.value.uploadedDocs
                 )
                 val tripId = tripSource.updateTrip(trip)
                 Log.d("CreateVM" , "saveTrip: Trip saved, TripId - $tripId")
@@ -507,7 +508,13 @@ class CreateViewModel(
      * @return - Id of the entry, can be used to clear data if user cancels creation
      */
     private fun createTripSession(onDone: () -> Unit) {
+        if(_tripState.value.sessionOngoing){
+            return
+        }
         viewModelScope.launch {
+            _tripState.update {
+                it.copy(sessionOngoing = true)
+            }
             val tempTrip = Trip(
                 tripName = "null" ,
                 startDate = 0L ,
@@ -515,9 +522,7 @@ class CreateViewModel(
             )
             val id = tripSource.addTrip(tempTrip)
             sessionData = sessionData.copy(tripId = id)
-            _tripState.update {
-                it.copy(sessionOngoing = true)
-            }
+
             Log.d("CreateVM" , "createTripSession: Session id $id")
             onDone()
         }

@@ -13,7 +13,7 @@ sealed class CreateAction {
         data class OnDocumentUpdate(val docId : Long ,val newName : String) : TripActions()
         data class DeleteDocument(val docId : Long ):TripActions()
 
-        data object CreateSession : CreateAction()
+        data object CreateSession : TripActions()
 
     }
 

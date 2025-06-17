@@ -7,10 +7,11 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import androidx.navigation.toRoute
-import com.zzz.core.presentation.nav.util.Screen
+import com.zzz.wandera.nav.util.Screen
 import com.zzz.feature_trip.create.presentation.AddDayRoot
 import com.zzz.feature_trip.create.presentation.CreateRoot
 import com.zzz.feature_trip.create.presentation.CreateViewModel
+import com.zzz.feature_trip.create.presentation.states.CreateAction
 import com.zzz.feature_trip.overview.presentation.DayDetailsRoot
 import com.zzz.feature_trip.home.presentation.HomeRoot
 import com.zzz.feature_trip.home.presentation.HomeViewModel
@@ -27,7 +28,7 @@ fun NavGraphBuilder.homeNavGraph(
         startDestination = Screen.HomeGraph.HomeScreen
     ){
         //home
-        composable<Screen.HomeGraph.HomeScreen> {backStack->
+        composable<Screen.HomeGraph.HomeScreen> { backStack->
 
             LaunchedEffect(Unit) {
                 navBarVisible(true)
@@ -55,16 +56,17 @@ fun NavGraphBuilder.homeNavGraph(
             )
         }
         //home -> create
-        composable<Screen.HomeGraph.CreateTripScreen> {backStack->
-            LaunchedEffect(Unit) {
-                navBarVisible(false)
-            }
+        composable<Screen.HomeGraph.CreateTripScreen> { backStack->
+
             val parentEntry = remember(backStack) {
                 navController.getBackStackEntry(Screen.HomeGraph.CreateTripScreen)
             }
             val createViewModel = koinViewModel<CreateViewModel>(viewModelStoreOwner = parentEntry)
 
+            LaunchedEffect(Unit) {
+                navBarVisible(false)
 
+            }
             CreateRoot(
                 onNavToAddDay = {
                     navController.navigate(Screen.HomeGraph.AddDayScreen)
@@ -79,7 +81,7 @@ fun NavGraphBuilder.homeNavGraph(
             )
         }
         //create -> add day
-        composable<Screen.HomeGraph.AddDayScreen> {backStack->
+        composable<Screen.HomeGraph.AddDayScreen> { backStack->
             /*
             not necessary to use remember here(doing for recovering process death scenarios)
              */
@@ -98,7 +100,8 @@ fun NavGraphBuilder.homeNavGraph(
             )
 
         }
-        composable<Screen.HomeGraph.DayDetailsScreen> {backStack->
+        //-------- DETAILS --------
+        composable<Screen.HomeGraph.DayDetailsScreen> { backStack->
             LaunchedEffect(Unit) {
                 navBarVisible(false)
             }
@@ -115,7 +118,7 @@ fun NavGraphBuilder.homeNavGraph(
             )
         }
 
-        //overview
+        //-------- overview --------
         composable<Screen.HomeGraph.TripOverviewScreen> { backStack->
             val parentEntry = remember(backStack) {
                 navController.getBackStackEntry(Screen.HomeGraph)
@@ -131,6 +134,9 @@ fun NavGraphBuilder.homeNavGraph(
                 overviewViewModel,
                 navigateToDayDetails = {
                     navController.navigate(Screen.HomeGraph.DayDetailsScreen)
+                },
+                navigateToEditTrip = {tripId->
+                    //navController.navigate(Screen.HomeGraph.CreateTripScreen(tripId))
                 },
                 navigateUp = {
                     navController.navigateUp()

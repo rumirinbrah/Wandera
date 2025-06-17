@@ -20,15 +20,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.zzz.core.presentation.nav.util.Screen
+import com.zzz.wandera.nav.util.Screen
 import com.zzz.core.presentation.theme_change.ChangeThemePage
 import com.zzz.wandera.nav.util.BottomNavBar
 import com.zzz.wandera.ui.ThemeState
-import com.zzz.wandera.ui.ThemeViewModel
 
 @Composable
 fun Navigation(

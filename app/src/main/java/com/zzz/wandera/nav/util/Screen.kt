@@ -1,4 +1,4 @@
-package com.zzz.core.presentation.nav.util
+package com.zzz.wandera.nav.util
 
 import kotlinx.serialization.Serializable
 
