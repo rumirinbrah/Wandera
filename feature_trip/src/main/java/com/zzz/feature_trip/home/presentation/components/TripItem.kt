@@ -46,7 +46,6 @@ fun TripItem(
         )
     )
     val dayImages = remember(tripWithDays.days) {
-        println("TripItem : calculating images")
         tripWithDays.days.map {
             it.image
         }

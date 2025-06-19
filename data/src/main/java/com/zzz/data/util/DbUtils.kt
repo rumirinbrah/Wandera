@@ -8,4 +8,6 @@ internal object DbUtils {
     const val TODO_LOCATION_TABLE_NAME = "todo_location_table"
     const val DOCUMENT_TABLE_NAME = "document_table"
     const val RECENT_TRIPS_TABLE_NAME = "recent_trips_table"
+
+    const val TRANSLATION_TABLE_NAME = "translation_table"
 }

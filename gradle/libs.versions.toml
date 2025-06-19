@@ -17,6 +17,9 @@ kspVersion = "2.0.21-1.0.27"
 coilCompose = "2.6.0"
 palette = "1.0.0"
 
+#google
+translateKit = "17.0.3"
+
 appcompat = "1.7.0"
 material = "1.12.0"
 
@@ -68,6 +71,8 @@ androidx-room-runtime = {group = "androidx.room" , name="room-runtime" , version
 androidx-room-ktx = {group = "androidx.room" , name="room-ktx",version.ref = "roomVersion"}
 androidx-room-compiler = {group = "androidx.room" , name = "room-compiler" , version.ref = "roomVersion"}
 
+#translate
+google-mlkit-translate = {group = "com.google.mlkit" , name = "translate" , version.ref = "translateKit"}
 
 
 [plugins]

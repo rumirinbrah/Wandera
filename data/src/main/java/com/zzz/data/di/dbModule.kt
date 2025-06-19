@@ -6,6 +6,8 @@ import com.zzz.data.db.repos.DaySourceImpl
 import com.zzz.data.db.repos.TodoSourceImpl
 import com.zzz.data.db.repos.TripSourceImpl
 import com.zzz.data.db.repos.UserDocSourceImpl
+import com.zzz.data.db.repos.translate.TranslateSourceImpl
+import com.zzz.data.translate.source.TranslateSource
 import com.zzz.data.trip.source.DaySource
 import com.zzz.data.trip.source.TodoSource
 import com.zzz.data.trip.source.TripSource
@@ -22,6 +24,8 @@ val dbModule = module {
             androidContext(),
             WanderaDatabase::class.java,
             DbUtils.DB_NAME
+        ).createFromAsset(
+            "database/wandera_db.db"
         ).build()
     }
 
@@ -50,6 +54,12 @@ val dbModule = module {
     single<UserDocSource> {
         val db = get<WanderaDatabase>()
         UserDocSourceImpl(userDocDao = db.userDocDao)
+    }
+
+    //======= TRANSLATE SRC =========
+    single<TranslateSource> {
+        val db = get<WanderaDatabase>()
+        TranslateSourceImpl(db.translateDao)
     }
 
 }

@@ -46,6 +46,9 @@ dependencies {
     implementation(libs.koin.androidx.compose)
     implementation(libs.koin.compose.viewmodel)
 
+    //translate
+    implementation(libs.google.mlkit.translate)
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -63,4 +66,5 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
 
     implementation(project(":core"))
+    implementation(project(":data"))
 }
