@@ -8,9 +8,12 @@ sealed class TranslateAction {
     }
 
     sealed class TranslatorAction : TranslateAction(){
+        data class ChangeSrcLanguage(val name : String,val modelCode: String) : TranslatorAction()
+        data class ChangeDestLanguage(val name: String,val modelCode: String) : TranslatorAction()
+        data object TranslateText : TranslatorAction()
+
         data object ClearResources : TranslatorAction()
         data class CreateTranslator(val source : String , val target : String) : TranslatorAction()
-        data class TranslateText(val text : String ) : TranslatorAction()
     }
 
 }

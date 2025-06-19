@@ -42,12 +42,13 @@ import com.zzz.core.presentation.buttons.CircularIconButton
 import com.zzz.core.presentation.buttons.IconTextButton
 import com.zzz.core.presentation.buttons.NormalButton
 import com.zzz.core.presentation.components.VerticalSpace
-import com.zzz.core.presentation.components.WanderaSnackbar
+import com.zzz.core.presentation.snackbar.WanderaSnackbar
 import com.zzz.core.presentation.dialogs.ConfirmActionDialog
 import com.zzz.core.presentation.dialogs.DateRangePickerDialog
 import com.zzz.core.presentation.dialogs.LoadingDialog
 import com.zzz.core.presentation.events.ObserveAsEvents
 import com.zzz.core.presentation.events.UIEvents
+import com.zzz.core.presentation.snackbar.showWanderaSnackbar
 import com.zzz.core.presentation.text_field.RoundedTextField
 import com.zzz.core.theme.WanderaTheme
 import com.zzz.data.trip.model.Day
@@ -118,17 +119,17 @@ private fun CreateTripPage(
         when(event){
             is UIEvents.Error -> {
                 scope.launch {
-                    snackbarState.showSnackbar(
+                    snackbarState.showWanderaSnackbar(
                         message = event.errorMsg,
-                        actionLabel = "Dismiss",
-                        duration = SnackbarDuration.Short
                     )
+
                 }
             }
             UIEvents.Success -> {
                 //Toast.makeText(context , "Saved!" , Toast.LENGTH_SHORT).show()
                 navigateUp()
             }
+            else->{}
         }
     }
     BackHandler {

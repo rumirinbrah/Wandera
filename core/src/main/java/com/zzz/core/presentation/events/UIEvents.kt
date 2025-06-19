@@ -6,4 +6,6 @@ sealed interface UIEvents {
 
     data object Success : UIEvents
 
+    data class SuccessWithMsg(val msg : String) : UIEvents
+
 }

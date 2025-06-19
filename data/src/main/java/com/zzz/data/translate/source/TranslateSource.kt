@@ -7,7 +7,7 @@ interface TranslateSource {
 
     suspend fun addModel(model: TranslationModel) : Long
 
-    suspend fun updateModel(model: TranslationModel)
+    suspend fun updateModelStatus(modelCode: String, downloaded : Boolean)
 
     suspend fun deleteModel(modelCode : String)
 

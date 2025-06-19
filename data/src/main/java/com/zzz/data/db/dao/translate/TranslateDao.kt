@@ -18,12 +18,15 @@ abstract class TranslateDao {
     @Update
     abstract suspend fun updateModel(model: TranslationModel)
 
+    @Query("update translation_table set downloaded = :downloaded where languageCode = :modelCode")
+    abstract suspend fun updateModelStatus(modelCode: String , downloaded : Boolean)
+
     //delete
     @Query("delete from translation_table where languageCode = :modelCode")
     abstract suspend fun deleteModel(modelCode: String)
 
     //get
-    @Query("select * from translation_table")
+    @Query("select * from translation_table order by name ASC")
     abstract fun getModels(): Flow<List<TranslationModel>>
 
 

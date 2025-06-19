@@ -25,3 +25,8 @@ val light = Color(0xFFFFFFFF)
 val nightSky = Color(0xFF322838)
 val daySky = Color(0xFF5A93BC)
 
+val successGreen = Color(0xFF77B678)
+val failureRed = Color(0xFFD95C54)
+
+
+

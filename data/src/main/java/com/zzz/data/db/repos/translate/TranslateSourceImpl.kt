@@ -13,8 +13,8 @@ internal class TranslateSourceImpl(
         return dao.addModel(model)
     }
 
-    override suspend fun updateModel(model: TranslationModel) {
-        dao.updateModel(model)
+    override suspend fun updateModelStatus(modelCode: String , downloaded: Boolean) {
+        dao.updateModelStatus(modelCode,downloaded)
     }
 
     override suspend fun deleteModel(modelCode: String) {

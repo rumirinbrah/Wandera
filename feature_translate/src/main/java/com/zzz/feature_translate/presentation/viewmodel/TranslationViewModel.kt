@@ -24,6 +24,10 @@ class TranslationViewModel(
     private val _models = MutableStateFlow<List<TranslationModel>>(emptyList())
     val models = _models.asStateFlow()
 
+    private val _state = MutableStateFlow(TranslateState())
+    val state = _state.asStateFlow()
+
+
     private val _events = Channel<UIEvents>()
     val events = _events.receiveAsFlow()
 
@@ -38,7 +42,16 @@ class TranslationViewModel(
                 when(action){
                     TranslateAction.TranslatorAction.ClearResources -> TODO()
                     is TranslateAction.TranslatorAction.CreateTranslator -> TODO()
-                    is TranslateAction.TranslatorAction.TranslateText -> TODO()
+                    is TranslateAction.TranslatorAction.TranslateText -> {
+                        translate()
+                    }
+
+                    is TranslateAction.TranslatorAction.ChangeDestLanguage -> {
+                        changeDestLang(action.name,action.modelCode)
+                    }
+                    is TranslateAction.TranslatorAction.ChangeSrcLanguage -> {
+                        changeSrcLang(action.name,action.modelCode)
+                    }
                 }
             }
             is TranslateAction.ManagerAction->{
@@ -66,24 +79,84 @@ class TranslationViewModel(
         }
     }
 
+    private fun translate(){
+        viewModelScope.launch {
+            translationManager.createTranslator("en","af")
+            val result = translationManager.translateText(_state.value.sourceText)
+            println(result)
+        }
+    }
+    private fun changeDestLang(name : String, code : String){
+        viewModelScope.launch {
+            _state.update {
+                it.copy(
+                    destLanguage = name,
+                    destLanguageCode = code
+                )
+            }
+        }
+    }
+    private fun changeSrcLang(name : String, code : String){
+        viewModelScope.launch {
+            _state.update {
+                it.copy(
+                    srcLanguage = name,
+                    srcLanguageCode = code
+                )
+            }
+        }
+    }
+
     private fun downloadModel(modelCode : String){
         viewModelScope.launch {
             try {
+                _state.update {
+                    it.copy(downloading = true)
+                }
                 translationManager.downloadModel(modelCode)
-                _events.send(UIEvents.Success)
+
+                //set model true in db
+                dataSource.updateModelStatus(modelCode,true)
+
+
+                _state.update {
+                    it.copy(downloading = false)
+                }
+                _events.send(UIEvents.SuccessWithMsg("Model has been downloaded successfully!"))
+
             }catch (e : Exception){
                 //errur
+                _state.update {
+                    it.copy(downloading = false)
+                }
                 _events.send(UIEvents.Error(e.message ?:"An unknown error occurred downloading model"))
             }
         }
     }
     private fun deleteModel(modelCode: String){
+        if(_state.value.deleting){
+            return
+        }
         viewModelScope.launch {
             try {
+                _state.update {
+                    it.copy(deleting = true)
+                }
                 translationManager.deleteModel(modelCode)
-                _events.send(UIEvents.Success)
+
+                //set model true in db
+                dataSource.updateModelStatus(modelCode,false)
+
+
+                _state.update {
+                    it.copy(deleting = false)
+                }
+                _events.send(UIEvents.SuccessWithMsg("Model has been deleted successfully!"))
             }catch (e : Exception){
                 //errur
+                _state.update {
+                    it.copy(deleting = false)
+                }
                 _events.send(UIEvents.Error(e.message ?:"An unknown error occurred deleting model"))
             }
         }

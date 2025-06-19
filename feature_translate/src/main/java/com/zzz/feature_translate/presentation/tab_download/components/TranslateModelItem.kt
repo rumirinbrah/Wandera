@@ -28,8 +28,9 @@ import com.zzz.data.translate.model.TranslationModel
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun TranslateModelItem(
-    model: TranslationModel,
-    onLongClick :(modelCode : String)->Unit,
+    model: TranslationModel ,
+    onLongClick :(modelCode : String)->Unit ,
+    onDownloadModel :(modelCode : String) ->Unit ,
     modifier: Modifier = Modifier
 ) {
     val fontWeight = remember(model.downloaded) {
@@ -71,7 +72,7 @@ internal fun TranslateModelItem(
 
         IconButton(
             onClick = {
-
+                onDownloadModel(model.languageCode)
             },
             enabled = !model.downloaded
         ) {
@@ -79,7 +80,7 @@ internal fun TranslateModelItem(
                 painter = painterResource(icon) ,
                 contentDescription = if(model.downloaded) "Delete ${model.name}" else "download ${model.name}",
                 tint = if(model.downloaded){
-                    Color.Green
+                    Color(0xFF51B955)
                 }else{
                     MaterialTheme.colorScheme.onBackground
                 }

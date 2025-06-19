@@ -58,6 +58,7 @@ class TranslationManager {
         languageCode: String ,
     ) = suspendCancellableCoroutine<Unit> { continuation ->
         val newModel = TranslateRemoteModel.Builder(languageCode).build()
+
         //check if already downloaded
         modelManager.isModelDownloaded(newModel).addOnSuccessListener { downloaded ->
             if (downloaded) {
@@ -67,6 +68,8 @@ class TranslationManager {
                 continuation.resume(Unit)
             }
         }
+
+
         log {
             "Downloading model $languageCode..."
         }
@@ -75,9 +78,15 @@ class TranslationManager {
 
         modelManager.download(newModel , conditions)
             .addOnFailureListener {
+                log {
+                    "Failed to download $languageCode..."
+                }
                 continuation.resumeWithException(it)
             }
             .addOnSuccessListener {
+                log {
+                    "Downloaded $languageCode..."
+                }
                 continuation.resume(Unit)
             }
     }
@@ -92,9 +101,15 @@ class TranslationManager {
         val model = TranslateRemoteModel.Builder(languageCode).build()
         modelManager.deleteDownloadedModel(model)
             .addOnSuccessListener {
+                log {
+                    "Deleted $languageCode..."
+                }
                 continuation.resume(Unit)
             }
             .addOnFailureListener {
+                log {
+                    "Failed to delete $languageCode..."
+                }
                 continuation.resumeWithException(it)
             }
     }
