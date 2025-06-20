@@ -27,6 +27,9 @@ class TranslationViewModel(
     private val _state = MutableStateFlow(TranslateState())
     val state = _state.asStateFlow()
 
+    //we use this to make sure we dont initialize translator multiple times for same ip op lang
+    private var sessionOngoing : Boolean = false
+
 
     private val _events = Channel<UIEvents>()
     val events = _events.receiveAsFlow()
@@ -64,6 +67,13 @@ class TranslationViewModel(
                     }
                 }
             }
+            is TranslateAction.OnTextChange ->{
+                onTextChange(action.value)
+            }
+
+            TranslateAction.OnClearText -> {
+                onClearText()
+            }
         }
     }
 
@@ -79,15 +89,60 @@ class TranslationViewModel(
         }
     }
 
+    //---------- TRANSLATOR -----------
+
     private fun translate(){
         viewModelScope.launch {
-            translationManager.createTranslator("en","af")
-            val result = translationManager.translateText(_state.value.sourceText)
-            println(result)
+            if(!validateTranslatorInput()){
+                _events.send(UIEvents.Error("Please select valid translate methods!"))
+                return@launch
+            }
+            _state.update {
+                it.copy(translating = true)
+            }
+            createTranslator()
+            try {
+                val result = translationManager.translateText(_state.value.sourceText)
+                _state.update {
+                    it.copy(
+                        translating =false,
+                        translatedText = result
+                    )
+                }
+                println(result)
+            }catch (e : Exception){
+                _state.update {
+                    it.copy(translating = false)
+                }
+                _events.send(UIEvents.Error(e.message ?:"An unknown error occurred while translating"))
+            }
+
         }
     }
+    //translator init
+    private fun createTranslator(){
+        if(!sessionOngoing){
+            translationManager.createTranslator(
+                _state.value.srcLanguageCode!! ,
+                _state.value.destLanguageCode!!
+            )
+            sessionOngoing = true
+        }
+    }
+
+    private fun validateTranslatorInput():Boolean{
+        val value = _state.value
+        if(value.srcLanguageCode == null || value.destLanguageCode == null){
+            return false
+        }
+        return true
+    }
+
+    //change dest
     private fun changeDestLang(name : String, code : String){
         viewModelScope.launch {
+            sessionOngoing = false
+
             _state.update {
                 it.copy(
                     destLanguage = name,
@@ -96,8 +151,11 @@ class TranslationViewModel(
             }
         }
     }
+    //change ip
     private fun changeSrcLang(name : String, code : String){
         viewModelScope.launch {
+            sessionOngoing = false
+
             _state.update {
                 it.copy(
                     srcLanguage = name,
@@ -106,7 +164,27 @@ class TranslationViewModel(
             }
         }
     }
+    // text field
+    private fun onTextChange(value: String){
+        viewModelScope.launch {
+            _state.update {
+                it.copy(sourceText = value)
+            }
+        }
+    }
 
+    private fun onClearText(){
+        viewModelScope.launch {
+            _state.update {
+                it.copy(
+                    sourceText = "",
+                    translatedText = ""
+                )
+            }
+        }
+    }
+
+    //---------- MANAGER -----------
     private fun downloadModel(modelCode : String){
         viewModelScope.launch {
             try {
@@ -144,7 +222,7 @@ class TranslationViewModel(
                 }
                 translationManager.deleteModel(modelCode)
 
-                //set model true in db
+                //set model false in db
                 dataSource.updateModelStatus(modelCode,false)
 
 

@@ -1,5 +1,7 @@
 package com.zzz.feature_translate.presentation.tab_translate.components
 
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -29,8 +31,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.zzz.data.translate.model.TranslationModel
 import kotlin.math.exp
@@ -44,6 +48,10 @@ fun DropDownList(
     modifier: Modifier = Modifier
 ) {
     var expanded by remember { mutableStateOf(false) }
+    val rotation = animateFloatAsState(
+        targetValue = if(expanded) 180f else 0f,
+    )
+
     var menuWidth by remember {
         mutableStateOf(0.dp)
     }
@@ -71,11 +79,18 @@ fun DropDownList(
                 } ,
             horizontalArrangement = Arrangement.Center
         ) {
-            Text("$titleInitial $title")
+            Text(
+                "$titleInitial $title",
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
             Icon(
                 imageVector = Icons.Default.ArrowDropDown ,
                 contentDescription = "Open menu to select source language" ,
-                tint = MaterialTheme.colorScheme.onBackground
+                tint = MaterialTheme.colorScheme.onBackground,
+                modifier = Modifier.graphicsLayer {
+                    rotationZ = rotation.value
+                }
             )
 
         }

@@ -8,7 +8,7 @@ data class TranslateState(
     val sourceText : String = "" ,
     val translatedText : String = "" ,
     val srcLanguage : String = "" ,
-    val srcLanguageCode : String = "" ,
+    val srcLanguageCode : String? = null ,
     val destLanguage : String = "" ,
-    val destLanguageCode : String = "" ,
+    val destLanguageCode : String? = null ,
 )

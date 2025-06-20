@@ -28,8 +28,9 @@ fun ElevatedIconTextButton(
     @DrawableRes icon: Int ,
     text: String ,
     onClick: () -> Unit ,
+    iconSize : Dp = 25.dp,
+    enabled : Boolean = true,
     modifier: Modifier = Modifier ,
-    iconSize : Dp = 25.dp
 ) {
     Row (
         modifier = modifier
@@ -40,9 +41,10 @@ fun ElevatedIconTextButton(
                 MaterialTheme.colorScheme.onBackground,
                 RoundedCornerShape(50)
             )
-            .clickable {
-                onClick()
-            }
+            .clickable(
+                enabled = enabled,
+                onClick = onClick
+            )
             .padding(vertical = 8.dp , horizontal = 16.dp) ,
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(4.dp)

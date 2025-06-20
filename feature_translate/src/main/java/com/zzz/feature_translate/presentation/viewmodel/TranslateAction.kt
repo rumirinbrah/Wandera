@@ -16,4 +16,7 @@ sealed class TranslateAction {
         data class CreateTranslator(val source : String , val target : String) : TranslatorAction()
     }
 
+    data class OnTextChange(val value :String) : TranslateAction()
+    data object OnClearText : TranslateAction()
+
 }

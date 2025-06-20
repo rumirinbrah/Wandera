@@ -1,17 +1,29 @@
 package com.zzz.feature_translate.presentation.tab_translate
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.selection.SelectionContainer
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.zzz.core.presentation.buttons.ElevatedIconTextButton
+import com.zzz.core.presentation.text_field.RoundedTextField
 import com.zzz.data.translate.model.TranslationModel
+import com.zzz.feature_translate.R
 import com.zzz.feature_translate.presentation.tab_translate.components.DropDownList
 import com.zzz.feature_translate.presentation.viewmodel.TranslateAction
 import com.zzz.feature_translate.presentation.viewmodel.TranslateState
@@ -47,12 +59,14 @@ fun TranslateTextPage(
     Column(
         modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Text(
             "Powered by Google",
             modifier = Modifier.align(Alignment.CenterHorizontally)
             )
+        //drop downs
         Row(
             Modifier.align(Alignment.CenterHorizontally),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -76,5 +90,48 @@ fun TranslateTextPage(
                 modifier = Modifier.weight(1f)
             )
         }
+        RoundedTextField(
+            value = state.sourceText,
+            onValueChange = {
+                onAction(TranslateAction.OnTextChange(it))
+            },
+            shape = RectangleShape,
+            placeholder = "Type something...",
+            modifier = Modifier.fillMaxWidth()
+                .heightIn(min= 100.dp, max = 300.dp)
+        )
+        Row (
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+            modifier = Modifier.align(Alignment.CenterHorizontally)
+        ){
+            ElevatedIconTextButton(
+                icon = com.zzz.core.R.drawable.close ,
+                text = "Clear" ,
+                onClick = {
+                    onAction(TranslateAction.OnClearText)
+                }
+            )
+            ElevatedIconTextButton(
+                icon = com.zzz.core.R.drawable.translate_nav ,
+                text = "Translate" ,
+                onClick = {
+                    onAction(TranslateAction.TranslatorAction.TranslateText)
+                }
+            )
+        }
+        SelectionContainer {
+            Box(
+                Modifier.fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.surfaceContainer)
+                    .padding(8.dp)
+            ){
+                Text(
+                    state.translatedText,
+                    fontSize = 16.sp
+                )
+            }
+
+        }
+
     }
 }
