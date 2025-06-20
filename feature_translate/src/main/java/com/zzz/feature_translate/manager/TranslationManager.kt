@@ -7,7 +7,10 @@ import com.google.mlkit.nl.translate.TranslateRemoteModel
 import com.google.mlkit.nl.translate.Translation
 import com.google.mlkit.nl.translate.Translator
 import com.google.mlkit.nl.translate.TranslatorOptions
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withContext
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
@@ -57,6 +60,8 @@ class TranslationManager {
     suspend fun downloadModel(
         languageCode: String ,
     ) = suspendCancellableCoroutine<Unit> { continuation ->
+
+
         val newModel = TranslateRemoteModel.Builder(languageCode).build()
 
         //check if already downloaded
@@ -66,29 +71,29 @@ class TranslationManager {
                     "Model $languageCode already downloaded!"
                 }
                 continuation.resume(Unit)
+            }else{
+                log {
+                    "Downloading model $languageCode..."
+                }
+                val conditions = DownloadConditions.Builder()
+                    .requireWifi().build()
+
+                modelManager.download(newModel , conditions)
+                    .addOnFailureListener {
+                        log {
+                            "Failed to download $languageCode..."
+                        }
+                        continuation.resumeWithException(it)
+                    }
+                    .addOnSuccessListener {
+                        log {
+                            "Downloaded $languageCode..."
+                        }
+                        continuation.resume(Unit)
+                    }
             }
         }
 
-
-        log {
-            "Downloading model $languageCode..."
-        }
-        val conditions = DownloadConditions.Builder()
-            .requireWifi().build()
-
-        modelManager.download(newModel , conditions)
-            .addOnFailureListener {
-                log {
-                    "Failed to download $languageCode..."
-                }
-                continuation.resumeWithException(it)
-            }
-            .addOnSuccessListener {
-                log {
-                    "Downloaded $languageCode..."
-                }
-                continuation.resume(Unit)
-            }
     }
 
     //delete

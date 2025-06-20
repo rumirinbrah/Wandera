@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.zzz.core.presentation.events.UIEvents
 import com.zzz.data.translate.model.TranslationModel
 import com.zzz.data.translate.source.TranslateSource
+import com.zzz.feature_translate.data.local.TranslatePreferences
 import com.zzz.feature_translate.manager.TranslationManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
@@ -18,7 +19,8 @@ import kotlinx.coroutines.launch
 
 class TranslationViewModel(
     private val dataSource : TranslateSource,
-    private val translationManager: TranslationManager
+    private val translationManager: TranslationManager,
+    private val translatePreferences: TranslatePreferences
 ) :ViewModel(){
 
     private val _models = MutableStateFlow<List<TranslationModel>>(emptyList())
@@ -36,6 +38,11 @@ class TranslationViewModel(
 
     init {
         Log.d("translateVm" , "TranslationViewModel init...")
+        _state.update {
+            it.copy(
+                isFirstTime = translatePreferences.getFirstTime()
+            )
+        }
         collectModels()
     }
 
@@ -59,12 +66,16 @@ class TranslationViewModel(
             }
             is TranslateAction.ManagerAction->{
                 when(action){
-                    is TranslateAction.ManagerAction.DeleteModel -> {
-                        deleteModel(action.modelCode)
+                    is TranslateAction.ManagerAction.SetModelToDelete -> {
+                        setModelToDelete(action.modelCode , action.name)
+                    }
+                    TranslateAction.ManagerAction.DeleteModel -> {
+                        deleteModel()
                     }
                     is TranslateAction.ManagerAction.DownloadModel -> {
                         downloadModel(action.modelCode)
                     }
+
                 }
             }
             is TranslateAction.OnTextChange ->{
@@ -211,7 +222,17 @@ class TranslationViewModel(
             }
         }
     }
-    private fun deleteModel(modelCode: String){
+    private fun setModelToDelete(modelCode: String , name: String){
+        viewModelScope.launch {
+            _state.update {
+                it.copy(
+                    modelToDeleteCode =modelCode ,
+                    modelToDelete =  name
+                )
+            }
+        }
+    }
+    private fun deleteModel(){
         if(_state.value.deleting){
             return
         }
@@ -220,6 +241,7 @@ class TranslationViewModel(
                 _state.update {
                     it.copy(deleting = true)
                 }
+                val modelCode = _state.value.modelToDeleteCode ?: return@launch
                 translationManager.deleteModel(modelCode)
 
                 //set model false in db

@@ -1,5 +1,6 @@
 package com.zzz.feature_translate.presentation.viewmodel
 
+
 data class TranslateState(
     val downloading : Boolean = false ,
     val deleting : Boolean = false ,
@@ -11,4 +12,7 @@ data class TranslateState(
     val srcLanguageCode : String? = null ,
     val destLanguage : String = "" ,
     val destLanguageCode : String? = null ,
+    val modelToDelete : String? = null,
+    val modelToDeleteCode : String? = null,
+    val isFirstTime : Boolean = false
 )

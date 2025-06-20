@@ -1,5 +1,6 @@
 package com.zzz.feature_translate.presentation.tab_translate
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -17,10 +18,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.zzz.core.presentation.buttons.ElevatedIconTextButton
+import com.zzz.core.presentation.components.VerticalSpace
 import com.zzz.core.presentation.text_field.RoundedTextField
 import com.zzz.data.translate.model.TranslationModel
 import com.zzz.feature_translate.R
@@ -31,82 +34,67 @@ import com.zzz.feature_translate.presentation.viewmodel.TranslateState
 @Composable
 fun TranslateTextPage(
     state: TranslateState ,
-    models : List<TranslationModel>,
+    models: List<TranslationModel> ,
     onAction: (TranslateAction) -> Unit ,
     modifier: Modifier = Modifier
 ) {
-    val tempList = remember {
-        listOf(
-            TranslationModel(
-                languageCode = "en",
-                name = "English"
-            ),
-            TranslationModel(
-                languageCode = "jp",
-                name = "Japan"
-            ),
-            TranslationModel(
-                languageCode = "hn",
-                name = "Hindi"
-            ),
-            TranslationModel(
-                languageCode = "ru",
-                name = "Ruski"
-            )
-        )
+    val availableModels = remember(models) {
+        models.filter { it.downloaded }
     }
 
     Column(
         modifier
             .fillMaxSize()
-            .padding(16.dp),
+            .padding(16.dp) ,
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Text(
-            "Powered by Google",
+            "Powered by Google" ,
             modifier = Modifier.align(Alignment.CenterHorizontally)
-            )
+        )
         //drop downs
         Row(
-            Modifier.align(Alignment.CenterHorizontally),
+            Modifier.align(Alignment.CenterHorizontally) ,
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             DropDownList(
-                titleInitial = "From",
-                title = state.srcLanguage,
-                items = tempList,
-                onClick = {name, modelCode ->
-                    onAction(TranslateAction.TranslatorAction.ChangeSrcLanguage(name, modelCode))
-                },
+                titleInitial = "From" ,
+                title = state.srcLanguage ,
+                items = availableModels ,
+                onClick = { name , modelCode ->
+                    onAction(TranslateAction.TranslatorAction.ChangeSrcLanguage(name , modelCode))
+                } ,
                 modifier = Modifier.weight(1f)
             )
             DropDownList(
-                titleInitial = "To",
-                title = state.destLanguage,
-                items = tempList,
-                onClick = {name, modelCode ->
-                    onAction(TranslateAction.TranslatorAction.ChangeDestLanguage(name, modelCode))
-                },
+                titleInitial = "To" ,
+                title = state.destLanguage ,
+                items = availableModels ,
+                onClick = { name , modelCode ->
+                    onAction(TranslateAction.TranslatorAction.ChangeDestLanguage(name , modelCode))
+                } ,
                 modifier = Modifier.weight(1f)
             )
         }
         RoundedTextField(
-            value = state.sourceText,
+            value = state.sourceText ,
             onValueChange = {
                 onAction(TranslateAction.OnTextChange(it))
-            },
-            shape = RectangleShape,
-            placeholder = "Type something...",
-            modifier = Modifier.fillMaxWidth()
-                .heightIn(min= 100.dp, max = 300.dp)
+            } ,
+            shape = RectangleShape ,
+            placeholder = "Type something..." ,
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(min = 100.dp , max = 300.dp)
         )
-        Row (
-            horizontalArrangement = Arrangement.spacedBy(4.dp),
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(4.dp) ,
             modifier = Modifier.align(Alignment.CenterHorizontally)
-        ){
+        ) {
             ElevatedIconTextButton(
                 icon = com.zzz.core.R.drawable.close ,
                 text = "Clear" ,
+                enabled = !state.translating,
                 onClick = {
                     onAction(TranslateAction.OnClearText)
                 }
@@ -114,19 +102,33 @@ fun TranslateTextPage(
             ElevatedIconTextButton(
                 icon = com.zzz.core.R.drawable.translate_nav ,
                 text = "Translate" ,
+                enabled = !state.translating,
                 onClick = {
                     onAction(TranslateAction.TranslatorAction.TranslateText)
                 }
             )
         }
+        AnimatedVisibility(
+            state.translating,
+            modifier = Modifier.align(Alignment.CenterHorizontally)
+        ) {
+            Text(
+                "Translating please wait...",
+                color = MaterialTheme.colorScheme.onBackground.copy(0.7f)
+            )
+        }
+        VerticalSpace(10.dp)
         SelectionContainer {
             Box(
-                Modifier.fillMaxWidth()
+                Modifier.clip(MaterialTheme.shapes.medium)
+                    .fillMaxWidth()
                     .background(MaterialTheme.colorScheme.surfaceContainer)
                     .padding(8.dp)
-            ){
+            ) {
                 Text(
-                    state.translatedText,
+                    text = state.translatedText.ifEmpty {
+                        "Translated text will appear here..."
+                    } ,
                     fontSize = 16.sp
                 )
             }

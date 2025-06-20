@@ -29,7 +29,7 @@ import com.zzz.data.translate.model.TranslationModel
 @Composable
 internal fun TranslateModelItem(
     model: TranslationModel ,
-    onLongClick :(modelCode : String)->Unit ,
+    onLongClick :(modelCode : String, name : String)->Unit ,
     onDownloadModel :(modelCode : String) ->Unit ,
     modifier: Modifier = Modifier
 ) {
@@ -55,7 +55,7 @@ internal fun TranslateModelItem(
                 enabled = model.downloaded,
                 onClick = {},
                 onLongClick = {
-                    onLongClick(model.languageCode)
+                    onLongClick(model.languageCode , model.name)
                 },
                 onLongClickLabel = "Delete ${model.name}"
             )

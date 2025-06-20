@@ -45,7 +45,7 @@ fun ConfirmActionDialog(
     ) {
         Column(
             modifier
-                .clip(Shapes().large)
+                .clip(MaterialTheme.shapes.large)
                 .fillMaxWidth()
                 .background(MaterialTheme.colorScheme.surface)
                 .padding(16.dp) ,

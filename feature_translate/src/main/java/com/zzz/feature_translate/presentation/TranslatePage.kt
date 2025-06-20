@@ -16,8 +16,10 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -33,6 +35,7 @@ import com.zzz.core.theme.successGreen
 import com.zzz.data.translate.model.TranslationModel
 import com.zzz.feature_translate.presentation.components.TranslateTabRow
 import com.zzz.feature_translate.presentation.tab_download.DownloadModelPage
+import com.zzz.feature_translate.presentation.tab_download.components.FirstTimeInstructions
 import com.zzz.feature_translate.presentation.tab_translate.TranslateTextPage
 import com.zzz.feature_translate.presentation.viewmodel.TranslateAction
 import com.zzz.feature_translate.presentation.viewmodel.TranslateState
@@ -76,6 +79,7 @@ private fun TranslateHome(
     val pagerState = rememberPagerState {
         2
     }
+    var firstTime by remember { mutableStateOf(true) }
 
 
 
@@ -154,6 +158,12 @@ private fun TranslateHome(
         ){
             WanderaSnackbar(
                 it
+            )
+        }
+        if(firstTime){
+            FirstTimeInstructions(
+                onFinish = {firstTime = false},
+                modifier = Modifier.align(Alignment.Center)
             )
         }
     }//box
