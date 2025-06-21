@@ -26,6 +26,8 @@ import com.zzz.core.theme.WanderaTheme
 
 /**
  * @author zyzz
+ * @param title - Text in the dialog
+ * @param actionText - Text for the button that will perform required action
  */
 @Composable
 fun ConfirmActionDialog(

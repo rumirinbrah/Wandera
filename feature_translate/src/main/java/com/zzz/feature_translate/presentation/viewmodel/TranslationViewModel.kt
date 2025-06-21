@@ -175,7 +175,8 @@ class TranslationViewModel(
             }
         }
     }
-    // text field
+
+    // ---text field----
     private fun onTextChange(value: String){
         viewModelScope.launch {
             _state.update {
@@ -183,13 +184,29 @@ class TranslationViewModel(
             }
         }
     }
-
     private fun onClearText(){
         viewModelScope.launch {
             _state.update {
                 it.copy(
                     sourceText = "",
                     translatedText = ""
+                )
+            }
+        }
+    }
+
+
+    //clears input methods, src, translated text
+    private fun resetTranslateTabState(){
+        viewModelScope.launch {
+            _state.update {
+                it.copy(
+                    srcLanguage ="",
+                    srcLanguageCode = null,
+                    destLanguage = "",
+                    destLanguageCode = null,
+                    translatedText = "",
+                    sourceText = ""
                 )
             }
         }
@@ -222,7 +239,7 @@ class TranslationViewModel(
             }
         }
     }
-    private fun setModelToDelete(modelCode: String , name: String){
+    private fun setModelToDelete(modelCode: String? , name: String?){
         viewModelScope.launch {
             _state.update {
                 it.copy(
@@ -237,11 +254,15 @@ class TranslationViewModel(
             return
         }
         viewModelScope.launch {
+            if(_state.value.modelToDelete == null ||_state.value.modelToDeleteCode==null ){
+                _events.send(UIEvents.Error("Failed to delete, No model selected!"))
+                return@launch
+            }
             try {
                 _state.update {
                     it.copy(deleting = true)
                 }
-                val modelCode = _state.value.modelToDeleteCode ?: return@launch
+                val modelCode = _state.value.modelToDeleteCode!!
                 translationManager.deleteModel(modelCode)
 
                 //set model false in db
@@ -249,13 +270,22 @@ class TranslationViewModel(
 
 
                 _state.update {
-                    it.copy(deleting = false)
+                    it.copy(
+                        deleting = false,
+                        modelToDelete = null,
+                        modelToDeleteCode = null
+                    )
                 }
+                resetTranslateTabState()
                 _events.send(UIEvents.SuccessWithMsg("Model has been deleted successfully!"))
             }catch (e : Exception){
                 //errur
                 _state.update {
-                    it.copy(deleting = false)
+                    it.copy(
+                        deleting = false,
+                        modelToDelete = null,
+                        modelToDeleteCode = null
+                    )
                 }
                 _events.send(UIEvents.Error(e.message ?:"An unknown error occurred deleting model"))
             }

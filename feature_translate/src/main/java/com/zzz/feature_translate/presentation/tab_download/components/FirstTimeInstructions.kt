@@ -15,16 +15,15 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.drawscope.draw
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
@@ -49,13 +48,24 @@ fun FirstTimeInstructions(
     val scope = rememberCoroutineScope()
 
     val curveColor = MaterialTheme.colorScheme.primary.copy(0.5f)
+    val color1 = MaterialTheme.colorScheme.surface
+    val color2 = MaterialTheme.colorScheme.primaryContainer
+
+    val backgroundBrush = remember {
+        Brush.linearGradient(
+            listOf(
+                color2 ,
+                color1
+            )
+        )
+    }
 
     Column(
         modifier
             .padding(16.dp)
             .clip(MaterialTheme.shapes.large)
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.surface)
+            .background(backgroundBrush)
             .drawWithContent {
                 drawContent()
                 val path = Path().apply {
