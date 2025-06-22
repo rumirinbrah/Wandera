@@ -1,5 +1,6 @@
 package com.zzz.wandera.di
 
+import com.zzz.core.presentation.permission.PermissionViewModel
 import com.zzz.wandera.data.local.ThemePreferences
 import com.zzz.wandera.ui.ThemeViewModel
 import org.koin.android.ext.koin.androidContext
@@ -14,5 +15,8 @@ val appModule = module {
         ThemeViewModel(
             themePreferences = get()
         )
+    }
+    viewModel {
+        PermissionViewModel()
     }
 }

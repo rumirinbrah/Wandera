@@ -3,6 +3,7 @@ package com.zzz.feature_translate.presentation.viewmodel
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.zzz.core.platform.notification.WanderaNotification
 import com.zzz.core.presentation.events.UIEvents
 import com.zzz.data.translate.model.TranslationModel
 import com.zzz.data.translate.source.TranslateSource
@@ -20,7 +21,8 @@ import kotlinx.coroutines.launch
 class TranslationViewModel(
     private val dataSource : TranslateSource,
     private val translationManager: TranslationManager,
-    private val translatePreferences: TranslatePreferences
+    private val translatePreferences: TranslatePreferences,
+    private val wanderaNotification: WanderaNotification
 ) :ViewModel(){
 
     private val _models = MutableStateFlow<List<TranslationModel>>(emptyList())
@@ -73,7 +75,7 @@ class TranslationViewModel(
                         deleteModel()
                     }
                     is TranslateAction.ManagerAction.DownloadModel -> {
-                        downloadModel(action.modelCode)
+                        downloadModel(action.modelCode,action.name)
                     }
 
                 }
@@ -88,6 +90,9 @@ class TranslationViewModel(
         }
     }
 
+    fun test(){
+        wanderaNotification.sendDownloadFinishedNotification("HEYYY")
+    }
     private fun collectModels(){
         viewModelScope.launch {
             dataSource.getModels()
@@ -213,12 +218,15 @@ class TranslationViewModel(
     }
 
     //---------- MANAGER -----------
-    private fun downloadModel(modelCode : String){
+    private fun downloadModel(modelCode : String , name: String){
         viewModelScope.launch {
             try {
                 _state.update {
                     it.copy(downloading = true)
                 }
+                wanderaNotification.sendDownloadNotification(name)
+                _events.send(UIEvents.SuccessWithMsg("$name model is being downloaded, feel free to switch to other apps in the meantime!"))
+
                 translationManager.downloadModel(modelCode)
 
                 //set model true in db
@@ -228,6 +236,10 @@ class TranslationViewModel(
                 _state.update {
                     it.copy(downloading = false)
                 }
+
+                wanderaNotification.cancelDownloadingNotification()
+                wanderaNotification.sendDownloadFinishedNotification(name)
+
                 _events.send(UIEvents.SuccessWithMsg("Model has been downloaded successfully!"))
 
             }catch (e : Exception){
@@ -235,6 +247,7 @@ class TranslationViewModel(
                 _state.update {
                     it.copy(downloading = false)
                 }
+                wanderaNotification.cancelAll()
                 _events.send(UIEvents.Error(e.message ?:"An unknown error occurred downloading model"))
             }
         }

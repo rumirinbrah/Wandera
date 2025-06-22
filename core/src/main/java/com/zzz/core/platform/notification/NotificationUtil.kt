@@ -1,4 +1,4 @@
-package com.zzz.core.platform
+package com.zzz.core.platform.notification
 
 object NotificationUtil {
 

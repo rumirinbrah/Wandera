@@ -3,7 +3,7 @@ package com.zzz.feature_translate.presentation.viewmodel
 sealed class TranslateAction {
 
     sealed class ManagerAction : TranslateAction(){
-        data class DownloadModel(val modelCode :String) : ManagerAction()
+        data class DownloadModel(val modelCode :String, val name: String) : ManagerAction()
         data class SetModelToDelete(val modelCode :String?,val name :String?) : ManagerAction()
 
         data object DeleteModel : ManagerAction()

@@ -137,7 +137,7 @@ private fun TranslateHome(
                         DownloadModelPage(
                             state = state,
                             models,
-                            onAction = onAction
+                            onAction = onAction,
                         )
                     }
 

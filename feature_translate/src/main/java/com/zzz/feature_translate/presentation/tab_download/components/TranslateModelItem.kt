@@ -30,7 +30,7 @@ import com.zzz.data.translate.model.TranslationModel
 internal fun TranslateModelItem(
     model: TranslationModel ,
     onLongClick :(modelCode : String, name : String)->Unit ,
-    onDownloadModel :(modelCode : String) ->Unit ,
+    onDownloadModel :(modelCode : String, name : String) ->Unit ,
     modifier: Modifier = Modifier
 ) {
     val fontWeight = remember(model.downloaded) {
@@ -72,7 +72,7 @@ internal fun TranslateModelItem(
 
         IconButton(
             onClick = {
-                onDownloadModel(model.languageCode)
+                onDownloadModel(model.languageCode, model.name)
             },
             enabled = !model.downloaded
         ) {
