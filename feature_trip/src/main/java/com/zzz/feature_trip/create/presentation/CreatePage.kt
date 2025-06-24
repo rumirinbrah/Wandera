@@ -17,7 +17,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -42,12 +41,12 @@ import com.zzz.core.presentation.buttons.CircularIconButton
 import com.zzz.core.presentation.buttons.IconTextButton
 import com.zzz.core.presentation.buttons.NormalButton
 import com.zzz.core.presentation.components.VerticalSpace
-import com.zzz.core.presentation.snackbar.WanderaSnackbar
 import com.zzz.core.presentation.dialogs.ConfirmActionDialog
 import com.zzz.core.presentation.dialogs.DateRangePickerDialog
 import com.zzz.core.presentation.dialogs.LoadingDialog
 import com.zzz.core.presentation.events.ObserveAsEvents
 import com.zzz.core.presentation.events.UIEvents
+import com.zzz.core.presentation.snackbar.WanderaSnackbar
 import com.zzz.core.presentation.snackbar.showWanderaSnackbar
 import com.zzz.core.presentation.text_field.RoundedTextField
 import com.zzz.core.theme.WanderaTheme
@@ -106,7 +105,6 @@ private fun CreateTripPage(
     navigateUp : ()->Unit
 ) {
     val snackbarState = remember {  SnackbarHostState() }
-
 
     val scope = rememberCoroutineScope()
 
@@ -261,41 +259,7 @@ private fun CreateTripPage(
 
             //docs
             VerticalSpace(5.dp)
-            /*
-            //docs
-            Column {
-                Text(
-                    "Add tickets, documents, ID, etc." ,
-                    fontSize = 16.sp ,
-                    fontWeight = FontWeight.Bold ,
-                )
-                Text(
-                    text = "(these files are not uploaded anywhere & are stored on your own device)" ,
-                    style = MaterialTheme.typography.bodySmall
-                )
-            }
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                //image
-                ElevatedIconTextButton(
-                    icon = com.zzz.core.R.drawable.upload_image ,
-                    text = "Image" ,
-                    onClick = {
 
-                    }
-                )
-                //pdf
-                ElevatedIconTextButton(
-                    icon = com.zzz.core.R.drawable.pdf ,
-                    text = "PDF" ,
-                    onClick = {
-
-                    }
-                )
-            }
-
-             */
             UploadDocumentComponent(
                 onAddDoc = { uri,name->
                     onAction(CreateAction.TripActions.OnDocumentUpload(uri,name))
@@ -332,7 +296,7 @@ private fun CreateTripPage(
             VerticalSpace(5.dp)
             Column {
                 Text(
-                    "Want to download a translator?" ,
+                    "We've also got some offline translation functionality" ,
                     fontSize = 16.sp ,
                     fontWeight = FontWeight.Bold ,
                 )
@@ -352,7 +316,7 @@ private fun CreateTripPage(
                             )
                         ) {
                             append(
-                                "I got you covered!\nGrab your offline translation model and impress " +
+                                " I got you covered!\nGrab your offline translation model and impress " +
                                         "the locals!( or at least...confuse them slightly less )"
                             )
                         }
@@ -364,7 +328,6 @@ private fun CreateTripPage(
                 icon = com.zzz.core.R.drawable.arrow_45 ,
                 text = "Choose language" ,
                 onClick = {
-
                 },
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             )
@@ -409,6 +372,7 @@ private fun CreateTripPage(
                 it
             )
         }
+
     }
 
 }

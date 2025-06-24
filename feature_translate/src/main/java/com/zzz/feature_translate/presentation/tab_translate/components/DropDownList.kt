@@ -1,20 +1,15 @@
 package com.zzz.feature_translate.presentation.tab_translate.components
 
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.DropdownMenu
@@ -24,7 +19,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -37,7 +31,6 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.zzz.data.translate.model.TranslationModel
-import kotlin.math.exp
 
 @Composable
 fun DropDownList(
@@ -67,7 +60,7 @@ fun DropDownList(
             Modifier
                 .clip(MaterialTheme.shapes.large)
                 .fillMaxWidth()
-                .background(MaterialTheme.colorScheme.secondary.copy(0.3f))
+                .background(MaterialTheme.colorScheme.surfaceContainer)
                 .clickable {
                     expanded = true
                 }
@@ -101,6 +94,7 @@ fun DropDownList(
         ) {
             items.onEach {model->
                 TextButton(
+                    modifier = Modifier.fillMaxWidth(),
                     onClick = {
                         onClick(model.name,model.languageCode)
                         expanded = false

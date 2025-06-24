@@ -2,6 +2,7 @@ package com.zzz.core.theme
 
 import androidx.compose.ui.graphics.Color
 
+//-------- LIGHT ---------
 val lightBackground = Color(0xFFF4F4F4)
 val lightOnBackground = Color(0xFF000000)
 
@@ -21,7 +22,28 @@ val lightOnSurfaceContainer = Color(0xFF151515)
 val lightErrorContainer = Color(0xFFD70000)
 val lightOnErrorContainer = Color(0xFFFFFFFF)
 
-val light = Color(0xFFFFFFFF)
+
+//-------- DARK ---------
+val darkBackground = Color(0xFF1B1B1B)
+val darkOnBackground = Color(0xFFF3F3F3)
+
+val darkPrimary = Color(0xFFFCFF4A)
+val darkOnPrimary = Color(0xFF000000)
+val darkPrimaryContainer = Color(0xFF414132) //0xFF414132
+val darkOnPrimaryContainer = Color(0xFFEEEEEE)
+
+val darkSecondary = Color(0xFF506900)
+val darkOnSecondary = Color(0xFFF3F3F3)
+
+val darkSurface = Color(0xFF181818)
+val darkOnSurface = Color(0xFFEEEEEE)
+val darkSurfaceContainer = Color(0xFF323232)
+val darkOnSurfaceContainer = Color(0xFFEEEEEE)
+
+val darkErrorContainer = Color(0xFFDF3838)
+val darkOnErrorContainer = Color(0xFFFFFFFF)
+
+//theme pg
 val nightSky = Color(0xFF322838)
 val daySky = Color(0xFF5A93BC)
 

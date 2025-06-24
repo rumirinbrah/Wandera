@@ -4,11 +4,9 @@ import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import coil.compose.AsyncImage
@@ -29,7 +27,7 @@ fun ImageComponentWithDefaultBackground(
 
     AsyncImage(
         model = ImageRequest.Builder(context)
-            .data(imageUri ?: R.drawable.test_trees)//
+            .data(imageUri ?: R.drawable.test_trees)
             .crossfade(true)
             .build() ,
         contentDescription = "Image - $title" ,
@@ -48,8 +46,6 @@ fun ImageComponent(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-
-
 
     AsyncImage(
         model = ImageRequest.Builder(context)

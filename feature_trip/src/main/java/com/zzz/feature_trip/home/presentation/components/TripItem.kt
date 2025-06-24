@@ -22,7 +22,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -39,19 +38,14 @@ fun TripItem(
     onClick: (tripId : Long) -> Unit ,
     modifier: Modifier = Modifier
 ) {
-    val horizontalGradient = Brush.linearGradient(
-        listOf(
-            MaterialTheme.colorScheme.primaryContainer ,
-            MaterialTheme.colorScheme.background ,
-        )
-    )
+
     val dayImages = remember(tripWithDays.days) {
         tripWithDays.days.map {
             it.image
         }
     }
-    val trip = remember { tripWithDays.trip }
-    var duration by remember { mutableStateOf("Duration...") }
+    val trip = remember(tripWithDays.trip) { tripWithDays.trip }
+    var duration by remember(trip.startDate) { mutableStateOf("Duration...") }
 
     LaunchedEffect(Unit) {
         val diff = getDateDifference(trip.startDate,trip.endDate)
@@ -61,7 +55,7 @@ fun TripItem(
         modifier
             .clip(RoundedCornerShape(15))
             .fillMaxWidth()
-            .background(horizontalGradient)
+            .background(MaterialTheme.colorScheme.surfaceContainer)
             .clickable(
                 onClick = {
                     onClick(trip.id)

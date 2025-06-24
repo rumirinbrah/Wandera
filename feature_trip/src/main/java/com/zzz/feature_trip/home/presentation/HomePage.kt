@@ -152,9 +152,9 @@ private fun HomePage(
                     tripsWithDoc,
                     key = {it.trip.id}
                 ){trip->
-                    trip.trip.tripName
+                    //println(trip.trip.tripName)
                     TripItem(
-                        trip,
+                        tripWithDays = trip,
                         onClick = {id->
                             navToTripOverview(id)
                         },

@@ -7,6 +7,7 @@ import com.google.mlkit.nl.translate.TranslateRemoteModel
 import com.google.mlkit.nl.translate.Translation
 import com.google.mlkit.nl.translate.Translator
 import com.google.mlkit.nl.translate.TranslatorOptions
+import com.zzz.data.translate.model.TranslationModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -14,6 +15,9 @@ import kotlinx.coroutines.withContext
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
+/**
+ * Responsible for handling downloads, translations etc
+ */
 class TranslationManager {
     private var translator: Translator? = null
 
@@ -119,6 +123,32 @@ class TranslationManager {
             }
     }
 
+    //downloaded models
+    suspend fun getDownloadedModels(
+
+    ):List<String>{
+        return suspendCancellableCoroutine { continuation->
+            log {
+                "Fetching downloaded models"
+            }
+            modelManager.getDownloadedModels(TranslateRemoteModel::class.java)
+                .addOnSuccessListener {models->
+                    log {
+                        "Successfully fetched models!!"
+                    }
+                    val modelNames = models.map {
+                        it.language
+                    }
+                    continuation.resume(modelNames)
+                }
+                .addOnFailureListener{
+                    log {
+                        "FAILED to get downloaded models..."
+                    }
+                    continuation.resumeWithException(it)
+                }
+        }
+    }
 
     //clear
     fun clearTranslator() {

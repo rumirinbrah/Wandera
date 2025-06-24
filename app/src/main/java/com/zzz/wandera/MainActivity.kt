@@ -30,23 +30,23 @@ class MainActivity : ComponentActivity() {
                 useSystemTheme = false,
                 darkThemePref = themeState.isDarkMode
             ) {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    val a = innerPadding
-                    Box(
-                        Modifier.fillMaxSize()
-                            .padding(innerPadding),
-                            //,
-                        contentAlignment = Alignment.Center
-                    ){
-                        TranslateRoot()
-                    }
-                }
-//                Navigation(
-//                    themeState,
-//                    toggleDarkMode = {darkMode->
-//                        themeViewModel.setDarkMode(darkMode)
+//                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+//                    val a = innerPadding
+//                    Box(
+//                        Modifier.fillMaxSize()
+//                            .padding(innerPadding),
+//                            //,
+//                        contentAlignment = Alignment.Center
+//                    ){
+//                        TranslateRoot(navBarVisible = {}, navigateUp = {})
 //                    }
-//                )
+//                }
+                Navigation(
+                    themeState,
+                    toggleDarkMode = {darkMode->
+                        themeViewModel.setDarkMode(darkMode)
+                    }
+                )
             }
         }
     }

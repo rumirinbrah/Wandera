@@ -1,6 +1,7 @@
 package com.zzz.feature_trip.create.presentation.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -26,7 +27,7 @@ fun IndicatorCard(
     Row(
         modifier.fillMaxWidth()
             .height(100.dp)
-            .clip(Shapes().large)
+            .clip(MaterialTheme.shapes.large)
             .background(MaterialTheme.colorScheme.surfaceContainer)
             .padding(16.dp)
             .alpha(0.5f),
@@ -41,15 +42,16 @@ fun IndicatorCard(
     text : AnnotatedString,
     background : Color = MaterialTheme.colorScheme.surfaceContainer,
     onBackground : Color = MaterialTheme.colorScheme.onSurfaceVariant,
+    contentAlpha : Float = 0.5f,
     modifier: Modifier = Modifier
 ) {
     Row(
         modifier.fillMaxWidth()
             .height(100.dp)
-            .clip(Shapes().large)
+            .clip(MaterialTheme.shapes.large)
             .background(background)
             .padding(16.dp)
-            .alpha(0.5f),
+            .alpha(contentAlpha),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
     ) {

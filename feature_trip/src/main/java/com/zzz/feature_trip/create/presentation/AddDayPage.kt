@@ -1,5 +1,6 @@
 package com.zzz.feature_trip.create.presentation
 
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
@@ -22,6 +23,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -87,6 +89,7 @@ private fun AddDayPage(
     onAction: (CreateAction) -> Unit ,
 ) {
     var backHandlerDialog by remember { mutableStateOf(false) }
+    val context = LocalContext.current
 
     LaunchedEffect(Unit) {
         if(!dayState.isUpdating){
@@ -234,8 +237,9 @@ private fun AddDayPage(
                         append("'Visiting local market', 'Sky tree'")
                     }
                 },
-                background = MaterialTheme.colorScheme.secondary.copy(0.3f),
-                onBackground = MaterialTheme.colorScheme.onSecondary
+                background = MaterialTheme.colorScheme.surfaceContainer,
+                onBackground = MaterialTheme.colorScheme.onSurfaceVariant,
+                contentAlpha = 1f
             )
         }
         //"You can add everything about all your plans for the day here. For ex, 'Visiting local market' 'Sky tree'"
@@ -266,7 +270,11 @@ private fun AddDayPage(
                 title = "Enter title" ,
                 textFieldPlaceholder = "Title" ,
                 onDone = { title , isTodo ->
-                    onAction(CreateAction.DayActions.OnAddTodoLocation(title , isTodo))
+                    if(todoNameValid(title)){
+                        onAction(CreateAction.DayActions.OnAddTodoLocation(title , isTodo))
+                    }else{
+                        Toast.makeText(context , "Hey are you sure you don't wanna give it a name?" , Toast.LENGTH_SHORT).show()
+                    }
                 } ,
                 onDismiss = {
                     onAction(CreateAction.DayActions.OnDialogVisibilityChange(false))
@@ -293,7 +301,9 @@ private fun AddDayPage(
     }
 
 }
-
+private fun todoNameValid(str : String):Boolean{
+    return str.isNotEmpty()
+}
 @Preview
 @Composable
 private fun AddDayPrev() {

@@ -1,6 +1,8 @@
 package com.zzz.feature_trip.create.presentation.components
 
+import android.content.Intent
 import android.net.Uri
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -18,6 +20,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -30,21 +33,28 @@ fun UploadDocumentComponent(
     modifier: Modifier = Modifier
 ) {
 
+    val context = LocalContext.current
+
     var currentDocUri by remember { mutableStateOf<Uri?>(null) }
     var showNameDocDialog by remember { mutableStateOf(false) }
 
     val imagePicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia()
     ) {uri->
-
-        currentDocUri = uri
-        showNameDocDialog = true
+        uri?.let {
+            context.contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            currentDocUri = uri
+            showNameDocDialog = true
+        }
     }
     val pdfPicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocument()
     ) {uri->
-        currentDocUri = uri
-        showNameDocDialog = true
+        uri?.let {
+            context.contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            currentDocUri = uri
+            showNameDocDialog = true
+        }
     }
 
 
@@ -58,7 +68,7 @@ fun UploadDocumentComponent(
             fontWeight = FontWeight.Bold ,
         )
         Text(
-            text = "(these files are not uploaded anywhere & are stored on your own device)" ,
+            text = "(these files are not uploaded anywhere & are stored on your own device, make sure you don't delete them)" ,
             style = MaterialTheme.typography.bodySmall
         )
         Spacer(Modifier.height(8.dp))
@@ -89,10 +99,14 @@ fun UploadDocumentComponent(
                 title = "Name the document" ,
                 textFieldPlaceholder = "Document name" ,
                 onDone = {name->
-                    currentDocUri?.let {
-                        onAddDoc(currentDocUri!!,name)
-                        currentDocUri = null
-                        showNameDocDialog = false
+                    if(docNameValid(name)){
+                        currentDocUri?.let {
+                            onAddDoc(currentDocUri!!,name)
+                            currentDocUri = null
+                            showNameDocDialog = false
+                        }
+                    }else{
+                        Toast.makeText(context , "Oops! Seems you forgot to name the document" , Toast.LENGTH_SHORT).show()
                     }
                 } ,
                 onDismiss = {
@@ -105,4 +119,7 @@ fun UploadDocumentComponent(
 
     }
 
+}
+private fun docNameValid(str : String) : Boolean{
+    return str.isNotEmpty()
 }

@@ -1,9 +1,13 @@
 package com.zzz.feature_translate.presentation.viewmodel
 
+import com.zzz.data.translate.model.TranslationModel
+
 
 data class TranslateState(
     val downloading : Boolean = false ,
     val deleting : Boolean = false ,
+    val downloadsFilter : Boolean = false,
+    val downloadedModels : List<TranslationModel>? = null,
     val translating : Boolean = false ,
     val loading : Boolean = false ,
     val sourceText : String = "" ,

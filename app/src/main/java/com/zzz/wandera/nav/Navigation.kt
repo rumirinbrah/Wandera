@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -26,8 +27,10 @@ import androidx.navigation.compose.rememberNavController
 import com.zzz.wandera.nav.util.Screen
 import com.zzz.core.presentation.theme_change.ChangeThemePage
 import com.zzz.feature_translate.presentation.TranslateRoot
+import com.zzz.feature_translate.presentation.viewmodel.TranslationViewModel
 import com.zzz.wandera.nav.util.BottomNavBar
 import com.zzz.wandera.ui.ThemeState
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun Navigation(
@@ -35,13 +38,14 @@ fun Navigation(
     toggleDarkMode : (Boolean)->Unit,
 ) {
     val navController = rememberNavController()
+
     var navBarVisible by remember { mutableStateOf(true) }
-
-
+    var navBarHeight by remember { mutableStateOf(0.dp) }
+    var currentRoute by remember { mutableStateOf<Screen>(Screen.HomeGraph) }
 
 
     Scaffold(
-        Modifier.fillMaxSize()
+        Modifier.fillMaxSize(),
     ) { innerPadding->
 
         Box(
@@ -77,8 +81,23 @@ fun Navigation(
                     }
                 }
                 //TRANSLATE
-                composable<Screen.TranslateScreen> {
-                    TranslateRoot()
+                composable<Screen.TranslateScreen> {backStack->
+
+                    val parentEntry = remember(backStack) {
+                        navController.getBackStackEntry(Screen.TranslateScreen)
+                    }
+                    val translateVm = koinViewModel<TranslationViewModel>(viewModelStoreOwner = parentEntry)
+
+                    TranslateRoot(
+                        navBarVisible = {
+                            navBarVisible = it
+                        },
+                        navigateUp = {
+                            navController.navigateUp()
+                        },
+                        bottomPadding = navBarHeight,
+                        translationViewModel = translateVm
+                    )
                 }
                 //THEME
                 composable<Screen.ThemeScreen> {
@@ -110,7 +129,14 @@ fun Navigation(
                 BottomNavBar(
                     navController,
                     modifier = Modifier
-                        .padding(vertical = 8.dp, horizontal = 4.dp)
+                        .padding(vertical = 8.dp, horizontal = 4.dp),
+                    currentRoute = currentRoute,
+                    onHeightCalculated = {height->
+                        navBarHeight = height
+                    },
+                    onRouteChange = {
+                        currentRoute= it
+                    }
                 )
             }
 

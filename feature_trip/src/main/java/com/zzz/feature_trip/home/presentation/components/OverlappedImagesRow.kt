@@ -1,7 +1,6 @@
 package com.zzz.feature_trip.home.presentation.components
 
 import android.net.Uri
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.offset
@@ -21,7 +20,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.zzz.core.presentation.components.ImageComponentWithDefaultBackground
+import com.zzz.core.presentation.components.ImageComponent
 import com.zzz.core.theme.WanderaTheme
 
 @Composable
@@ -50,13 +49,13 @@ internal fun OverlappedImagesRow(
                         y = 0.dp
                     )
             ) {
-                ImageComponentWithDefaultBackground(
-                    title = "Day image" ,
+                ImageComponent(
+                    contentDescription = "Day image" ,
                     imageUri = uri ,
+                    background = MaterialTheme.colorScheme.primaryContainer,
                     modifier = Modifier
                         .clip(CircleShape)
                         .size(imageSize)
-                        .background(MaterialTheme.colorScheme.secondary)
                         .border(1.dp , imageBorderColor , CircleShape)
                 )
             }
@@ -69,13 +68,13 @@ internal fun OverlappedImagesRow(
                         y = 0.dp
                     )
             ) {
-                ImageComponentWithDefaultBackground(
-                    title = "Day image" ,
+                ImageComponent(
+                    contentDescription = "$remainingImages images more" ,
                     imageUri = null ,
+                    background = MaterialTheme.colorScheme.primaryContainer,
                     modifier = Modifier
                         .clip(CircleShape)
                         .size(imageSize)
-                        .background(MaterialTheme.colorScheme.primaryContainer)
                         .border(1.dp , imageBorderColor , CircleShape)
                 )
                 Text(

@@ -22,7 +22,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -47,9 +46,9 @@ fun FirstTimeInstructions(
     val pagerState = rememberPagerState() { 2 }
     val scope = rememberCoroutineScope()
 
-    val curveColor = MaterialTheme.colorScheme.primary.copy(0.5f)
+    val curveColor = MaterialTheme.colorScheme.secondary
     val color1 = MaterialTheme.colorScheme.surface
-    val color2 = MaterialTheme.colorScheme.primaryContainer
+    val color2 = MaterialTheme.colorScheme.surfaceContainer
 
     val backgroundBrush = remember {
         Brush.linearGradient(
@@ -59,7 +58,6 @@ fun FirstTimeInstructions(
             )
         )
     }
-
     Column(
         modifier
             .padding(16.dp)
@@ -82,7 +80,7 @@ fun FirstTimeInstructions(
                 }
                 drawPath(
                     path,
-                    curveColor
+                    color = curveColor
                 )
             },
         verticalArrangement = Arrangement.Center
