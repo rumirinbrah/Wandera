@@ -1,7 +1,6 @@
 package com.zzz.feature_translate.presentation.viewmodel
 
 import android.util.Log
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.zzz.core.domain.network.NetworkObserver
@@ -16,17 +15,12 @@ import com.zzz.feature_translate.manager.TranslationManager
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onCompletion
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -46,7 +40,7 @@ class TranslationViewModel(
 
     private var internalState = InternalState()
 
-    private var _networkState : NetworkSpecs = NetworkSpecs()
+    private var networkSpecs: NetworkSpecs = NetworkSpecs()
 
     //we use this to make sure we dont initialize translator multiple times for same ip op lang
     private var sessionOngoing: Boolean = false
@@ -63,14 +57,8 @@ class TranslationViewModel(
             )
         }
         collectModels()
-        viewModelScope.launch {
-            networkObserver.isConnected
-                .collect{
-                    _networkState = it
-                }
+        observeNetwork()
 
-        }
-        //validateDownloadedModels()
     }
 
     fun onAction(action: TranslateAction) {
@@ -104,18 +92,22 @@ class TranslationViewModel(
                     }
 
                     is TranslateAction.ManagerAction.DownloadModel -> {
-                        downloadModel(action.modelCode , action.name)
+                        //downloadModel(action.modelCode , action.name)
+                        checkConnectivityAndDownloadModel(action.modelCode,action.name)
                     }
-                    TranslateAction.ManagerAction.DownloadModelWithCellularData->{
-                        downloadModelWithCellularData()
+
+                    TranslateAction.ManagerAction.DownloadModelWithCellularData -> {
+                        downloadModelOverCellular()
                     }
 
                     is TranslateAction.ManagerAction.FilterByDownloads -> {
                         //setDownloadFilter(action.filter)
                     }
 
+                    //UI
                     TranslateAction.ManagerAction.DismissCellularDownloadDialog -> {
-
+                        dismissCellularDownloadDialog()
+                        resetInternalState()
                     }
                 }
             }
@@ -224,10 +216,11 @@ class TranslationViewModel(
 
     private fun validateTranslatorInput(): Boolean {
         val value = _state.value
-        if (value.srcLanguageCode == null || value.destLanguageCode == null) {
-            return false
+        return if (value.srcLanguageCode == null || value.destLanguageCode == null) {
+             false
+        }else{
+            true
         }
-        return true
     }
 
     //change dest
@@ -296,17 +289,21 @@ class TranslationViewModel(
     }
 
     //---------- MANAGER -----------
-    private fun resolveDownload(modelCode: String , name: String){
+    private fun checkConnectivityAndDownloadModel(modelCode: String , name: String) {
         viewModelScope.launch {
+
             if (_state.value.downloading) {
                 _events.send(UIEvents.Error("Another model is being downloaded, please wait..."))
                 return@launch
             }
-            when(_networkState.type) {
+            when (networkSpecs.type) {
+                //NO NW
                 NetworkType.UNKNOWN -> {
                     _events.send(UIEvents.Error("Seems your network is unstable, please try later..."))
                     return@launch
                 }
+
+                //MOBILE
                 NetworkType.MOBILE_DATA -> {
                     _state.update {
                         it.copy(cellularDataDownloadDialog = true)
@@ -317,134 +314,84 @@ class TranslationViewModel(
                     )
                     return@launch
                 }
+
+                //ok over wifi and ethernet
                 else -> {
                     downloadModel(modelCode , name)
                 }
             }
         }
     }
-    private fun downloadModel(modelCode: String , name: String, wifiRequired : Boolean = true) {
+    private fun downloadModelOverCellular(){
         viewModelScope.launch {
-            if (_state.value.downloading) {
-                _events.send(UIEvents.Error("Another model is being downloaded, please wait..."))
-                return@launch
-            }
-            when(_networkState.type) {
-                NetworkType.UNKNOWN -> {
-                    _events.send(UIEvents.Error("Seems your network is unstable, please try later..."))
-                    return@launch
-                }
-                NetworkType.MOBILE_DATA -> {
-                    _state.update {
-                        it.copy(cellularDataDownloadDialog = true)
-                    }
-                    internalState = internalState.copy(
-                        modelName = name ,
-                        modelCode = modelCode
-                    )
-                    return@launch
-                }
-                else -> Unit
-            }
-
-
-            _state.update {
-                it.copy(downloading = true)
-            }
-            wanderaNotification.sendDownloadNotification(name)
-            _events.send(UIEvents.SuccessWithMsg("$name model is being downloaded, feel free to switch to other apps in the meantime!"))
-            try {
-
-                translationManager.downloadModel(languageCode = modelCode, wifiRequired = wifiRequired)
-
-                //set model true in db
-                dataSource.updateModelStatus(modelCode , true)
-
-
-                _state.update {
-                    it.copy(downloading = false)
-                }
-
-                wanderaNotification.cancelDownloadingNotification()
-                wanderaNotification.sendDownloadFinishedNotification(name)
-
-                _events.send(UIEvents.SuccessWithMsg("Model has been downloaded successfully!"))
-
-            } catch (e: Exception) {
-                //errur
-                _state.update {
-                    it.copy(downloading = false)
-                }
-                wanderaNotification.cancelAll()
-                _events.send(
-                    UIEvents.Error(
-                        e.message ?: "An unknown error occurred downloading model"
-                    )
-                )
-            }
-        }
-    }
-    private fun downloadModelWithCellularData(){
-        viewModelScope.launch {
-            _state.update {
-                it.copy(cellularDataDownloadDialog = false)
-            }
-            if(internalState.modelCode == null || internalState.modelName == null){
-                return@launch
-            }
+            dismissCellularDownloadDialog()
             if (_state.value.downloading) {
                 _events.send(UIEvents.Error("Another model is being downloaded, please wait..."))
                 return@launch
             }
 
-            _state.update {
-                it.copy(downloading = true)
-            }
-            wanderaNotification.sendDownloadNotification(internalState.modelName!!)
-            _events.send(UIEvents.SuccessWithMsg("${internalState.modelName} model is being downloaded, feel free to switch to other apps in the meantime!"))
-            try {
 
-                translationManager.downloadModel(internalState.modelCode!!,false)
-
-                //set model true in db
-                dataSource.updateModelStatus(internalState.modelCode!! , true)
-
-
-                _state.update {
-                    it.copy(downloading = false)
-                }
-
-                wanderaNotification.cancelDownloadingNotification()
-                wanderaNotification.sendDownloadFinishedNotification(internalState.modelName!!)
-
-                resetInternalState()
-                _events.send(UIEvents.SuccessWithMsg("Model has been downloaded successfully!"))
-
-            } catch (e: Exception) {
-                //errur
-                _state.update {
-                    it.copy(downloading = false)
-                }
-                wanderaNotification.cancelAll()
-                resetInternalState()
-                _events.send(
-                    UIEvents.Error(
-                        e.message ?: "An unknown error occurred downloading model"
-                    )
-                )
-            }
-        }
-    }
-
-    private fun dismissCellularDownloadDialog(){
-        viewModelScope.launch {
-            _state.update {
-                it.copy(cellularDataDownloadDialog = false)
-            }
+            val modelCode = internalState.modelCode ?: return@launch
+            val name = internalState.modelName ?: return@launch
+            downloadModel(modelCode,name,false)
             resetInternalState()
         }
     }
-    private fun resetInternalState(){
+
+    private suspend fun downloadModel(
+        modelCode: String ,
+        name: String ,
+        wifiRequired: Boolean = true
+    ) {
+
+        _state.update {
+            it.copy(downloading = true)
+        }
+        wanderaNotification.sendDownloadNotification(name)
+        _events.send(UIEvents.SuccessWithMsg("$name model is being downloaded, feel free to switch to other apps in the meantime!"))
+        try {
+
+            //---- DOWNLOAD ----
+            translationManager.downloadModel(languageCode = modelCode , wifiRequired = wifiRequired)
+
+            //set model true in db
+            dataSource.updateModelStatus(modelCode , true)
+
+
+            _state.update {
+                it.copy(downloading = false)
+            }
+
+            wanderaNotification.cancelDownloadingNotification()
+            wanderaNotification.sendDownloadFinishedNotification(name)
+
+            _events.send(UIEvents.SuccessWithMsg("Model has been downloaded successfully!"))
+
+        } catch (e: Exception) {
+            //errur
+            _state.update {
+                it.copy(downloading = false)
+            }
+            wanderaNotification.cancelAll()
+            _events.send(
+                UIEvents.Error(
+                    e.message ?: "An unknown error occurred downloading model"
+                )
+            )
+        }
+
+    }
+
+
+    private fun dismissCellularDownloadDialog() {
+        viewModelScope.launch {
+            _state.update {
+                it.copy(cellularDataDownloadDialog = false)
+            }
+        }
+    }
+
+    private fun resetInternalState() {
         internalState = InternalState()
     }
 
@@ -525,6 +472,16 @@ class TranslationViewModel(
                 }
             }
         }
+    }
+
+    private fun observeNetwork(){
+        viewModelScope.launch {
+            networkObserver.isConnected
+                .collect{specs->
+                    networkSpecs = specs
+                }
+        }
+
     }
 
     override fun onCleared() {

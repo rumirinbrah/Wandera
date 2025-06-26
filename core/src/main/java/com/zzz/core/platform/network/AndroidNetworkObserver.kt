@@ -20,7 +20,7 @@ internal class AndroidNetworkObserver(
 ) : NetworkObserver {
 
     private val networkManager = context.getSystemService<ConnectivityManager>()
-    private var loggingEnabled = true
+    private var loggingEnabled = false
 
     override val isConnected: Flow<NetworkSpecs>
         get() = callbackFlow {

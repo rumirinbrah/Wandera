@@ -25,7 +25,7 @@ class WanderaNotification (
         val builder = NotificationCompat
             .Builder(context , NotificationUtil.CHANNEL_ID)
             .setSmallIcon(R.drawable.download)
-            .setContentTitle("Wandera")
+            .setContentTitle("Download in progress")
             .setContentText("Downloading $modelName translation model...")
             .setSilent(true)
             .setProgress(1,1,true)
