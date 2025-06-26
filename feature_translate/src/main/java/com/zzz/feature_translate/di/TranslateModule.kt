@@ -14,7 +14,8 @@ val translateModule = module {
             dataSource = get(),
             translationManager = TranslationManager(),
             translatePreferences = TranslatePreferences(androidContext()),
-            wanderaNotification = WanderaNotification(androidContext())
+            wanderaNotification = WanderaNotification(androidContext()),
+            networkObserver = get()
         )
     }
 }

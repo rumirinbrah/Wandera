@@ -172,30 +172,46 @@ internal fun DownloadModelPage(
                 }
             }
         }
-        if (confirmDeleteDialog) {
-            ConfirmActionDialog(
-                title = "Are you sure you want to delete ${state.modelToDelete}?" ,
-                actionText = "Delete" ,
-                onCancel = {
-                    confirmDeleteDialog = false
-                    onAction(
-                        TranslateAction.ManagerAction.SetModelToDelete(
-                            null , null
+        when{
+            confirmDeleteDialog->{
+                ConfirmActionDialog(
+                    title = "Are you sure you want to delete ${state.modelToDelete}?" ,
+                    actionText = "Delete" ,
+                    onCancel = {
+                        confirmDeleteDialog = false
+                        onAction(
+                            TranslateAction.ManagerAction.SetModelToDelete(
+                                null , null
+                            )
                         )
-                    )
-                } ,
-                onConfirm = {
-                    confirmDeleteDialog = false
-                    onAction(
-                        TranslateAction.ManagerAction.DeleteModel
-                    )
-                }
-            )
-        }
-        if (state.deleting) {
-            LoadingDialog(
-                title = "Deleting ${state.modelToDelete}"
-            )
+                    } ,
+                    onConfirm = {
+                        confirmDeleteDialog = false
+                        onAction(
+                            TranslateAction.ManagerAction.DeleteModel
+                        )
+                    }
+                )
+            }
+            state.deleting->{
+                LoadingDialog(
+                    title = "Deleting ${state.modelToDelete}"
+                )
+            }
+            state.cellularDataDownloadDialog->{
+                ConfirmActionDialog(
+                    title = "You're not connected to WIFI, do you want to download using mobile data?",
+                    actionText = "Download",
+                    onConfirm = {
+                        onAction(TranslateAction.ManagerAction.DownloadModelWithCellularData)
+                    },
+                    onCancel = {
+                        onAction(TranslateAction.ManagerAction.DismissCellularDownloadDialog)
+                    }
+                )
+            }
+
+
         }
         deniedPermsQueue.onEach { permission ->
             PermissionDialog(

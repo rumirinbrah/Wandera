@@ -8,6 +8,10 @@ data class TranslateState(
     val deleting : Boolean = false ,
     val downloadsFilter : Boolean = false,
     val downloadedModels : List<TranslationModel>? = null,
+    val modelToDelete : String? = null,
+    val modelToDeleteCode : String? = null,
+    val isFirstTime : Boolean = false,
+    val cellularDataDownloadDialog : Boolean = false,
     val translating : Boolean = false ,
     val loading : Boolean = false ,
     val sourceText : String = "" ,
@@ -16,7 +20,5 @@ data class TranslateState(
     val srcLanguageCode : String? = null ,
     val destLanguage : String = "" ,
     val destLanguageCode : String? = null ,
-    val modelToDelete : String? = null,
-    val modelToDeleteCode : String? = null,
-    val isFirstTime : Boolean = false
+
 )

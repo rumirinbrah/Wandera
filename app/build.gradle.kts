@@ -65,13 +65,33 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+
+    //LOCAL
+
+    testImplementation(libs.androidx.test.core)
+    testImplementation(libs.jetbrains.kotlinx.coroutines.test)
+    testImplementation(libs.google.truth)
+    //for testing vm, room , live data
+    testImplementation(libs.androidx.arch.core)
+    //supports very kotlinish features
+    testImplementation(libs.io.mockk)
     testImplementation(libs.junit)
+    debugImplementation(libs.androidx.ui.tooling)
+    debugImplementation(libs.androidx.ui.test.manifest)
+
+    //INSTRUMENTATION
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
+    androidTestImplementation(libs.jetbrains.kotlinx.coroutines.test)
+    androidTestImplementation(libs.io.mockk)
+    androidTestImplementation(libs.androidx.arch.core)
+
+    androidTestImplementation(libs.google.truth)
+    androidTestImplementation(libs.androidx.test.core.ktx)
+    androidTestImplementation(libs.androidx.test.runner)
     androidTestImplementation(libs.androidx.ui.test.junit4)
-    debugImplementation(libs.androidx.ui.tooling)
-    debugImplementation(libs.androidx.ui.test.manifest)
+
 
     implementation(project(":feature_trip"))
     implementation(project(":feature_translate"))

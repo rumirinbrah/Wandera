@@ -63,6 +63,7 @@ class TranslationManager {
     //download
     suspend fun downloadModel(
         languageCode: String ,
+        wifiRequired : Boolean = true
     ) = suspendCancellableCoroutine<Unit> { continuation ->
 
 
@@ -80,7 +81,11 @@ class TranslationManager {
                     "Downloading model $languageCode..."
                 }
                 val conditions = DownloadConditions.Builder()
-                    .requireWifi().build()
+                    .apply {
+                        if(wifiRequired){
+                            requireWifi()
+                        }
+                    }.build()
 
                 modelManager.download(newModel , conditions)
                     .addOnFailureListener {

@@ -5,6 +5,7 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import androidx.core.content.getSystemService
+import com.zzz.core.di.coreModule
 import com.zzz.core.platform.notification.NotificationUtil
 import com.zzz.data.di.dbModule
 import com.zzz.feature_translate.di.translateModule
@@ -21,6 +22,7 @@ class WanderaApp : Application() {
         startKoin {
             androidContext(this@WanderaApp)
             modules(
+                coreModule,
                 appModule ,
                 createModule ,
                 dbModule,
