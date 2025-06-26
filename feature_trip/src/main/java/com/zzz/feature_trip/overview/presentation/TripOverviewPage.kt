@@ -6,7 +6,6 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,7 +18,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -29,13 +27,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.zzz.core.presentation.buttons.IconTextButton
-import com.zzz.core.presentation.buttons.NormalButton
 import com.zzz.core.presentation.components.DotsLoadingAnimation
 import com.zzz.core.presentation.components.VerticalSpace
 import com.zzz.core.presentation.dialogs.ConfirmActionDialog
@@ -53,6 +49,7 @@ import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun TripOverviewRoot(
+    modifier : Modifier = Modifier,
     overviewViewModel: OverviewViewModel = koinViewModel() ,
     navigateToDayDetails : ()->Unit ,
     navigateToEditTrip:(tripId : Long)->Unit,
@@ -62,6 +59,7 @@ fun TripOverviewRoot(
     val days by overviewViewModel.days.collectAsStateWithLifecycle()
 
     TripOverviewPage(
+        modifier,
         state,
         days,
         onAction = {action->
@@ -75,6 +73,7 @@ fun TripOverviewRoot(
 
 @Composable
 private fun TripOverviewPage(
+    modifier : Modifier = Modifier,
     state : OverviewState ,
     days : List<Day> ,
     onAction : (OverviewActions)->Unit ,
@@ -93,7 +92,7 @@ private fun TripOverviewPage(
     }
 
     Box(
-        Modifier.fillMaxSize()
+        modifier.fillMaxSize()
             .background(
                 MaterialTheme.colorScheme.background
             )

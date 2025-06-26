@@ -10,6 +10,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -45,9 +46,10 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun ChangeThemePage(
+    modifier: Modifier = Modifier,
     night: Boolean = true ,
     toggleDarkMode : (darkMode:Boolean)->Unit,
-    modifier: Modifier = Modifier
+    innerPadding : PaddingValues = PaddingValues(0.dp)
 ) {
     val backgroundTopColor = remember {
         Animatable(
@@ -105,8 +107,7 @@ fun ChangeThemePage(
                     )
                 )
             )
-            //.statusBarsPadding()
-            //.navigationBarsPadding()
+            .padding(innerPadding)
     ) {
         Row(
             Modifier

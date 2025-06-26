@@ -46,6 +46,7 @@ import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun TranslateRoot(
+    modifier: Modifier = Modifier,
     navBarVisible : (Boolean)->Unit,
     navigateUp: () -> Unit,
     bottomPadding : Dp = 0.dp,
@@ -57,6 +58,7 @@ fun TranslateRoot(
     val events = translationViewModel.events
 
     TranslateHome(
+        modifier,
         state = state ,
         models = models ,
         events = events ,
@@ -76,6 +78,7 @@ fun TranslateRoot(
  */
 @Composable
 private fun TranslateHome(
+    modifier: Modifier = Modifier,
     state: TranslateState ,
     models: List<TranslationModel> ,
     events: Flow<UIEvents> ,
@@ -140,7 +143,7 @@ private fun TranslateHome(
     }
 
     Box(
-        Modifier
+        modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
     ) {

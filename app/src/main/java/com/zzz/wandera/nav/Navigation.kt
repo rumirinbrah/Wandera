@@ -7,6 +7,7 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
@@ -50,7 +51,7 @@ fun Navigation(
 
         Box(
             Modifier.fillMaxSize()
-                .padding(innerPadding)
+                //.padding(innerPadding)
         ){
             NavHost(
                 navController = navController,
@@ -61,9 +62,9 @@ fun Navigation(
                 homeNavGraph(
                     navController,
                     navBarVisible = {
-                        println("visibility change $it")
                         navBarVisible = it
-                    }
+                    },
+                    innerPadding = innerPadding
                 )
 
                 //RECENTS
@@ -89,6 +90,7 @@ fun Navigation(
                     val translateVm = koinViewModel<TranslationViewModel>(viewModelStoreOwner = parentEntry)
 
                     TranslateRoot(
+                        Modifier.padding(innerPadding),
                         navBarVisible = {
                             navBarVisible = it
                         },
@@ -106,7 +108,8 @@ fun Navigation(
                     }
                     ChangeThemePage(
                         night = themeState.isDarkMode,
-                        toggleDarkMode = toggleDarkMode
+                        toggleDarkMode = toggleDarkMode,
+                        innerPadding = innerPadding
                     )
                 }
             }
@@ -129,6 +132,8 @@ fun Navigation(
                 BottomNavBar(
                     navController,
                     modifier = Modifier
+                        //.padding(innerPadding)
+                        .navigationBarsPadding()
                         .padding(vertical = 8.dp, horizontal = 4.dp),
                     currentRoute = currentRoute,
                     onHeightCalculated = {height->

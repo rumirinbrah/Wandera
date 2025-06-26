@@ -65,6 +65,7 @@ import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun CreateRoot(
+    modifier: Modifier = Modifier,
     onNavToAddDay : ()->Unit,
     onEditDay :()->Unit,
     navigateUp: () -> Unit,
@@ -80,9 +81,10 @@ fun CreateRoot(
     val uiEvents = createViewModel.events
 
     CreateTripPage(
-        tripState,
-        days,
-        docs,
+        modifier,
+        tripState = tripState,
+        days = days,
+        docs = docs,
         events = uiEvents,
         onAction = {action->
             createViewModel.onAction(action)
@@ -95,6 +97,7 @@ fun CreateRoot(
 
 @Composable
 private fun CreateTripPage(
+    modifier: Modifier = Modifier,
     tripState : TripState,
     days : List<Day>,
     docs : List<UserDocument>,
@@ -134,7 +137,7 @@ private fun CreateTripPage(
         showConfirmDiscardDialog = true
     }
 
-    Box(Modifier.fillMaxSize()){
+    Box(modifier.fillMaxSize()){
         Column(
             Modifier
                 .fillMaxSize()

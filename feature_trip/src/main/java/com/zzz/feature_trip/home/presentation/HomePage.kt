@@ -39,6 +39,7 @@ import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun HomeRoot(
+    modifier: Modifier = Modifier,
     navToCreateTrip : ()->Unit,
     navToThemeSettings : ()->Unit,
     navToTripOverview : (tripId : Long)->Unit,
@@ -49,6 +50,7 @@ fun HomeRoot(
     val tripsWithDoc by homeViewModel.tripWithDocs.collectAsStateWithLifecycle()
 
     HomePage(
+        modifier,
         tripsWithDoc = tripsWithDoc,
         navToThemeSettings = navToThemeSettings,
         navToCreateTrip = navToCreateTrip,
@@ -61,6 +63,7 @@ fun HomeRoot(
 
 @Composable
 private fun HomePage(
+    modifier: Modifier = Modifier,
     tripsWithDoc : List<TripWithDays>,
     navToCreateTrip : ()->Unit,
     navToThemeSettings : ()->Unit,
@@ -84,7 +87,7 @@ private fun HomePage(
     }
 
 
-    Box(Modifier.fillMaxSize()){
+    Box(modifier.fillMaxSize()){
         Column(
             Modifier
                 .fillMaxSize()

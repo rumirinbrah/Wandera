@@ -8,8 +8,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
@@ -21,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -40,6 +43,7 @@ import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun DayDetailsRoot(
+    modifier: Modifier = Modifier,
     navigateUp: () -> Unit ,
     overviewViewModel: OverviewViewModel = koinViewModel()
 ) {
@@ -47,6 +51,7 @@ fun DayDetailsRoot(
 
 
     DayDetailsPage(
+        modifier,
         state.selectedDay ,
         navigateUp = {
             overviewViewModel.onAction(OverviewActions.ClearSelectedDay)
@@ -57,11 +62,12 @@ fun DayDetailsRoot(
 
 @Composable
 private fun DayDetailsPage(
+    modifier: Modifier = Modifier,
     dayWithTodos: DayWithTodos? ,
-    navigateUp: () -> Unit ,
-    modifier: Modifier = Modifier
+    navigateUp: () -> Unit
 ) {
     val background = MaterialTheme.colorScheme.background
+    val onBackground = MaterialTheme.colorScheme.onBackground.copy(0.8f)
 
     val day = remember {
         dayWithTodos?.day
@@ -97,7 +103,7 @@ private fun DayDetailsPage(
                 color = MaterialTheme.colorScheme.onBackground.copy(0.7f)
             )
         } else {
-            Box() {
+            Box {
 
                 //image, title, nav button
                 ImageComponentWithDefaultBackground(
@@ -107,12 +113,21 @@ private fun DayDetailsPage(
                         .fillMaxWidth()
                         .fillMaxHeight(0.45f)
                 )
-                DayTitleCard(
-                    day.locationName ,
-                    modifier = Modifier.align(Alignment.CenterStart)
-                )
+//                Box(
+//                    Modifier.fillMaxWidth()
+//                        .height(50.dp)
+//                        .drawBehind {
+//                            drawRect(
+//                                brush = Brush.verticalGradient(
+//                                    listOf(background, Color.Transparent)
+//                                )
+//                            )
+//                        }
+//                        .align(Alignment.TopCenter)
+//                )
                 CircularIconButton(
                     modifier = Modifier
+                        .statusBarsPadding()
                         .padding(4.dp)
                         .align(Alignment.TopStart) ,
                     icon = com.zzz.core.R.drawable.arrow_back ,
@@ -122,6 +137,10 @@ private fun DayDetailsPage(
                     onClick = {
                         navigateUp()
                     } ,
+                )
+                DayTitleCard(
+                    day.locationName ,
+                    modifier = Modifier.align(Alignment.CenterStart)
                 )
             }
             Box(

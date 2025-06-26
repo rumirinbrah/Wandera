@@ -1,7 +1,11 @@
 package com.zzz.wandera.nav
 
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
@@ -22,7 +26,8 @@ import org.koin.androidx.compose.koinViewModel
 
 fun NavGraphBuilder.homeNavGraph(
     navController : NavHostController,
-    navBarVisible : (Boolean)->Unit
+    navBarVisible : (Boolean)->Unit,
+    innerPadding : PaddingValues = PaddingValues(0.dp)
 ){
     navigation<Screen.HomeGraph>(
         startDestination = Screen.HomeGraph.HomeScreen
@@ -39,6 +44,7 @@ fun NavGraphBuilder.homeNavGraph(
             val homeViewModel = koinViewModel<HomeViewModel>(viewModelStoreOwner = parentEntry)
 
             HomeRoot(
+                modifier = Modifier.padding(innerPadding),
                 navToCreateTrip = {
                     navController.navigate(Screen.HomeGraph.CreateTripScreen)
                 },
@@ -68,6 +74,7 @@ fun NavGraphBuilder.homeNavGraph(
 
             }
             CreateRoot(
+                Modifier.padding(innerPadding),
                 onNavToAddDay = {
                     navController.navigate(Screen.HomeGraph.AddDayScreen)
                 },
@@ -93,6 +100,7 @@ fun NavGraphBuilder.homeNavGraph(
 
 
             AddDayRoot(
+                Modifier.padding(innerPadding),
                 navigateUp = {
                     navController.navigateUp()
                 },
@@ -111,10 +119,11 @@ fun NavGraphBuilder.homeNavGraph(
             }
             val overviewViewModel = koinViewModel<OverviewViewModel>(viewModelStoreOwner = parentEntry)
             DayDetailsRoot(
+                //Modifier.padding(innerPadding),
                 navigateUp = {
                     navController.navigateUp()
                 } ,
-                overviewViewModel
+                overviewViewModel = overviewViewModel
             )
         }
 
@@ -125,13 +134,16 @@ fun NavGraphBuilder.homeNavGraph(
             }
             val overviewViewModel = koinViewModel<OverviewViewModel>(viewModelStoreOwner = parentEntry)
             val route = backStack.toRoute<Screen.HomeGraph.TripOverviewScreen>()
+
+
             LaunchedEffect(Unit) {
                 navBarVisible(false)
                 overviewViewModel.onAction(OverviewActions.FetchTripData(route.tripId))
             }
 
             TripOverviewRoot(
-                overviewViewModel,
+                Modifier.padding(innerPadding),
+                overviewViewModel = overviewViewModel,
                 navigateToDayDetails = {
                     navController.navigate(Screen.HomeGraph.DayDetailsScreen)
                 },

@@ -53,6 +53,7 @@ import org.koin.androidx.compose.koinViewModel
  */
 @Composable
 fun AddDayRoot(
+    modifier: Modifier = Modifier,
     navigateUp: () -> Unit ,
     createViewModel: CreateViewModel = koinViewModel()
 ) {
@@ -60,6 +61,7 @@ fun AddDayRoot(
     val todos by createViewModel.todos.collectAsStateWithLifecycle()
 
     AddDayPage(
+        modifier,
         dayState = dayState ,
         todos = todos ,
         navigateUp = navigateUp,
@@ -83,6 +85,7 @@ fun AddDayRoot(
  */
 @Composable
 private fun AddDayPage(
+    modifier: Modifier = Modifier,
     dayState: DayState ,
     todos: List<TodoLocation> ,
     navigateUp: () -> Unit ,
@@ -107,7 +110,7 @@ private fun AddDayPage(
 
     }
     Column(
-        Modifier
+        modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
             .padding(16.dp) ,
@@ -309,6 +312,7 @@ private fun todoNameValid(str : String):Boolean{
 private fun AddDayPrev() {
     WanderaTheme {
         AddDayPage(
+            Modifier,
             DayState() ,
             emptyList() ,
             navigateUp = {}
