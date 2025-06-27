@@ -10,6 +10,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.palette.graphics.Palette
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneId
 
 suspend fun getBitmapFromUri(context: Context , uri: Uri): Bitmap? {
     return withContext(Dispatchers.IO) {
@@ -38,6 +41,17 @@ suspend fun getColorFromBitmap(bitmap: Bitmap): Color? {
 
 }
 
+//Long to Date
+fun Long.toLocalDateTime():LocalDateTime{
+    return try {
+        LocalDateTime.ofInstant(Instant.ofEpochMilli(this) , ZoneId.systemDefault())
+    }catch (e : Exception){
+        e.printStackTrace()
+        LocalDateTime.now()
+    }
+
+}
+
 suspend fun Context.isMimeTypeImg(uri: Uri):Boolean {
     return withContext(Dispatchers.IO) {
 
@@ -62,6 +76,7 @@ suspend fun Context.isMimeTypeImg(uri: Uri):Boolean {
     }
 }
 
+//view PDF
 fun Context.openPDF(uri: Uri){
     println("URI IS $uri")
     val intent = Intent(Intent.ACTION_VIEW).apply {
@@ -79,6 +94,7 @@ fun Context.openPDF(uri: Uri){
         ).show()
     }
 }
+//VIEW IMG
 fun Context.openImageInGallery(uri: Uri){
     val intent = Intent(Intent.ACTION_VIEW).apply {
         setDataAndType(uri,"image/*")
@@ -93,23 +109,6 @@ fun Context.openImageInGallery(uri: Uri){
             "No Photo viewer found!" ,
             Toast.LENGTH_SHORT
         ).show()
-    }
-}
-
-fun Context.getPDFIntent(uri: Uri):Intent?{
-    val intent = Intent(Intent.ACTION_VIEW).apply {
-        setDataAndType(uri,"application/pdf")
-        flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
-    }
-    if(intent.resolveActivity(packageManager)!=null){
-        return intent
-    }else{
-        Toast.makeText(
-            this ,
-            "No PDF viewer found!" ,
-            Toast.LENGTH_SHORT
-        ).show()
-        return null
     }
 }
 

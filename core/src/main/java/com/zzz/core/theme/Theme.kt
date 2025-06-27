@@ -1,11 +1,15 @@
 package com.zzz.core.theme
 
+import android.app.Activity
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
+import androidx.core.view.WindowCompat
 
 private val DarkColorScheme = darkColorScheme(
     background = darkBackground,
@@ -66,9 +70,19 @@ fun WanderaTheme(
     }else{
         darkThemePref
     }
+    val view = LocalView.current
+    val window = (view.context as Activity?)?.window
+
     val colorScheme = when {
         darkTheme -> DarkColorScheme
         else -> LightColorScheme
+    }
+
+    LaunchedEffect(darkTheme) {
+        //wait...how tf does this make sense
+        window?.let {
+            WindowCompat.getInsetsController(it,view).isAppearanceLightStatusBars = !darkTheme
+        }
     }
 
     MaterialTheme(

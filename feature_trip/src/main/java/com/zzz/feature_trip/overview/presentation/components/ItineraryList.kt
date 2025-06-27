@@ -1,6 +1,5 @@
 package com.zzz.feature_trip.overview.presentation.components
 
-import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
@@ -36,7 +35,6 @@ internal fun ItineraryList(
         items(
             finishedDays,
             key = {
-                Log.d("overview" , "ItineraryList : key id ${it.id}")
                 it.id
             }
         ){day->

@@ -52,7 +52,6 @@ fun NavGraphBuilder.homeNavGraph(
                     navController.navigate(Screen.ThemeScreen)
                 },
                 onNavBarVisibilityChange = {visible->
-                    println("calling visibility change for $visible")
                     navBarVisible(visible)
                 },
                 navToTripOverview = {id->

@@ -27,7 +27,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -49,37 +52,37 @@ import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun TripOverviewRoot(
-    modifier : Modifier = Modifier,
+    modifier: Modifier = Modifier ,
     overviewViewModel: OverviewViewModel = koinViewModel() ,
-    navigateToDayDetails : ()->Unit ,
-    navigateToEditTrip:(tripId : Long)->Unit,
-    navigateUp : ()->Unit ,
+    navigateToDayDetails: () -> Unit ,
+    navigateToEditTrip: (tripId: Long) -> Unit ,
+    navigateUp: () -> Unit ,
 ) {
     val state by overviewViewModel.overviewState.collectAsStateWithLifecycle()
     val days by overviewViewModel.days.collectAsStateWithLifecycle()
 
     TripOverviewPage(
-        modifier,
-        state,
-        days,
-        onAction = {action->
+        modifier ,
+        state ,
+        days ,
+        onAction = { action ->
             overviewViewModel.onAction(action)
-        },
-        navigateToDayDetails = navigateToDayDetails,
-        navigateToEditTrip = navigateToEditTrip,
+        } ,
+        navigateToDayDetails = navigateToDayDetails ,
+        navigateToEditTrip = navigateToEditTrip ,
         navigateUp = navigateUp
     )
 }
 
 @Composable
 private fun TripOverviewPage(
-    modifier : Modifier = Modifier,
-    state : OverviewState ,
-    days : List<Day> ,
-    onAction : (OverviewActions)->Unit ,
-    navigateToDayDetails : ()->Unit ,
-    navigateToEditTrip:(tripId : Long)->Unit,
-    navigateUp : ()->Unit ,
+    modifier: Modifier = Modifier ,
+    state: OverviewState ,
+    days: List<Day> ,
+    onAction: (OverviewActions) -> Unit ,
+    navigateToDayDetails: () -> Unit ,
+    navigateToEditTrip: (tripId: Long) -> Unit ,
+    navigateUp: () -> Unit ,
 ) {
     val pagerState = rememberPagerState() {
         days.size
@@ -92,28 +95,31 @@ private fun TripOverviewPage(
     }
 
     Box(
-        modifier.fillMaxSize()
+        modifier
+            .fillMaxSize()
             .background(
                 MaterialTheme.colorScheme.background
             )
-    ){
-        if(state.loading){
+    ) {
+        if (state.loading) {
             Box(
-                Modifier.fillMaxWidth()
-                    .align(Alignment.Center),
+                Modifier
+                    .fillMaxWidth()
+                    .align(Alignment.Center) ,
                 contentAlignment = Alignment.Center
-            ){
+            ) {
                 DotsLoadingAnimation()
             }
-        }else{
+        } else {
             Column(
-                Modifier.fillMaxSize()
+                Modifier
+                    .fillMaxSize()
                     .verticalScroll(rememberScrollState())
-                    .padding(16.dp),
+                    .padding(16.dp) ,
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 OverviewTopBar(
-                    tripName = state.trip?.tripName ?:"null",
+                    tripName = state.trip?.tripName ?: "null" ,
                     onBack = {
                         onAction(OverviewActions.CleanUpResources)
                         navigateUp()
@@ -128,43 +134,43 @@ private fun TripOverviewPage(
                 //date
                 VerticalSpace()
                 DateHeader(
-                    startDate = state.trip?.startDate ?: 0,
+                    startDate = state.trip?.startDate ?: 0 ,
                     endDate = state.trip?.endDate ?: 0
                 )
 
                 //Itinerary layout
                 VerticalSpace()
                 ItineraryLayoutOptions(
-                    isPagerLayout = state.itineraryPagerLayout,
+                    isPagerLayout = state.itineraryPagerLayout ,
                     onLayoutChange = {
                         onAction(OverviewActions.ChangeItineraryLayout)
                     }
                 )
                 AnimatedContent(
-                    state.itineraryPagerLayout,
+                    state.itineraryPagerLayout ,
                     transitionSpec = {
                         fadeIn() togetherWith fadeOut()
                     }
-                ) {pagerLayout->
-                    if(pagerLayout){
+                ) { pagerLayout ->
+                    if (pagerLayout) {
                         ItineraryPager(
-                            pagerState = pagerState,
-                            days = days,
+                            pagerState = pagerState ,
+                            days = days ,
                             onDayClick = {
                                 onAction(OverviewActions.UpdateSelectedDay(it))
                                 navigateToDayDetails()
                             }
                         )
-                    }else{
+                    } else {
                         ItineraryList(
-                            days,
+                            days ,
                             onClick = {
                                 onAction(OverviewActions.UpdateSelectedDay(it))
                                 navigateToDayDetails()
-                            },
-                            markDayStatus = {isDone, dayId ->
+                            } ,
+                            markDayStatus = { isDone , dayId ->
                                 //println("new status for $dayId is $isDone")
-                                onAction(OverviewActions.UpdateDayStatus(dayId,isDone))
+                                onAction(OverviewActions.UpdateDayStatus(dayId , isDone))
                             }
                         )
                     }
@@ -174,21 +180,22 @@ private fun TripOverviewPage(
                 //docs
                 if (state.docs.isNotEmpty()) {
                     Text(
-                        "Your documents",
+                        "Your documents" ,
                         fontSize = 16.sp ,
                         fontWeight = FontWeight.Bold ,
                     )
                     LazyColumn(
-                        Modifier.fillMaxWidth()
-                            .heightIn(max = 500.dp),
+                        Modifier
+                            .fillMaxWidth()
+                            .heightIn(max = 500.dp) ,
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         items(
-                            state.docs,
-                            key= {
+                            state.docs ,
+                            key = {
                                 it.id
                             }
-                        ){doc->
+                        ) { doc ->
                             OverviewDocumentCard(
                                 doc
                             )
@@ -201,21 +208,45 @@ private fun TripOverviewPage(
 
                 //delete
                 IconTextButton(
-                    modifier = Modifier.align(Alignment.CenterHorizontally),
+                    modifier = Modifier.align(Alignment.CenterHorizontally) ,
                     icon = com.zzz.core.R.drawable.delete ,
                     text = "Delete Trip" ,
-                    shape = MaterialTheme.shapes.large,
-                    background = MaterialTheme.colorScheme.errorContainer,
-                    onBackground = MaterialTheme.colorScheme.onErrorContainer,
+                    shape = MaterialTheme.shapes.large ,
+                    background = MaterialTheme.colorScheme.errorContainer ,
+                    onBackground = MaterialTheme.colorScheme.onErrorContainer ,
                     onClick = {
                         deleteDialog = true
                     }
                 )
             }
         }
-        if(deleteDialog){
+        if (deleteDialog) {
             ConfirmActionDialog(
-                title = "Are you sure you want to delete ${state.trip?.tripName}? This cannot be UNDONE!" ,
+                title = buildAnnotatedString {
+                    //"Are you sure you want to delete ${state.trip?.tripName}? This cannot be UNDONE!"
+                    withStyle(
+                        SpanStyle(
+                            fontSize = 18.sp
+                        )
+                    ) {
+                        append("Are you sure you want to delete ")
+                    }
+                    withStyle(
+                        SpanStyle(
+                            fontWeight = FontWeight.Bold ,
+                            fontSize = 18.sp
+                        )
+                    ) {
+                        append(state.trip?.tripName)
+                    }
+                    withStyle(
+                        SpanStyle(
+                            fontSize = 18.sp
+                        )
+                    ) {
+                        append("? This cannot be UNDONE!")
+                    }
+                } ,
                 actionText = "Delete" ,
                 onConfirm = {
                     deleteDialog = false

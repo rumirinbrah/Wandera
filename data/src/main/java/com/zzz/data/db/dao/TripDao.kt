@@ -38,9 +38,9 @@ internal abstract class TripDao {
     @Query("SELECT * from trip_table")
     abstract fun getTrips() : Flow<List<TripWithDaysAndTodos>>
 
-    //GET with user docs
+    //GET
     @Transaction
-    @Query("select * from trip_table")
+    @Query("select * from trip_table order by dateCreated DESC")
     abstract fun getTripsWithDays() : Flow<List<TripWithDays>>
 
 }

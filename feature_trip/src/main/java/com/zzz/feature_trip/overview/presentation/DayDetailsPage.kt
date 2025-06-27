@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -23,7 +22,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -73,13 +71,11 @@ private fun DayDetailsPage(
         dayWithTodos?.day
     }
     val todos = remember {
-        println("DayDetailsPage : calc TODOS")
         dayWithTodos?.todosAndLocations?.filter {
             it.isTodo
         }
     }
     val locations = remember {
-        println("DayDetailsPage : calc TODOS")
         dayWithTodos?.todosAndLocations?.filter {
             !it.isTodo
         }

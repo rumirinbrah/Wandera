@@ -28,6 +28,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -146,12 +147,29 @@ private fun CreateTripPage(
                 .padding(16.dp) ,
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Text(
-                "Create new adventure!" ,
-                fontSize = 18.sp ,
-                fontWeight = FontWeight.Bold ,
-                modifier = Modifier.align(Alignment.CenterHorizontally)
-            )
+            Box (
+                Modifier.fillMaxWidth()
+            ){
+                CircularIconButton(
+                    modifier = Modifier
+                        .padding(4.dp)
+                        .align(Alignment.CenterStart),
+                    icon = com.zzz.core.R.drawable.arrow_back ,
+                    contentDescription = "Go back" ,
+                    background = Color.DarkGray.copy(0.3f) ,
+                    onBackground = Color.White,
+                    onClick = {
+                        showConfirmDiscardDialog = true
+                    }
+                )
+                Text(
+                    "Create new adventure!" ,
+                    fontSize = 18.sp ,
+                    fontWeight = FontWeight.Bold ,
+                    modifier = Modifier.align(Alignment.Center)
+                )
+            }
+
 
             //title
             VerticalSpace()

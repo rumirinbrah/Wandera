@@ -1,5 +1,6 @@
 package com.zzz.feature_trip.home.presentation
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -25,11 +26,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.zzz.core.presentation.buttons.CircularIconButton
+import com.zzz.core.presentation.components.DotsLoadingAnimation
 import com.zzz.core.presentation.components.VerticalSpace
 import com.zzz.core.theme.WanderaTheme
 import com.zzz.data.trip.TripWithDays
@@ -48,10 +51,12 @@ fun HomeRoot(
 ) {
 
     val tripsWithDoc by homeViewModel.tripWithDocs.collectAsStateWithLifecycle()
+    val state by homeViewModel.state.collectAsStateWithLifecycle()
 
     HomePage(
         modifier,
         tripsWithDoc = tripsWithDoc,
+        state = state,
         navToThemeSettings = navToThemeSettings,
         navToCreateTrip = navToCreateTrip,
         navToTripOverview = navToTripOverview,
@@ -65,6 +70,7 @@ fun HomeRoot(
 private fun HomePage(
     modifier: Modifier = Modifier,
     tripsWithDoc : List<TripWithDays>,
+    state : HomeState,
     navToCreateTrip : ()->Unit,
     navToThemeSettings : ()->Unit,
     navToTripOverview : (tripId : Long)->Unit,
@@ -88,11 +94,34 @@ private fun HomePage(
 
 
     Box(modifier.fillMaxSize()){
+        when{
+            /*
+            !state.loading && tripsWithDoc.isEmpty()->{
+                Text(
+                    "Woah there's nothing here...tap on the + icon to get started.",
+                    modifier = Modifier.align(Alignment.Center)
+                        .padding(16.dp),
+                    textAlign = TextAlign.Center,
+                    fontSize = 14.sp,
+                    color = MaterialTheme.colorScheme.onBackground.copy(0.5f)
+                )
+            }
+
+             */
+            state.loading ->{
+                Box(
+                    Modifier.align(Alignment.Center)
+                ){
+                    DotsLoadingAnimation()
+                }
+            }
+        }
+
         Column(
             Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
-                .background(MaterialTheme.colorScheme.background)
+//                .background(MaterialTheme.colorScheme.background)
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
@@ -151,11 +180,11 @@ private fun HomePage(
                 state = lazyListState,
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
+
                 items(
                     tripsWithDoc,
                     key = {it.trip.id}
                 ){trip->
-                    //println(trip.trip.tripName)
                     TripItem(
                         tripWithDays = trip,
                         onClick = {id->

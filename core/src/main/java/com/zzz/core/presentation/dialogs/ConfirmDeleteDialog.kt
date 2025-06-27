@@ -15,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -39,7 +40,6 @@ fun ConfirmActionDialog(
 )
 {
 
-
     Dialog(
         onDismissRequest = {
             onCancel()
@@ -59,6 +59,65 @@ fun ConfirmActionDialog(
                 title ,
                 fontWeight = FontWeight.Bold ,
                 fontSize = 18.sp,
+                textAlign = TextAlign.Center
+            )
+            Row (
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
+            ){
+                Button(
+                    modifier = Modifier.weight(1f),
+                    onClick = onCancel,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer
+                    )
+                ) {
+                    Text("Cancel",color = MaterialTheme.colorScheme.onPrimaryContainer)
+                }
+                Button(
+                    modifier = Modifier.weight(1f),
+                    onClick = onConfirm,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.errorContainer
+                    )
+                ) {
+                    Text(actionText, color = MaterialTheme.colorScheme.onErrorContainer)
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Uses annotated string
+ */
+@Composable
+fun ConfirmActionDialog(
+    title : AnnotatedString ,
+    actionText : String,
+    onConfirm:()->Unit ,
+    onCancel:()->Unit ,
+    modifier: Modifier = Modifier
+)
+{
+
+    Dialog(
+        onDismissRequest = {
+            onCancel()
+        }
+    ) {
+        Column(
+            modifier
+                .clip(MaterialTheme.shapes.large)
+                .fillMaxWidth()
+                .background(MaterialTheme.colorScheme.surface)
+                .padding(16.dp) ,
+            horizontalAlignment = Alignment.CenterHorizontally ,
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            VerticalSpace(5.dp)
+            Text(
+                title ,
                 textAlign = TextAlign.Center
             )
             Row (
