@@ -81,7 +81,10 @@ fun WanderaTheme(
     LaunchedEffect(darkTheme) {
         //wait...how tf does this make sense
         window?.let {
-            WindowCompat.getInsetsController(it,view).isAppearanceLightStatusBars = !darkTheme
+            val controller = WindowCompat.getInsetsController(it,view)//.isAppearanceLightStatusBars = !darkTheme
+            controller.isAppearanceLightStatusBars = !darkTheme
+            controller.isAppearanceLightNavigationBars = !darkTheme
+
         }
     }
 

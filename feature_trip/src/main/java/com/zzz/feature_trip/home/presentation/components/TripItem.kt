@@ -28,6 +28,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.zzz.core.presentation.components.VerticalSpace
+import com.zzz.core.presentation.modifiers.customShadow
 import com.zzz.core.theme.WanderaTheme
 import com.zzz.data.trip.TripWithDays
 import com.zzz.feature_trip.home.util.getDateDifference

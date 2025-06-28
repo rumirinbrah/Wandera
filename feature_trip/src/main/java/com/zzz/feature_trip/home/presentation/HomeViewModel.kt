@@ -52,7 +52,6 @@ class HomeViewModel(
             _state.update {
                 it.copy(loading = true)
             }
-            delay(5000L)
 
             tripSource.getTripsWithUserDocs()
                 .onStart {

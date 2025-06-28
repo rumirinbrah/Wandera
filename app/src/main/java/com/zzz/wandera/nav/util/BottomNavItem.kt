@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.zzz.core.presentation.modifiers.customShadow
 
 /**
  * Represents a bottom navigation bar item
@@ -31,10 +32,10 @@ import androidx.compose.ui.unit.sp
  */
 @Composable
 internal fun BottomNavItem(
+    modifier: Modifier = Modifier ,
     navItem: NavItem ,
     selected: Boolean = false ,
     onClick: (route: Screen) -> Unit ,
-    modifier: Modifier = Modifier ,
     iconSize: Dp = 35.dp
 ) {
 
@@ -68,6 +69,7 @@ internal fun BottomNavItem(
                             onClick(navItem.route)
                         }
                     }
+
                     .background(
                         if (selected) {
                             MaterialTheme.colorScheme.primary
@@ -76,6 +78,7 @@ internal fun BottomNavItem(
                         }
                     )
                     .padding(8.dp)
+
 
             ) {
                 Icon(

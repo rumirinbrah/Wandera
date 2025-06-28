@@ -1,7 +1,5 @@
 package com.zzz.feature_trip.home.presentation
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,7 +24,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -34,6 +31,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.zzz.core.presentation.buttons.CircularIconButton
 import com.zzz.core.presentation.components.DotsLoadingAnimation
 import com.zzz.core.presentation.components.VerticalSpace
+import com.zzz.core.presentation.modifiers.customShadow
 import com.zzz.core.theme.WanderaTheme
 import com.zzz.data.trip.TripWithDays
 import com.zzz.feature_trip.home.presentation.components.TripItem
@@ -85,11 +83,10 @@ private fun HomePage(
     }
     LaunchedEffect(isAtTop.value) {
         if(isAtTop.value){
+            //if at top, delay a lil and show navbar
             delay(300)
-            onNavBarVisibilityChange(isAtTop.value)
-        }else{
-            onNavBarVisibilityChange(isAtTop.value)
         }
+        onNavBarVisibilityChange(isAtTop.value)
     }
 
 
@@ -157,7 +154,15 @@ private fun HomePage(
                         fontSize = 17.sp,
                     )
                 }
+                //create new
                 CircularIconButton(
+                    modifier = Modifier
+                        .customShadow(
+                            color = MaterialTheme.colorScheme.onBackground,
+                            shadowRadius = 15f,
+                            offsetY = 5f,
+                            alpha = 0.2f
+                        ),
                     icon = com.zzz.core.R.drawable.add ,
                     contentDescription = "Create new trip" ,
                     onClick = {

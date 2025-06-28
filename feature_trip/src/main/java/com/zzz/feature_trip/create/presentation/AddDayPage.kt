@@ -118,6 +118,7 @@ private fun AddDayPage(
     ) {
         if (!dayState.isUpdating) {
 
+            //new
             Row(
                 Modifier.fillMaxWidth() ,
                 horizontalArrangement = Arrangement.SpaceBetween ,
@@ -143,6 +144,7 @@ private fun AddDayPage(
                 )
             }
         } else {
+            //update
             Row(
                 Modifier.fillMaxWidth() ,
                 horizontalArrangement = Arrangement.SpaceBetween ,
@@ -154,10 +156,19 @@ private fun AddDayPage(
                     icon = com.zzz.core.R.drawable.arrow_back ,
                     contentDescription = "Go back" ,
                     background = Color.DarkGray.copy(0.5f) ,
+                    onBackground = Color.White,
                     onClick = {
                         onAction(CreateAction.DayActions.ClearDayState)
                         navigateUp()
+                    }
+                )
+                NormalButton(
+                    title = "Update" ,
+                    onClick = {
+                        onAction(CreateAction.DayActions.OnUpdateDay)
                     } ,
+                    contentDescription = "update day" ,
+                    verticalPadding = 4.dp
                 )
             }
         }
@@ -189,7 +200,7 @@ private fun AddDayPage(
             } ,
             imeAction = ImeAction.Done ,
             singleLine = true ,
-            enabled = !dayState.isUpdating,
+            //enabled = !dayState.isUpdating,
             modifier = Modifier.fillMaxWidth() ,
         )
 
@@ -201,7 +212,7 @@ private fun AddDayPage(
             onImagePick = {uri->
                 onAction(CreateAction.DayActions.OnPickImage(uri))
             },
-            isViewOnly = dayState.isUpdating
+            //isViewOnly = dayState.isUpdating
         )
 
         //toddooos

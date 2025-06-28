@@ -321,7 +321,6 @@ class CreateViewModel(
 
             //start fetching todos
             getDayTodosFlow()
-            Log.d("CreateVM" , "fetchDayById : Image uri is ${day.image?.toString()}")
 
             _dayState.update {
                 it.copy(

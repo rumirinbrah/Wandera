@@ -13,7 +13,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Shapes
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -21,14 +20,15 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.zzz.data.trip.DayWithTodos
 import com.zzz.data.trip.model.Day
 
+/**
+ * @author zyzz
+ */
 @Composable
 fun ItineraryItem(
     day: Day ,
     onClick : (id : Long)->Unit,
-    onEdit : (id : Long)->Unit,
     onDelete : (id : Long)->Unit,
     modifier: Modifier = Modifier
 ) {
@@ -55,17 +55,6 @@ fun ItineraryItem(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(4.dp)
         ){
-            IconButton(
-                onClick = {
-                    onEdit(day.id)
-                }
-            ) {
-                Icon(
-                    painter = painterResource(com.zzz.core.R.drawable.edit_day) ,
-                    contentDescription = "Edit ${day.locationName}",
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
             IconButton(
                 onClick ={
                     onDelete(day.id)

@@ -37,7 +37,7 @@ internal fun OverviewTopBar(
                 .padding(4.dp) ,
             icon = com.zzz.core.R.drawable.arrow_back ,
             contentDescription = "Go back" ,
-            background = Color.DarkGray.copy(0.3f) ,
+            background = Color.DarkGray.copy(0.4f) ,
             onBackground = Color.White,
             onClick = {
                 onBack()
@@ -58,7 +58,7 @@ internal fun OverviewTopBar(
                 .padding(4.dp) ,
             icon = com.zzz.core.R.drawable.edit_day ,
             contentDescription = "Go back" ,
-            background = Color.DarkGray.copy(0.3f) ,
+            background = Color.DarkGray.copy(0.4f) ,
             onBackground = Color.White,
             onClick = {
                 editTrip()

@@ -24,10 +24,10 @@ import androidx.compose.ui.unit.dp
  */
 @Composable
 fun CircularIconButton(
+    modifier: Modifier = Modifier,
     @DrawableRes icon : Int,
     contentDescription : String,
     onClick : ()->Unit,
-    modifier: Modifier = Modifier,
     background : Color = MaterialTheme.colorScheme.primary,
     onBackground : Color = MaterialTheme.colorScheme.onPrimary,
     alpha : Float = 1f,

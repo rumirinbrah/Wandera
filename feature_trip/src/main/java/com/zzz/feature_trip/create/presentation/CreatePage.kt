@@ -267,7 +267,6 @@ private fun CreateTripPage(
                             onAction(CreateAction.DayActions.FetchDayById(id))
                             onEditDay()
                         },
-                        onEdit = {},
                         onDelete = {id->
                             println("id is $id")
                             onAction(CreateAction.DayActions.OnDeleteDay(id))
@@ -317,7 +316,7 @@ private fun CreateTripPage(
             VerticalSpace(5.dp)
             Column {
                 Text(
-                    "We've also got some offline translation functionality" ,
+                    "We've also got some offline translation functionality!" ,
                     fontSize = 16.sp ,
                     fontWeight = FontWeight.Bold ,
                 )
@@ -367,23 +366,26 @@ private fun CreateTripPage(
 
 
         }
-        if (tripState.saving){
-            LoadingDialog(modifier = Modifier.align(Alignment.Center))
+        when{
+            tripState.saving->{
+                LoadingDialog(modifier = Modifier.align(Alignment.Center))
+            }
+            showConfirmDiscardDialog ->{
+                ConfirmActionDialog(
+                    title = "Are you sure you want to go back? All created data will be lost" ,
+                    actionText = "Discard" ,
+                    onConfirm = {
+                        onAction(CreateAction.OnDiscardTripCreation)
+                        navigateUp()
+                        showConfirmDiscardDialog = false
+                    } ,
+                    onCancel = {
+                        showConfirmDiscardDialog = false
+                    }
+                )
+            }
         }
-        if(showConfirmDiscardDialog){
-            ConfirmActionDialog(
-                title = "Are you sure you want to go back? All created data will be lost" ,
-                actionText = "Discard" ,
-                onConfirm = {
-                    onAction(CreateAction.OnDiscardTripCreation)
-                    navigateUp()
-                    showConfirmDiscardDialog = false
-                } ,
-                onCancel = {
-                    showConfirmDiscardDialog = false
-                }
-            )
-        }
+
         SnackbarHost(
             hostState = snackbarState,
             modifier = Modifier.align(Alignment.BottomCenter)

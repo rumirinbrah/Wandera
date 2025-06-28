@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.zzz.core.presentation.modifiers.customShadow
 import com.zzz.wandera.nav.util.Screen
 import com.zzz.core.presentation.theme_change.ChangeThemePage
 import com.zzz.feature_translate.presentation.TranslateRoot
@@ -35,8 +36,8 @@ import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun Navigation(
-    themeState : ThemeState,
-    toggleDarkMode : (Boolean)->Unit,
+    themeState: ThemeState ,
+    toggleDarkMode: (Boolean) -> Unit ,
 ) {
     val navController = rememberNavController()
 
@@ -46,30 +47,30 @@ fun Navigation(
 
 
     Scaffold(
-        Modifier.fillMaxSize(),
-    ) { innerPadding->
+        Modifier.fillMaxSize() ,
+    ) { innerPadding ->
 
         Box(
             Modifier.fillMaxSize()
-                //.padding(innerPadding)
-        ){
+            //.padding(innerPadding)
+        ) {
             NavHost(
-                navController = navController,
+                navController = navController ,
                 startDestination = Screen.HomeGraph
             ) {
 
                 //HOME
                 homeNavGraph(
-                    navController,
+                    navController ,
                     navBarVisible = {
                         navBarVisible = it
-                    },
+                    } ,
                     innerPadding = innerPadding
                 )
 
                 //RECENTS
                 composable<Screen.RecentsScreen> {
-                    Box(Modifier.fillMaxSize()){
+                    Box(Modifier.fillMaxSize()) {
                         Column {
                             Button(
                                 onClick = {
@@ -82,22 +83,23 @@ fun Navigation(
                     }
                 }
                 //TRANSLATE
-                composable<Screen.TranslateScreen> {backStack->
+                composable<Screen.TranslateScreen> { backStack ->
 
                     val parentEntry = remember(backStack) {
                         navController.getBackStackEntry(Screen.TranslateScreen)
                     }
-                    val translateVm = koinViewModel<TranslationViewModel>(viewModelStoreOwner = parentEntry)
+                    val translateVm =
+                        koinViewModel<TranslationViewModel>(viewModelStoreOwner = parentEntry)
 
                     TranslateRoot(
-                        Modifier.padding(innerPadding),
+                        Modifier.padding(innerPadding) ,
                         navBarVisible = {
                             navBarVisible = it
-                        },
+                        } ,
                         navigateUp = {
                             navController.navigateUp()
-                        },
-                        bottomPadding = navBarHeight,
+                        } ,
+                        bottomPadding = navBarHeight ,
                         translationViewModel = translateVm
                     )
                 }
@@ -107,40 +109,43 @@ fun Navigation(
                         navBarVisible = false
                     }
                     ChangeThemePage(
-                        night = themeState.isDarkMode,
-                        toggleDarkMode = toggleDarkMode,
+                        night = themeState.isDarkMode ,
+                        toggleDarkMode = toggleDarkMode ,
                         innerPadding = innerPadding
                     )
                 }
             }
             AnimatedVisibility(
-                navBarVisible,
+                navBarVisible ,
                 enter = slideInVertically(
                     initialOffsetY = {
-                        it/2
-                    },
+                        it / 2
+                    } ,
                     animationSpec = tween()
                 ) ,
-                exit =  slideOutVertically(
+                exit = slideOutVertically(
                     targetOffsetY = {
-                        it*2
+                        it * 2
                     }
                 ) ,
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
             ) {
                 BottomNavBar(
-                    navController,
+                    navController ,
                     modifier = Modifier
-                        //.padding(innerPadding)
                         .navigationBarsPadding()
-                        .padding(vertical = 8.dp, horizontal = 4.dp),
-                    currentRoute = currentRoute,
-                    onHeightCalculated = {height->
+                        .padding(vertical = 8.dp , horizontal = 4.dp)
+                        .customShadow(
+                            color = MaterialTheme.colorScheme.surfaceContainer ,
+                            offsetY = 10f ,
+                        ) ,
+                    currentRoute = currentRoute ,
+                    onHeightCalculated = { height ->
                         navBarHeight = height
-                    },
+                    } ,
                     onRouteChange = {
-                        currentRoute= it
+                        currentRoute = it
                     }
                 )
             }

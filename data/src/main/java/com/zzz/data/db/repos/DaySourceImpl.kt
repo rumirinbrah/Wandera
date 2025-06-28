@@ -53,7 +53,7 @@ internal class DaySourceImpl(
     }
 
     override suspend fun updateDayById(id: Long , newTitle: String) {
-        dayDao.updateDayById(id,newTitle)
+        dayDao.updateDayNameById(id,newTitle)
     }
 
     override suspend fun markDayAsDone(dayId: Long , done: Boolean) {
