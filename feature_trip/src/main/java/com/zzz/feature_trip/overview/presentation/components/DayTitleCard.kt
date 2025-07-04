@@ -19,8 +19,8 @@ import androidx.compose.ui.unit.sp
 import kotlin.math.max
 
 /**
- * @author zyzz
  * Used in DayDetailsPage
+ * @author zyzz
  * @param alpha - Opacity of text background
  */
 @Composable

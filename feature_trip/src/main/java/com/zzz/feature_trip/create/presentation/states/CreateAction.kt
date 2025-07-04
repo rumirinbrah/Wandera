@@ -14,6 +14,7 @@ sealed class CreateAction {
         data class DeleteDocument(val docId : Long ):TripActions()
 
         data object CreateSession : TripActions()
+        data class FetchTripData(val tripId : Long) : TripActions()
 
     }
 

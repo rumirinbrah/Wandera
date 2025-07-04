@@ -22,6 +22,8 @@ import com.zzz.feature_trip.home.presentation.HomeViewModel
 import com.zzz.feature_trip.overview.presentation.viewmodel.OverviewActions
 import com.zzz.feature_trip.overview.presentation.viewmodel.OverviewViewModel
 import com.zzz.feature_trip.overview.presentation.TripOverviewRoot
+import com.zzz.feature_trip.update.presentation.UpdateRoot
+import com.zzz.feature_trip.update.presentation.viewmodel.UpdateTripViewModel
 import org.koin.androidx.compose.koinViewModel
 
 fun NavGraphBuilder.homeNavGraph(
@@ -86,6 +88,36 @@ fun NavGraphBuilder.homeNavGraph(
                 createViewModel
             )
         }
+        //Update
+        composable<Screen.HomeGraph.UpdateTripScreen> { backStack->
+            val route = backStack.toRoute<Screen.HomeGraph.UpdateTripScreen>()
+            val parentEntry = remember(backStack) {
+                navController.getBackStackEntry(Screen.HomeGraph.UpdateTripScreen(route.tripId))
+            }
+            val updateTripViewModel = koinViewModel<UpdateTripViewModel>(viewModelStoreOwner = parentEntry)
+
+            LaunchedEffect(Unit) {
+                updateTripViewModel.onAction(
+                    CreateAction
+                        .TripActions
+                        .FetchTripData(route.tripId)
+                )
+            }
+
+            UpdateRoot(
+                modifier = Modifier.padding(innerPadding),
+                onNavToAddDay = {
+                    navController.navigate(Screen.HomeGraph.AddDayScreen)
+                } ,
+                onEditDay = {
+                    navController.navigate(Screen.HomeGraph.AddDayScreen)
+                } ,
+                navigateUp = {
+                    navController.navigateUp()
+                },
+                updateTripViewModel = updateTripViewModel
+            )
+        }
         //create -> add day
         composable<Screen.HomeGraph.AddDayScreen> { backStack->
             /*
@@ -147,7 +179,7 @@ fun NavGraphBuilder.homeNavGraph(
                     navController.navigate(Screen.HomeGraph.DayDetailsScreen)
                 },
                 navigateToEditTrip = {tripId->
-                    //navController.navigate(Screen.HomeGraph.CreateTripScreen(tripId))
+                    navController.navigate(Screen.HomeGraph.UpdateTripScreen(tripId))
                 },
                 navigateUp = {
                     navController.navigateUp()

@@ -1,6 +1,7 @@
 package com.zzz.feature_trip.overview.presentation.components
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -25,6 +26,37 @@ internal fun OverviewTopBar(
     editTrip : ()->Unit ,
     modifier: Modifier = Modifier
 ) {
+
+    /*
+    Box(
+        modifier.fillMaxWidth()
+            .clip(MaterialTheme.shapes.large)
+    ){
+        CircularIconButton(
+            modifier = Modifier
+                .padding(4.dp)
+                .align(Alignment.CenterStart),
+            icon = com.zzz.core.R.drawable.arrow_back ,
+            contentDescription = "Go back" ,
+            background = Color.DarkGray.copy(0.4f) ,
+            onBackground = Color.White,
+            onClick = {
+                onBack()
+            }
+        )
+        Text(
+            tripName,
+            fontSize = 25.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.align(Alignment.Center)
+                .padding(horizontal = 8.dp),
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis,
+            textAlign = TextAlign.Center
+        )
+    }
+
+     */
 
     Row(
         modifier.fillMaxWidth()
@@ -53,16 +85,22 @@ internal fun OverviewTopBar(
             overflow = TextOverflow.Ellipsis,
             textAlign = TextAlign.Center
         )
+
         CircularIconButton(
             modifier = Modifier
                 .padding(4.dp) ,
-            icon = com.zzz.core.R.drawable.edit_day ,
+            icon = com.zzz.core.R.drawable.download_done ,
             contentDescription = "Go back" ,
             background = Color.DarkGray.copy(0.4f) ,
             onBackground = Color.White,
             onClick = {
-                editTrip()
+
             }
         )
+
+
+
     }
+
+
 }

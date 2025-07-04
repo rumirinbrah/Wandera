@@ -15,6 +15,9 @@ sealed class Screen {
         data object CreateTripScreen
 
         @Serializable
+        data class UpdateTripScreen(val tripId : Long)
+
+        @Serializable
         data object AddDayScreen
 
         @Serializable

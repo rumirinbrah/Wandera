@@ -3,6 +3,7 @@ package com.zzz.feature_trip.overview.presentation.components
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.runtime.Composable
@@ -28,7 +29,7 @@ internal fun ItineraryPager(
     ) {
         HorizontalPager(
             modifier = modifier
-                .height(400.dp),
+                .heightIn(400.dp),
             state = pagerState,
             key = {
                 days[it].id

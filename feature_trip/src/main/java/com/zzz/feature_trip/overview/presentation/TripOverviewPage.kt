@@ -20,6 +20,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -30,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -37,9 +39,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.zzz.core.presentation.buttons.IconTextButton
 import com.zzz.core.presentation.components.DotsLoadingAnimation
 import com.zzz.core.presentation.components.VerticalSpace
+import com.zzz.core.presentation.components.WanderaShapes
 import com.zzz.core.presentation.dialogs.ConfirmActionDialog
 import com.zzz.core.presentation.headers.DateHeader
+import com.zzz.core.presentation.text_field.RoundedTextField
 import com.zzz.data.trip.model.Day
+import com.zzz.feature_trip.overview.presentation.components.ExpensesNoteBox
 import com.zzz.feature_trip.overview.presentation.components.ItineraryLayoutOptions
 import com.zzz.feature_trip.overview.presentation.components.ItineraryList
 import com.zzz.feature_trip.overview.presentation.components.ItineraryPager
@@ -203,6 +208,20 @@ private fun TripOverviewPage(
                     }
                 }
 
+                //expense notes
+                VerticalSpace(10.dp)
+                Text(
+                    "Expenses",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Medium
+                )
+                ExpensesNoteBox(
+                    value = "",
+                    onValueChange = {
+
+                    },
+                    onSave = {}
+                )
 
                 VerticalSpace(30.dp)
 

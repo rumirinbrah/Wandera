@@ -2,6 +2,7 @@ package com.zzz.core.util
 
 import android.content.Context
 import android.content.Intent
+import android.content.Intent.ACTION_SEND
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
@@ -112,4 +113,13 @@ fun Context.openImageInGallery(uri: Uri){
     }
 }
 
+//send text
+fun Context.shareText(text : String){
+    val intent = Intent(ACTION_SEND).apply {
+        type = "text/plain"
+        putExtra(Intent.EXTRA_TEXT,text)
+    }
+    val chooser = Intent.createChooser(intent,"Share expenses via")
+    startActivity(chooser)
 
+}

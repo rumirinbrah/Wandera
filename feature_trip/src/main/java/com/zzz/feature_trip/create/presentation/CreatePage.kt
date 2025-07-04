@@ -128,7 +128,7 @@ private fun CreateTripPage(
                 }
             }
             UIEvents.Success -> {
-                //Toast.makeText(context , "Saved!" , Toast.LENGTH_SHORT).show()
+                //sent when saved to db!
                 navigateUp()
             }
             else->{}

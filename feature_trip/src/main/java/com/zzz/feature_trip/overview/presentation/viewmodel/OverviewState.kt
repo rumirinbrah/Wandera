@@ -7,7 +7,7 @@ import com.zzz.data.trip.model.UserDocument
 internal data class OverviewState(
     val loading : Boolean = false,
     val trip : Trip? = null,
-    val itineraryPagerLayout : Boolean = false,
+    val itineraryPagerLayout : Boolean = true,
     val selectedDay : DayWithTodos? = null,
     val docs : List<UserDocument> = emptyList()
 )
