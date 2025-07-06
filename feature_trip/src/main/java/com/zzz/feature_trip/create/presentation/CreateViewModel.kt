@@ -5,7 +5,9 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.zzz.core.presentation.events.UIEvents
+import com.zzz.data.note.model.ChecklistEntity
 import com.zzz.data.note.model.ExpenseNote
+import com.zzz.data.note.source.ChecklistSource
 import com.zzz.data.note.source.ExpenseNoteSource
 import com.zzz.data.trip.model.Day
 import com.zzz.data.trip.model.TodoLocation
@@ -40,9 +42,12 @@ class CreateViewModel(
     private val tripSource: TripSource ,
     private val daySource: DaySource ,
     private val todoSource: TodoSource ,
-    private val docSource : UserDocSource ,
+    private val docSource: UserDocSource ,
     private val expenseNoteSource: ExpenseNoteSource ,
+    private val checklistSource: ChecklistSource ,
 ) : ViewModel() {
+
+    private val loggingEnabled = true
 
     private var sessionData = SessionData()
 
@@ -68,8 +73,8 @@ class CreateViewModel(
 
     private val _docs = MutableStateFlow<List<UserDocument>>(emptyList())
     val docs = _docs.stateIn(
-        viewModelScope,
-        SharingStarted.WhileSubscribed(5000L),
+        viewModelScope ,
+        SharingStarted.WhileSubscribed(5000L) ,
         _docs.value
     )
 
@@ -79,15 +84,19 @@ class CreateViewModel(
 
     private var collectTodosJob: Job? = null
     private var collectDocsJob: Job? = null
+    private var collectChecklistJob: Job? = null
 
 
     init {
-        Log.d("createVm" , "CreateViewModel init")
+        log {
+            "init..."
+        }
 
         createTripSession(
             onDone = {
                 getTripDaysFlow()
                 getUserDocsFlow()
+                getTripChecklistFlow()
             }
         )
 
@@ -102,7 +111,8 @@ class CreateViewModel(
                     CreateAction.DayActions.CreateDaySession -> {
                         createDaySession()
                     }
-                    CreateAction.DayActions.ClearDayState->{
+
+                    CreateAction.DayActions.ClearDayState -> {
                         resetDayState()
                     }
 
@@ -153,33 +163,52 @@ class CreateViewModel(
             is CreateAction.TripActions -> {
                 when (action) {
 
+                    //title
+                    is CreateAction.TripActions.OnTripTitleChange -> {
+                        onTripTitleChange(action.title)
+                    }
                     // date
                     is CreateAction.TripActions.OnDateSelect -> {
                         onDateSelect(action.start , action.end)
                     }
                     //doc
                     is CreateAction.TripActions.OnDocumentUpload -> {
-                        uploadDocument(action.docUri,action.docName)
+                        uploadDocument(action.docUri , action.docName)
                     }
-                    is CreateAction.TripActions.OnDocumentUpdate->{
-                        updateDocument(action.docId,action.newName)
+
+                    is CreateAction.TripActions.OnDocumentUpdate -> {
+                        updateDocument(action.docId , action.newName)
                     }
-                    is CreateAction.TripActions.DeleteDocument->{
+
+                    is CreateAction.TripActions.DeleteDocument -> {
                         deleteDocument(action.docId)
                     }
-                    //title
-                    is CreateAction.TripActions.OnTripTitleChange -> {
-                        onTripTitleChange(action.title)
+
+                    //checklist
+                    is CreateAction.TripActions.ShowAddChecklistDialog ->{
+                        changeChecklistDialogVisibility(action.visible)
+                    }
+                    is CreateAction.TripActions.AddChecklistEntity -> {
+                        addChecklistEntity(action.title)
+                    }
+
+                    is CreateAction.TripActions.CheckChecklistEntity -> {
+                        checkChecklistEntity(action.itemId , action.checked)
+                    }
+
+                    is CreateAction.TripActions.DeleteChecklistEntity -> {
+                        deleteChecklistEntity(action.itemId)
                     }
 
                     //create session
-                    CreateAction.TripActions.CreateSession ->{
+                    CreateAction.TripActions.CreateSession -> {
                         createTripSession {
                             getTripDaysFlow()
                             getUserDocsFlow()
                         }
                     }
-                    else->Unit
+
+                    else -> Unit
 
                 }
             }
@@ -237,12 +266,12 @@ class CreateViewModel(
 
     private fun saveDay() {
         viewModelScope.launch {
-            val isValid= validateDayInput(
+            val isValid = validateDayInput(
                 onTitleInvalid = {
                     _events.trySend(UIEvents.Error("Please enter a valid title"))
                 }
             )
-            if(!isValid) return@launch
+            if (!isValid) return@launch
 
             withContext(Dispatchers.IO) {
                 val day = Day(
@@ -266,10 +295,11 @@ class CreateViewModel(
             resetDayState()
         }
     }
+
     private fun validateDayInput(
-        onTitleInvalid : ()->Unit
-    ) : Boolean{
-        if(_dayState.value.dayTitle.isBlank()){
+        onTitleInvalid: () -> Unit
+    ): Boolean {
+        if (_dayState.value.dayTitle.isBlank()) {
             onTitleInvalid()
             return false
         }
@@ -279,20 +309,21 @@ class CreateViewModel(
     /**
      * Delete Day entity by id
      */
-    private fun deleteDayById(dayId : Long){
+    private fun deleteDayById(dayId: Long) {
         viewModelScope.launch {
             daySource.deleteDayById(dayId)
         }
     }
+
     /**
      * Updates title of the day
      */
     private fun updateDay() {
         viewModelScope.launch {
             val day = Day(
-                id= sessionData.dayId,
-                locationName = _dayState.value.dayTitle,
-                image = _dayState.value.image,
+                id = sessionData.dayId ,
+                locationName = _dayState.value.dayTitle ,
+                image = _dayState.value.image ,
                 tripId = sessionData.tripId
             )
             //update day
@@ -341,7 +372,9 @@ class CreateViewModel(
      */
     private fun discardDayCreation() {
         viewModelScope.launch {
-            Log.d("CreateVM" , "discardDayCreation : Discard day ${sessionData.dayId}")
+            log {
+                "discardDayCreation : Discard day ${sessionData.dayId}"
+            }
             daySource.deleteDayById(sessionData.dayId)
             resetDayState()
         }
@@ -351,7 +384,9 @@ class CreateViewModel(
         viewModelScope.launch {
             delay(300)
             collectTodosJob?.let {
-                Log.d("CreateVM" , "resetDayState : Cancelling TODO flows job")
+                log {
+                    "resetDayState : Cancelling TODO flows job"
+                }
                 collectTodosJob?.cancel()
             }
             _dayState.update {
@@ -383,12 +418,13 @@ class CreateViewModel(
         }
     }
 
-    private fun uploadDocument(docUri: Uri , docName : String) {
+    //-------- DOC --------
+    private fun uploadDocument(docUri: Uri , docName: String) {
         viewModelScope.launch {
-            withContext(Dispatchers.IO){
+            withContext(Dispatchers.IO) {
                 val doc = UserDocument(
-                    docName = docName,
-                    uri= docUri,
+                    docName = docName ,
+                    uri = docUri ,
                     tripId = sessionData.tripId
                 )
                 val id = docSource.addDocument(doc)
@@ -398,16 +434,59 @@ class CreateViewModel(
 
         }
     }
-    private fun deleteDocument(docId : Long){
+
+    private fun deleteDocument(docId: Long) {
         viewModelScope.launch {
             docSource.deleteDocumentById(docId)
         }
     }
-    private fun updateDocument(docId : Long , newName : String){
+
+    private fun updateDocument(docId: Long , newName: String) {
         viewModelScope.launch {
-            withContext(Dispatchers.IO){
-                docSource.updateDocumentById(docId,newName)
+            withContext(Dispatchers.IO) {
+                docSource.updateDocumentById(docId , newName)
             }
+        }
+    }
+
+    //-------- CHECKLIST --------
+    private fun changeChecklistDialogVisibility(visible: Boolean){
+        viewModelScope.launch {
+            _tripState.update {
+                it.copy(showAddChecklistDialog = visible)
+            }
+        }
+    }
+    private fun addChecklistEntity(title: String) {
+        if (title.isBlank()) {
+            changeChecklistDialogVisibility(false)
+            return
+        }
+        viewModelScope.launch {
+            val item = ChecklistEntity(
+                title = title ,
+                tripId = sessionData.tripId
+            )
+            changeChecklistDialogVisibility(false)
+            val id = checklistSource.addItem(item)
+            log {
+                "Checklist item added, id $id"
+            }
+        }
+    }
+
+    private fun checkChecklistEntity(itemId: Long , checked: Boolean) {
+        viewModelScope.launch {
+            log {
+                "Marking $itemId as $checked"
+            }
+            checklistSource.checkItem(itemId , checked)
+        }
+    }
+
+    private fun deleteChecklistEntity(itemId: Long) {
+        viewModelScope.launch {
+            checklistSource.deleteItem(itemId)
         }
     }
 
@@ -457,9 +536,9 @@ class CreateViewModel(
                 //add note
                 sessionData.tripId.apply {
                     val note = ExpenseNote(
-                        tripId = this,
+                        tripId = this ,
                     )
-                val noteId = expenseNoteSource.addNote(note)
+                    val noteId = expenseNoteSource.addNote(note)
                     Log.d("CreateVM" , "saveTrip: Expense note saved! ID - $noteId")
 
                 }
@@ -469,7 +548,7 @@ class CreateViewModel(
 
             }
             Log.d("CreateVM" , "saveTrip: All entities SAVED!")
-            withContext(Dispatchers.Main.immediate){
+            withContext(Dispatchers.Main.immediate) {
                 delay(1000L)
                 _tripState.update {
                     it.copy(saving = false)
@@ -522,7 +601,7 @@ class CreateViewModel(
      * @return - Id of the entry, can be used to clear data if user cancels creation
      */
     private fun createTripSession(onDone: () -> Unit) {
-        if(_tripState.value.sessionOngoing){
+        if (_tripState.value.sessionOngoing) {
             return
         }
         viewModelScope.launch {
@@ -580,7 +659,7 @@ class CreateViewModel(
                     }
                 }
                 .onCompletion {
-                    if(it != null && it is CancellationException){
+                    if (it != null && it is CancellationException) {
                         throw it
                     }
                     Log.d("CreateVM" , "getTripDaysFlow: Flow completed")
@@ -605,7 +684,7 @@ class CreateViewModel(
                     if (it is CancellationException) {
                         throw it
                     } else {
-                        it.message?.let { errorMsg->
+                        it.message?.let { errorMsg ->
                             _events.trySend(UIEvents.Error(errorMsg))
                         }
                         it.printStackTrace()
@@ -620,7 +699,7 @@ class CreateViewModel(
     }
 
     //Docs flow
-    private fun getUserDocsFlow(){
+    private fun getUserDocsFlow() {
         collectDocsJob = viewModelScope.launch {
             docSource.getUserDocumentsByTripId(sessionData.tripId)
                 .flowOn(Dispatchers.IO)
@@ -629,17 +708,53 @@ class CreateViewModel(
                     if (it is CancellationException) {
                         throw it
                     } else {
-                        it.message?.let { errorMsg->
+                        it.message?.let { errorMsg ->
                             _events.trySend(UIEvents.Error(errorMsg))
                         }
                         it.printStackTrace()
                     }
                 }
-                .collect{newDocs->
+                .collect { newDocs ->
                     _docs.update {
                         newDocs
                     }
                 }
+        }
+    }
+
+    private fun getTripChecklistFlow() {
+        collectChecklistJob = viewModelScope.launch {
+            log {
+                "Starting checklist flow..."
+            }
+            checklistSource.getChecklistItems(sessionData.tripId)
+                .flowOn(Dispatchers.IO)
+                .catch {
+                    log {
+                        "getTripChecklistFlow: Error"
+                    }
+                    if (it is CancellationException) {
+                        throw it
+                    } else {
+                        it.message?.let { errorMsg ->
+                            _events.trySend(UIEvents.Error(errorMsg))
+                        }
+                        it.printStackTrace()
+                    }
+                }
+                .collect { list ->
+                    _tripState.update {
+                        it.copy(
+                            checklist = list
+                        )
+                    }
+                }
+        }
+    }
+
+    private fun log(msg: () -> String) {
+        if (loggingEnabled) {
+            Log.d("createVm" , msg())
         }
     }
 

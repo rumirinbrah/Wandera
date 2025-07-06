@@ -15,7 +15,8 @@ val createModule = module {
             daySource = get(),
             todoSource = get(),
             docSource = get(),
-            expenseNoteSource = get()
+            expenseNoteSource = get(),
+            checklistSource = get()
         )
     }
     viewModel {
@@ -38,6 +39,7 @@ val createModule = module {
             todoSource = get(),
             docSource = get(),
             notesSource = get(),
+            checklistSource = get(),
             context = androidContext()
         )
     }

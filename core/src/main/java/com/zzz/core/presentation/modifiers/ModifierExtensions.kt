@@ -3,8 +3,10 @@ package com.zzz.core.presentation.modifiers
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Paint
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.Dp
@@ -52,5 +54,31 @@ fun Modifier.customShadow(
             paint
         )
     }
-
 }
+
+fun DrawScope.drawStrikethroughLine(
+    color: Color ,
+    progress: Float = 1f ,
+    alpha: Float = 0.5f,
+    strokeWidth : Float = 10f
+) {
+        drawLine(
+            color,
+            start = Offset(
+                0f ,
+                size.height / 2
+            ) ,
+            end =  Offset(
+                size.width * progress,
+                size.height / 2
+            ) ,
+            strokeWidth = strokeWidth,
+            alpha = alpha
+        )
+    }
+
+
+
+
+
+

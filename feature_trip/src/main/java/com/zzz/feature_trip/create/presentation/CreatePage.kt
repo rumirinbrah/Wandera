@@ -44,6 +44,7 @@ import com.zzz.core.presentation.buttons.NormalButton
 import com.zzz.core.presentation.components.VerticalSpace
 import com.zzz.core.presentation.dialogs.ConfirmActionDialog
 import com.zzz.core.presentation.dialogs.DateRangePickerDialog
+import com.zzz.core.presentation.dialogs.DialogWithTextField
 import com.zzz.core.presentation.dialogs.LoadingDialog
 import com.zzz.core.presentation.events.ObserveAsEvents
 import com.zzz.core.presentation.events.UIEvents
@@ -53,6 +54,8 @@ import com.zzz.core.presentation.text_field.RoundedTextField
 import com.zzz.core.theme.WanderaTheme
 import com.zzz.data.trip.model.Day
 import com.zzz.data.trip.model.UserDocument
+import com.zzz.feature_trip.create.presentation.components.AddChecklistComponent
+import com.zzz.feature_trip.create.presentation.components.ChecklistItemViewOnly
 import com.zzz.feature_trip.create.presentation.components.DocumentCard
 import com.zzz.feature_trip.create.presentation.components.IndicatorCard
 import com.zzz.feature_trip.create.presentation.components.ItineraryItem
@@ -276,7 +279,6 @@ private fun CreateTripPage(
 
             }
 
-
             //docs
             VerticalSpace(5.dp)
 
@@ -311,9 +313,34 @@ private fun CreateTripPage(
                 }
             }
 
+            //Checklist
+            VerticalSpace(5.dp)
+            AddChecklistComponent(
+                onAdd = {
+                    onAction(CreateAction.TripActions.ShowAddChecklistDialog(true))
+                }
+            )
+            LazyColumn(
+                Modifier.fillMaxWidth()
+                    .heightIn(max = 400.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ){
+                items(
+                    tripState.checklist,
+                    key = {it.id}
+                ){item->
+                    ChecklistItemViewOnly(
+                        item,
+                        onDelete = {
+                            onAction(CreateAction.TripActions.DeleteChecklistEntity(it))
+                        },
+                        modifier = Modifier.animateItem()
+                    )
+                }
+            }
 
             //translate
-            VerticalSpace(5.dp)
+            VerticalSpace(15.dp)
             Column {
                 Text(
                     "We've also got some offline translation functionality!" ,
@@ -369,6 +396,18 @@ private fun CreateTripPage(
         when{
             tripState.saving->{
                 LoadingDialog(modifier = Modifier.align(Alignment.Center))
+            }
+            tripState.showAddChecklistDialog ->{
+                DialogWithTextField(
+                    title = "Add checklist item",
+                    textFieldPlaceholder = "E.g. Tripod, Perfume",
+                    onDismiss = {
+                        onAction(CreateAction.TripActions.ShowAddChecklistDialog(false))
+                    },
+                    onDone = {
+                        onAction(CreateAction.TripActions.AddChecklistEntity(it))
+                    }
+                )
             }
             showConfirmDiscardDialog ->{
                 ConfirmActionDialog(

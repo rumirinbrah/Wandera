@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.zzz.core.presentation.events.UIEvents
+import com.zzz.data.note.source.ChecklistSource
 import com.zzz.data.note.source.ExpenseNoteSource
 import com.zzz.data.trip.DayWithTodos
 import com.zzz.data.trip.model.Day
@@ -37,6 +38,7 @@ class OverviewViewModel(
     private val todoSource: TodoSource ,
     private val docSource: UserDocSource ,
     private val notesSource: ExpenseNoteSource ,
+    private val checklistSource: ChecklistSource,
     context: Context
 ) : ViewModel() {
 
@@ -57,6 +59,7 @@ class OverviewViewModel(
     val events = _events.receiveAsFlow()
 
     private var collectDaysJob: Job? = null
+    private var collectChecklistJob: Job? = null
 
     init {
         Log.d("overviewVm" , "Init....")
@@ -77,14 +80,13 @@ class OverviewViewModel(
 
             }
 
+            //------ day -----
             is OverviewActions.UpdateSelectedDay -> {
                 updateSelectedDay(action.day)
             }
-
             is OverviewActions.UpdateDayStatus -> {
                 updateDayStatus(action.dayId , action.done)
             }
-
             OverviewActions.ClearSelectedDay -> {
                 clearSelectedDay()
             }
@@ -95,12 +97,21 @@ class OverviewViewModel(
 
             OverviewActions.CleanUpResources -> cleanUpResources()
 
+
+            //------ NOTE -----
             OverviewActions.UpdateExpenseNote -> {
                 updateNote()
             }
-
             is OverviewActions.OnExpenseNoteValueChange -> {
                 onNoteValueChange(action.value)
+            }
+
+            //------ Cheklist -----
+            is OverviewActions.CheckChecklistItem->{
+                checkChecklistItem(action.itemId,action.checked)
+            }
+            is OverviewActions.DeleteChecklistItem->{
+                deleteChecklistItem(action.itemId)
             }
 
             //dELETE
@@ -133,6 +144,7 @@ class OverviewViewModel(
                     )
                 }
                 collectDaysFlow(tripId)
+                collectChecklistFlow(tripId)
 
                 val expenseNote = notesSource.getNote(tripId)
                 //Log.d("overviewVM" , "fetch: Note is ${expenseNote.text}, id is ${expenseNote.id}")
@@ -164,7 +176,6 @@ class OverviewViewModel(
             _events.send(UIEvents.SuccessWithMsg("Note saved!"))
         }
     }
-
     private fun onNoteValueChange(value: String) {
         viewModelScope.launch {
             _overviewState.update {
@@ -173,6 +184,19 @@ class OverviewViewModel(
         }
     }
 
+    //-------- Checklist ---------
+    private fun checkChecklistItem(itemId : Long , checked : Boolean){
+        viewModelScope.launch {
+            checklistSource.checkItem(itemId,checked)
+        }
+    }
+    private fun deleteChecklistItem(itemId: Long){
+        viewModelScope.launch {
+            checklistSource.deleteItem(itemId)
+        }
+    }
+
+    //-------- DAY ---------
     //update selected day
     private fun updateSelectedDay(day: Day) {
         viewModelScope.launch {
@@ -201,7 +225,6 @@ class OverviewViewModel(
 
         }
     }
-
     //clear selected day
     private fun clearSelectedDay() {
         viewModelScope.launch {
@@ -260,9 +283,6 @@ class OverviewViewModel(
                     if (it is CancellationException) {
                         throw it
                     } else {
-//                        it.message?.let { errorMsg->
-//                            _events.trySend(UIEvents.Error(errorMsg))
-//                        }
                         it.printStackTrace()
                     }
                 }
@@ -281,6 +301,31 @@ class OverviewViewModel(
                 }
         }
     }
+    private fun collectChecklistFlow(tripId: Long){
+        collectChecklistJob = viewModelScope.launch {
+            checklistSource.getChecklistItems(tripId)
+                .flowOn(Dispatchers.IO)
+                .catch {
+                    Log.d("overviewVM" , "collectChecklistFlow: Error")
+                    if (it is CancellationException) {
+                        throw it
+                    } else {
+                        it.printStackTrace()
+                    }
+                }
+                .onCompletion {
+                    if (it is CancellationException) {
+                        throw it
+                    }
+                    Log.d("overviewVM" , "collectChecklistFlow: Finished with the flow")
+                }
+                .collect{list->
+                    _overviewState.update {
+                        it.copy(checklist = list)
+                    }
+                }
+        }
+    }
 
     //clean up
     private fun cleanUpResources() {
@@ -289,6 +334,10 @@ class OverviewViewModel(
             _days.update { emptyList() }
             collectDaysJob?.let {
                 Log.d("overviewVM" , "cleanUpResources: Cancelling days job")
+                it.cancel()
+            }
+            collectChecklistJob?.let {
+                Log.d("overviewVM" , "cleanUpResources: Cancelling checklist job")
                 it.cancel()
             }
             _overviewState.update {

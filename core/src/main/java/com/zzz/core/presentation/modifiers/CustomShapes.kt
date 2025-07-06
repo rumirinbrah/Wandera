@@ -22,3 +22,14 @@ fun Density.baldyShape(bendAngle : Dp = 60.dp) : Shape = GenericShape{ size , _-
     lineTo(0f,size.height)
     close()
 }
+
+fun Density.trapeziumShape(displacementFraction : Int = 5) : Shape = GenericShape{size , _->
+    val displacementAmount  = size.height/displacementFraction
+    moveTo(0f, displacementAmount)
+
+    lineTo(size.width,0f)
+    lineTo(size.width,size.height)
+    lineTo(0f , size.height - displacementAmount)
+
+    close()
+}

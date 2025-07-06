@@ -1,6 +1,7 @@
 package com.zzz.feature_trip.create.presentation.states
 
 import android.net.Uri
+import com.zzz.data.trip.model.Trip
 
 sealed class CreateAction {
 
@@ -12,6 +13,12 @@ sealed class CreateAction {
         data class OnDocumentUpload(val docUri: Uri, val docName : String) : TripActions()
         data class OnDocumentUpdate(val docId : Long ,val newName : String) : TripActions()
         data class DeleteDocument(val docId : Long ):TripActions()
+
+        //checklist
+        data class AddChecklistEntity(val title: String) : TripActions()
+        data class CheckChecklistEntity(val itemId : Long , val checked : Boolean) : TripActions()
+        data class DeleteChecklistEntity(val itemId : Long ) : TripActions()
+        data class ShowAddChecklistDialog(val visible: Boolean) : TripActions()
 
         data object CreateSession : TripActions()
         data class FetchTripData(val tripId : Long) : TripActions()

@@ -1,13 +1,13 @@
 package com.zzz.feature_trip.create.presentation.states
 
-import android.net.Uri
-import com.zzz.data.trip.DayWithTodos
-import com.zzz.data.trip.model.Day
+import com.zzz.data.note.model.ChecklistEntity
 
 internal data class TripState(
     val tripTitle : String = "",
     val startDate : Long? = null,
     val endDate : Long? = null,
+    val checklist : List<ChecklistEntity> = emptyList(),
+    val showAddChecklistDialog : Boolean = false,
     val saving : Boolean = false,
     val sessionOngoing : Boolean = false
 )

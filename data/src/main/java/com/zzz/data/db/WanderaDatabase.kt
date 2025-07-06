@@ -10,6 +10,7 @@ import com.zzz.data.db.dao.UserDocDao
 import com.zzz.data.db.dao.notes.NotesDao
 import com.zzz.data.db.dao.translate.TranslateDao
 import com.zzz.data.db.type_conv.UriTypeConverter
+import com.zzz.data.note.model.ChecklistEntity
 import com.zzz.data.note.model.ExpenseNote
 import com.zzz.data.translate.model.TranslationModel
 import com.zzz.data.trip.model.Day
@@ -24,7 +25,8 @@ import com.zzz.data.trip.model.UserDocument
         TodoLocation::class ,
         UserDocument::class,
         TranslationModel ::class,
-        ExpenseNote :: class
+        ExpenseNote :: class,
+        ChecklistEntity::class
     ] ,
     version = 1 ,
     exportSchema = false

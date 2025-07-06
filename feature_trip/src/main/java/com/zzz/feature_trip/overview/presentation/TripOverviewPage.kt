@@ -34,6 +34,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -46,9 +47,11 @@ import com.zzz.core.presentation.events.UIEvents
 import com.zzz.core.presentation.headers.DateHeader
 import com.zzz.core.presentation.toast.WanderaToast
 import com.zzz.core.presentation.toast.WanderaToastState
+import com.zzz.core.theme.WanderaTheme
 import com.zzz.core.theme.redToastSweep
 import com.zzz.data.trip.model.Day
 import com.zzz.feature_trip.overview.presentation.components.BookLikeTextField
+import com.zzz.feature_trip.overview.presentation.components.ChecklistItem
 import com.zzz.feature_trip.overview.presentation.components.ItineraryLayoutOptions
 import com.zzz.feature_trip.overview.presentation.components.ItineraryList
 import com.zzz.feature_trip.overview.presentation.components.ItineraryPager
@@ -250,6 +253,37 @@ private fun TripOverviewPage(
                     }
                 }
 
+                //checklist
+                VerticalSpace(10.dp)
+                Text(
+                    "Don't forget your stuff!!",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Medium
+                )
+                LazyColumn(
+                    Modifier
+                        .fillMaxWidth()
+                        .heightIn(max = 500.dp) ,
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(
+                        items = state.checklist,
+                        key = {it.id}
+                    ){item->
+                        ChecklistItem(
+                            item = item,
+                            onCheck = {itemId, checked ->
+                                onAction(OverviewActions.CheckChecklistItem(itemId,checked))
+                            },
+                            onDelete = {itemId->
+                                onAction(OverviewActions.DeleteChecklistItem(itemId))
+                            },
+                            modifier = Modifier.animateItem()
+                        )
+                    }
+                }
+
+
                 //expense notes
                 VerticalSpace(10.dp)
                 Text(
@@ -332,3 +366,4 @@ private fun TripOverviewPage(
 
 
 }
+

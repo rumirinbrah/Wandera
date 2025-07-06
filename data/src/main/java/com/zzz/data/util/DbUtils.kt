@@ -12,4 +12,5 @@ internal object DbUtils {
     const val TRANSLATION_TABLE_NAME = "translation_table"
 
     const val EXPENSE_TABLE_NAME = "expense_table"
+    const val CHECKLIST_TABLE_NAME = "checklist_table"
 }
