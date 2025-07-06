@@ -50,5 +50,9 @@ val daySky = Color(0xFF5A93BC)
 val successGreen = Color(0xFF77B678)
 val failureRed = Color(0xFFD95C54)
 
+//toast
+val blueToastSweep = Color(0xFF2438A9)
+val greenToastSweep = Color(0xFF35BD38)
+val redToastSweep = Color(0xFFDF3838)
 
 

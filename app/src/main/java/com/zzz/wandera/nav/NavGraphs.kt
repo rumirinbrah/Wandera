@@ -11,6 +11,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import androidx.navigation.toRoute
+import com.zzz.core.presentation.toast.WanderaToastState
 import com.zzz.wandera.nav.util.Screen
 import com.zzz.feature_trip.create.presentation.AddDayRoot
 import com.zzz.feature_trip.create.presentation.CreateRoot
@@ -28,6 +29,7 @@ import org.koin.androidx.compose.koinViewModel
 
 fun NavGraphBuilder.homeNavGraph(
     navController : NavHostController,
+    wanderaToastState: WanderaToastState,
     navBarVisible : (Boolean)->Unit,
     innerPadding : PaddingValues = PaddingValues(0.dp)
 ){
@@ -175,6 +177,7 @@ fun NavGraphBuilder.homeNavGraph(
             TripOverviewRoot(
                 Modifier.padding(innerPadding),
                 overviewViewModel = overviewViewModel,
+                wanderaToastState = wanderaToastState,
                 navigateToDayDetails = {
                     navController.navigate(Screen.HomeGraph.DayDetailsScreen)
                 },

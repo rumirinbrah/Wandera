@@ -40,7 +40,7 @@ internal fun ItineraryLayoutOptions(
 
         Text(
             "Itinerary",
-            fontSize = 15.sp,
+            fontSize = 16.sp,
             fontWeight = FontWeight.Medium
         )
         Box(

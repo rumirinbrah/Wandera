@@ -4,6 +4,8 @@ import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.zzz.core.presentation.events.UIEvents
+import com.zzz.data.note.source.ExpenseNoteSource
 import com.zzz.data.trip.DayWithTodos
 import com.zzz.data.trip.model.Day
 import com.zzz.data.trip.source.DaySource
@@ -13,6 +15,7 @@ import com.zzz.data.trip.source.UserDocSource
 import com.zzz.feature_trip.overview.data.local.ItineraryLayoutPref
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -20,17 +23,20 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.cancellation.CancellationException
+import kotlin.math.exp
 
 class OverviewViewModel(
     private val tripSource: TripSource ,
     private val daySource: DaySource ,
     private val todoSource: TodoSource ,
-    private val docSource: UserDocSource,
+    private val docSource: UserDocSource ,
+    private val notesSource: ExpenseNoteSource ,
     context: Context
 ) : ViewModel() {
 
@@ -47,6 +53,8 @@ class OverviewViewModel(
         _days.value
     )
 
+    private val _events = Channel<UIEvents>()
+    val events = _events.receiveAsFlow()
 
     private var collectDaysJob: Job? = null
 
@@ -87,8 +95,16 @@ class OverviewViewModel(
 
             OverviewActions.CleanUpResources -> cleanUpResources()
 
+            OverviewActions.UpdateExpenseNote -> {
+                updateNote()
+            }
+
+            is OverviewActions.OnExpenseNoteValueChange -> {
+                onNoteValueChange(action.value)
+            }
+
             //dELETE
-            OverviewActions.DeleteTrip ->{
+            OverviewActions.DeleteTrip -> {
                 deleteTrip()
             }
         }
@@ -100,7 +116,7 @@ class OverviewViewModel(
             return
         }
         viewModelScope.launch {
-            Log.d("overviewVM" , "fetchTripData: Fetching trip...")
+            Log.d("overviewVM" , "fetchTripData: Fetching trip $tripId...")
 
             _overviewState.update {
                 it.copy(loading = true)
@@ -112,11 +128,19 @@ class OverviewViewModel(
                 _overviewState.update {
                     it.copy(
                         trip = trip ,
-                        docs = docs,
+                        docs = docs ,
                         loading = false
                     )
                 }
                 collectDaysFlow(tripId)
+
+                val expenseNote = notesSource.getNote(tripId)
+                //Log.d("overviewVM" , "fetch: Note is ${expenseNote.text}, id is ${expenseNote.id}")
+
+                _overviewState.update {
+                    it.copy(expenseNote = expenseNote.text , expenseNoteId = expenseNote.id)
+                }
+
                 sessionOnGoing = true
 
 
@@ -125,6 +149,27 @@ class OverviewViewModel(
                 return@launch
             }
 
+        }
+    }
+
+    //-------- NOTE ---------
+    //TODO add saving state for the note
+    private fun updateNote() {
+        val noteId = _overviewState.value.expenseNoteId ?: return
+        val text = _overviewState.value.expenseNote
+        //Log.d("overviewVM" , "updateNote: Note is $text, id is $noteId")
+
+        viewModelScope.launch {
+            notesSource.updateNote(noteId , text)
+            _events.send(UIEvents.SuccessWithMsg("Note saved!"))
+        }
+    }
+
+    private fun onNoteValueChange(value: String) {
+        viewModelScope.launch {
+            _overviewState.update {
+                it.copy(expenseNote = value)
+            }
         }
     }
 
@@ -188,9 +233,8 @@ class OverviewViewModel(
     }
 
 
-
     //!!!DELETE
-    private fun deleteTrip(){
+    private fun deleteTrip() {
         viewModelScope.launch {
 
             val tripId = _overviewState.value.trip?.id ?: return@launch
@@ -246,6 +290,9 @@ class OverviewViewModel(
             collectDaysJob?.let {
                 Log.d("overviewVM" , "cleanUpResources: Cancelling days job")
                 it.cancel()
+            }
+            _overviewState.update {
+                OverviewState()
             }
             sessionOnGoing = false
         }

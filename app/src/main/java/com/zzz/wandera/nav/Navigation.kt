@@ -28,6 +28,7 @@ import androidx.navigation.compose.rememberNavController
 import com.zzz.core.presentation.modifiers.customShadow
 import com.zzz.wandera.nav.util.Screen
 import com.zzz.core.presentation.theme_change.ChangeThemePage
+import com.zzz.core.presentation.toast.rememberWanderaToastState
 import com.zzz.feature_translate.presentation.TranslateRoot
 import com.zzz.feature_translate.presentation.viewmodel.TranslationViewModel
 import com.zzz.feature_trip.recents.presentation.RecentsRoot
@@ -41,6 +42,7 @@ fun Navigation(
     toggleDarkMode: (Boolean) -> Unit ,
 ) {
     val navController = rememberNavController()
+    val wanderaToastState = rememberWanderaToastState()
 
     var navBarVisible by remember { mutableStateOf(true) }
     var navBarHeight by remember { mutableStateOf(0.dp) }
@@ -63,6 +65,7 @@ fun Navigation(
                 //HOME
                 homeNavGraph(
                     navController ,
+                    wanderaToastState = wanderaToastState,
                     navBarVisible = {
                         navBarVisible = it
                     } ,

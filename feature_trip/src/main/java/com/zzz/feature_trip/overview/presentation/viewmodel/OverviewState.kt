@@ -9,5 +9,7 @@ internal data class OverviewState(
     val trip : Trip? = null,
     val itineraryPagerLayout : Boolean = true,
     val selectedDay : DayWithTodos? = null,
-    val docs : List<UserDocument> = emptyList()
+    val docs : List<UserDocument> = emptyList(),
+    val expenseNote : String = "",
+    val expenseNoteId : Long? = null
 )

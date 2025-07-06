@@ -6,7 +6,9 @@ import com.zzz.data.db.repos.DaySourceImpl
 import com.zzz.data.db.repos.TodoSourceImpl
 import com.zzz.data.db.repos.TripSourceImpl
 import com.zzz.data.db.repos.UserDocSourceImpl
+import com.zzz.data.db.repos.notes.ExpenseNotesSourceImpl
 import com.zzz.data.db.repos.translate.TranslateSourceImpl
+import com.zzz.data.note.source.ExpenseNoteSource
 import com.zzz.data.translate.source.TranslateSource
 import com.zzz.data.trip.source.DaySource
 import com.zzz.data.trip.source.TodoSource
@@ -60,6 +62,12 @@ val dbModule = module {
     single<TranslateSource> {
         val db = get<WanderaDatabase>()
         TranslateSourceImpl(db.translateDao)
+    }
+
+    //======= EXPENSE SRC =========
+    single<ExpenseNoteSource> {
+        val db = get<WanderaDatabase>()
+        ExpenseNotesSourceImpl(db.notesDao)
     }
 
 }

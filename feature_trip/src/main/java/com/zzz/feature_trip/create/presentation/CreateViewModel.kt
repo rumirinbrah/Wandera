@@ -5,6 +5,8 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.zzz.core.presentation.events.UIEvents
+import com.zzz.data.note.model.ExpenseNote
+import com.zzz.data.note.source.ExpenseNoteSource
 import com.zzz.data.trip.model.Day
 import com.zzz.data.trip.model.TodoLocation
 import com.zzz.data.trip.model.Trip
@@ -37,8 +39,9 @@ import kotlinx.coroutines.withContext
 class CreateViewModel(
     private val tripSource: TripSource ,
     private val daySource: DaySource ,
-    private val todoSource: TodoSource,
-    private val docSource : UserDocSource
+    private val todoSource: TodoSource ,
+    private val docSource : UserDocSource ,
+    private val expenseNoteSource: ExpenseNoteSource ,
 ) : ViewModel() {
 
     private var sessionData = SessionData()
@@ -450,6 +453,17 @@ class CreateViewModel(
                     endDate = _tripState.value.endDate!! ,
                 )
                 val tripId = tripSource.updateTrip(trip)
+
+                //add note
+                sessionData.tripId.apply {
+                    val note = ExpenseNote(
+                        tripId = this,
+                    )
+                val noteId = expenseNoteSource.addNote(note)
+                    Log.d("CreateVM" , "saveTrip: Expense note saved! ID - $noteId")
+
+                }
+
                 Log.d("CreateVM" , "saveTrip: Trip saved, TripId - $tripId")
 
 

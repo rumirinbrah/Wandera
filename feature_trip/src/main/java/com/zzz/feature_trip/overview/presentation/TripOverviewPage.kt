@@ -20,18 +20,19 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -39,12 +40,15 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.zzz.core.presentation.buttons.IconTextButton
 import com.zzz.core.presentation.components.DotsLoadingAnimation
 import com.zzz.core.presentation.components.VerticalSpace
-import com.zzz.core.presentation.components.WanderaShapes
 import com.zzz.core.presentation.dialogs.ConfirmActionDialog
+import com.zzz.core.presentation.events.ObserveAsEvents
+import com.zzz.core.presentation.events.UIEvents
 import com.zzz.core.presentation.headers.DateHeader
-import com.zzz.core.presentation.text_field.RoundedTextField
+import com.zzz.core.presentation.toast.WanderaToast
+import com.zzz.core.presentation.toast.WanderaToastState
+import com.zzz.core.theme.redToastSweep
 import com.zzz.data.trip.model.Day
-import com.zzz.feature_trip.overview.presentation.components.ExpensesNoteBox
+import com.zzz.feature_trip.overview.presentation.components.BookLikeTextField
 import com.zzz.feature_trip.overview.presentation.components.ItineraryLayoutOptions
 import com.zzz.feature_trip.overview.presentation.components.ItineraryList
 import com.zzz.feature_trip.overview.presentation.components.ItineraryPager
@@ -53,23 +57,29 @@ import com.zzz.feature_trip.overview.presentation.components.OverviewTopBar
 import com.zzz.feature_trip.overview.presentation.viewmodel.OverviewActions
 import com.zzz.feature_trip.overview.presentation.viewmodel.OverviewState
 import com.zzz.feature_trip.overview.presentation.viewmodel.OverviewViewModel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun TripOverviewRoot(
     modifier: Modifier = Modifier ,
     overviewViewModel: OverviewViewModel = koinViewModel() ,
+    wanderaToastState: WanderaToastState,
     navigateToDayDetails: () -> Unit ,
     navigateToEditTrip: (tripId: Long) -> Unit ,
     navigateUp: () -> Unit ,
 ) {
     val state by overviewViewModel.overviewState.collectAsStateWithLifecycle()
+    val events = overviewViewModel.events
     val days by overviewViewModel.days.collectAsStateWithLifecycle()
 
     TripOverviewPage(
         modifier ,
-        state ,
-        days ,
+        state = state ,
+        events = events,
+        days = days,
+        wanderaToastState,
         onAction = { action ->
             overviewViewModel.onAction(action)
         } ,
@@ -83,16 +93,47 @@ fun TripOverviewRoot(
 private fun TripOverviewPage(
     modifier: Modifier = Modifier ,
     state: OverviewState ,
+    events : Flow<UIEvents>,
     days: List<Day> ,
+    wanderaToastState: WanderaToastState,
     onAction: (OverviewActions) -> Unit ,
     navigateToDayDetails: () -> Unit ,
     navigateToEditTrip: (tripId: Long) -> Unit ,
     navigateUp: () -> Unit ,
 ) {
+    val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+    val columnScrollState = rememberScrollState()
+
     val pagerState = rememberPagerState() {
         days.size
     }
     var deleteDialog by remember { mutableStateOf(false) }
+
+    ObserveAsEvents(events) {event->
+        when(event){
+            is UIEvents.Error -> {
+                wanderaToastState.showToast(event.errorMsg, redToastSweep)
+            }
+            is UIEvents.SuccessWithMsg -> {
+                //Toast.makeText(context , event.msg , Toast.LENGTH_SHORT).show()
+                wanderaToastState.showToast(event.msg)
+            }
+            else->{}
+        }
+    }
+
+    //scroll to the bottom in order to avoid textfield keyboard overlap
+    LaunchedEffect(state.expenseNote) {
+        if(state.expenseNote.endsWith("\n")){
+
+            //delay since the notes box animates its content with 500L animation spec + 100L delay
+            delay(650)
+            columnScrollState.animateScrollTo(
+                columnScrollState.maxValue
+            )
+        }
+    }
 
     BackHandler {
         onAction(OverviewActions.CleanUpResources)
@@ -115,11 +156,12 @@ private fun TripOverviewPage(
             ) {
                 DotsLoadingAnimation()
             }
-        } else {
+        }
+        else {
             Column(
                 Modifier
                     .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
+                    .verticalScroll(columnScrollState)
                     .padding(16.dp) ,
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
@@ -215,13 +257,16 @@ private fun TripOverviewPage(
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Medium
                 )
-                ExpensesNoteBox(
-                    value = "",
+                BookLikeTextField(
+                    value = state.expenseNote,
                     onValueChange = {
-
+                        onAction(OverviewActions.OnExpenseNoteValueChange(it))
                     },
-                    onSave = {}
+                    onSave = {
+                        onAction(OverviewActions.UpdateExpenseNote)
+                    }
                 )
+
 
                 VerticalSpace(30.dp)
 
@@ -237,12 +282,12 @@ private fun TripOverviewPage(
                         deleteDialog = true
                     }
                 )
+                VerticalSpace(20.dp)
             }
-        }
+        } // COL-END
         if (deleteDialog) {
             ConfirmActionDialog(
                 title = buildAnnotatedString {
-                    //"Are you sure you want to delete ${state.trip?.tripName}? This cannot be UNDONE!"
                     withStyle(
                         SpanStyle(
                             fontSize = 18.sp
@@ -277,6 +322,11 @@ private fun TripOverviewPage(
                 }
             )
         }
+
+        WanderaToast(
+            state = wanderaToastState,
+            modifier = Modifier.align(Alignment.BottomCenter)
+        )
 
     }
 
