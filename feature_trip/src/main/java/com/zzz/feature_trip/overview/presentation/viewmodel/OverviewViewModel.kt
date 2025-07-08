@@ -113,6 +113,9 @@ class OverviewViewModel(
             is OverviewActions.DeleteChecklistItem->{
                 deleteChecklistItem(action.itemId)
             }
+            OverviewActions.OnChecklistCollapse ->{
+                onChecklistCollapse()
+            }
 
             //dELETE
             OverviewActions.DeleteTrip -> {
@@ -129,8 +132,12 @@ class OverviewViewModel(
         viewModelScope.launch {
             Log.d("overviewVM" , "fetchTripData: Fetching trip $tripId...")
 
+
             _overviewState.update {
-                it.copy(loading = true)
+                it.copy(
+                    loading = true,
+                    itineraryPagerLayout = layoutPref.isLayoutPager()
+                )
             }
 
             try {
@@ -143,6 +150,7 @@ class OverviewViewModel(
                         loading = false
                     )
                 }
+
                 collectDaysFlow(tripId)
                 collectChecklistFlow(tripId)
 
@@ -193,6 +201,13 @@ class OverviewViewModel(
     private fun deleteChecklistItem(itemId: Long){
         viewModelScope.launch {
             checklistSource.deleteItem(itemId)
+        }
+    }
+    private fun onChecklistCollapse(){
+        viewModelScope.launch {
+            _overviewState.update {
+                it.copy(checklistCollapsed = !it.checklistCollapsed)
+            }
         }
     }
 
@@ -247,6 +262,7 @@ class OverviewViewModel(
     private fun changeItineraryLayout() {
         viewModelScope.launch {
             _overviewState.update {
+
                 layoutPref.setPagerLayout(
                     !it.itineraryPagerLayout
                 )

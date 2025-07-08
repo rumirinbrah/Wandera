@@ -12,6 +12,7 @@ internal data class OverviewState(
     val selectedDay : DayWithTodos? = null,
     val docs : List<UserDocument> = emptyList(),
     val checklist : List<ChecklistEntity> = emptyList(),
+    val checklistCollapsed : Boolean = false,
     val expenseNote : String = "",
     val expenseNoteId : Long? = null
 )

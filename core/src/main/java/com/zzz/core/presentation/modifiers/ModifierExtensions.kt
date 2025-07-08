@@ -44,6 +44,7 @@ fun Modifier.customShadow(
             color.copy(alpha).toArgb()
         )
 
+
         it.drawRoundRect(
             0f,
             0f,
@@ -76,6 +77,77 @@ fun DrawScope.drawStrikethroughLine(
             alpha = alpha
         )
     }
+fun DrawScope.drawFrameCorners(
+    color: Color = Color.Gray,
+    frameEdgeHeight : Dp = 30.dp,
+    alpha : Float = 1f ,
+    strokeWidth: Float = 15f
+){
+    //top left
+    drawLine(
+        color,
+        start = Offset(0f,0f) ,
+        end = Offset(frameEdgeHeight.toPx() ,0f),
+        alpha = alpha ,
+        strokeWidth = strokeWidth
+    )
+    drawLine(
+        color,
+        start = Offset(0f,0f) ,
+        end = Offset(0f,frameEdgeHeight.toPx()),
+        alpha = alpha ,
+        strokeWidth = strokeWidth
+    )
+
+    //top right
+    drawLine(
+        color,
+        start = Offset(size.width,0f) ,
+        end = Offset(size.width - frameEdgeHeight.toPx() ,0f),
+        alpha = alpha ,
+        strokeWidth = strokeWidth
+    )
+    drawLine(
+        color,
+        start = Offset(size.width,0f) ,
+        end = Offset(size.width ,frameEdgeHeight.toPx()),
+        alpha = alpha ,
+        strokeWidth = strokeWidth
+    )
+
+    //bottom left
+    drawLine(
+        color,
+        start = Offset(0f , size.height) ,
+        end = Offset(frameEdgeHeight.toPx() , size.height) ,
+        alpha = alpha ,
+        strokeWidth = strokeWidth
+    )
+    drawLine(
+        color,
+        start = Offset(0f , size.height) ,
+        end = Offset(0f , size.height-frameEdgeHeight.toPx()) ,
+        alpha = alpha ,
+        strokeWidth = strokeWidth
+    )
+
+    //bottom right
+    drawLine(
+        color,
+        start = Offset(size.width , size.height ) ,
+        end = Offset(size.width , size.height- frameEdgeHeight.toPx()) ,
+        alpha = alpha ,
+        strokeWidth = strokeWidth
+    )
+    drawLine(
+        color,
+        start = Offset(size.width , size.height) ,
+        end = Offset(size.width - frameEdgeHeight.toPx() , size.height) ,
+        alpha = alpha ,
+        strokeWidth = strokeWidth
+    )
+}
+
 
 
 

@@ -19,6 +19,7 @@ sealed class OverviewActions {
 
     data class CheckChecklistItem(val itemId : Long , val checked : Boolean) : OverviewActions()
     data class DeleteChecklistItem(val itemId : Long) : OverviewActions()
+    data object OnChecklistCollapse : OverviewActions()
 
     data object DeleteTrip : OverviewActions()
 }

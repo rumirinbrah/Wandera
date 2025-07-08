@@ -51,7 +51,12 @@ fun ChecklistItem(
 ) {
     val density = LocalDensity.current
     val lineProgress = remember {
-        Animatable(if(item.isChecked)1f else 0f)
+        Animatable(
+            if(item.isChecked)
+                1f
+            else
+                0f
+        )
     }
 
 
@@ -59,7 +64,7 @@ fun ChecklistItem(
         if(item.isChecked){
             lineProgress.animateTo(
                 1f,
-                tween(500),
+                tween(500)
             )
         }else{
             lineProgress.animateTo(
@@ -111,7 +116,6 @@ fun ChecklistItem(
                         )
                     }
                     .padding(horizontal = 5.dp)
-
             )
         }
         Box(
@@ -124,7 +128,7 @@ fun ChecklistItem(
                 imageVector = Icons.Default.Close,
                 contentDescription = "delete checklist item ${item.title} ?",
                 tint = onBackground,
-                modifier = Modifier.size(25.dp)
+                modifier = Modifier.size(20.dp)
             )
         }
     }

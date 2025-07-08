@@ -2,6 +2,7 @@ package com.zzz.feature_trip.overview.presentation
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
@@ -9,6 +10,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
@@ -29,6 +31,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -38,6 +42,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.zzz.core.presentation.buttons.CircularIconButton
 import com.zzz.core.presentation.buttons.IconTextButton
 import com.zzz.core.presentation.components.DotsLoadingAnimation
 import com.zzz.core.presentation.components.VerticalSpace
@@ -45,17 +50,20 @@ import com.zzz.core.presentation.dialogs.ConfirmActionDialog
 import com.zzz.core.presentation.events.ObserveAsEvents
 import com.zzz.core.presentation.events.UIEvents
 import com.zzz.core.presentation.headers.DateHeader
+import com.zzz.core.presentation.modifiers.customShadow
 import com.zzz.core.presentation.toast.WanderaToast
 import com.zzz.core.presentation.toast.WanderaToastState
-import com.zzz.core.theme.WanderaTheme
 import com.zzz.core.theme.redToastSweep
 import com.zzz.data.trip.model.Day
+import com.zzz.feature_trip.R
 import com.zzz.feature_trip.overview.presentation.components.BookLikeTextField
+import com.zzz.feature_trip.overview.presentation.components.ChecklistHeader
 import com.zzz.feature_trip.overview.presentation.components.ChecklistItem
 import com.zzz.feature_trip.overview.presentation.components.ItineraryLayoutOptions
 import com.zzz.feature_trip.overview.presentation.components.ItineraryList
 import com.zzz.feature_trip.overview.presentation.components.ItineraryPager
 import com.zzz.feature_trip.overview.presentation.components.OverviewDocumentCard
+import com.zzz.feature_trip.overview.presentation.components.OverviewPageFab
 import com.zzz.feature_trip.overview.presentation.components.OverviewTopBar
 import com.zzz.feature_trip.overview.presentation.viewmodel.OverviewActions
 import com.zzz.feature_trip.overview.presentation.viewmodel.OverviewState
@@ -68,7 +76,7 @@ import org.koin.androidx.compose.koinViewModel
 fun TripOverviewRoot(
     modifier: Modifier = Modifier ,
     overviewViewModel: OverviewViewModel = koinViewModel() ,
-    wanderaToastState: WanderaToastState,
+    wanderaToastState: WanderaToastState ,
     navigateToDayDetails: () -> Unit ,
     navigateToEditTrip: (tripId: Long) -> Unit ,
     navigateUp: () -> Unit ,
@@ -80,9 +88,9 @@ fun TripOverviewRoot(
     TripOverviewPage(
         modifier ,
         state = state ,
-        events = events,
-        days = days,
-        wanderaToastState,
+        events = events ,
+        days = days ,
+        wanderaToastState ,
         onAction = { action ->
             overviewViewModel.onAction(action)
         } ,
@@ -96,9 +104,9 @@ fun TripOverviewRoot(
 private fun TripOverviewPage(
     modifier: Modifier = Modifier ,
     state: OverviewState ,
-    events : Flow<UIEvents>,
+    events: Flow<UIEvents> ,
     days: List<Day> ,
-    wanderaToastState: WanderaToastState,
+    wanderaToastState: WanderaToastState ,
     onAction: (OverviewActions) -> Unit ,
     navigateToDayDetails: () -> Unit ,
     navigateToEditTrip: (tripId: Long) -> Unit ,
@@ -112,23 +120,27 @@ private fun TripOverviewPage(
         days.size
     }
     var deleteDialog by remember { mutableStateOf(false) }
+    var collapsed by remember { mutableStateOf(false) }
 
-    ObserveAsEvents(events) {event->
-        when(event){
+
+    ObserveAsEvents(events) { event ->
+        when (event) {
             is UIEvents.Error -> {
-                wanderaToastState.showToast(event.errorMsg, redToastSweep)
+                wanderaToastState.showToast(event.errorMsg , redToastSweep)
             }
+
             is UIEvents.SuccessWithMsg -> {
                 //Toast.makeText(context , event.msg , Toast.LENGTH_SHORT).show()
                 wanderaToastState.showToast(event.msg)
             }
-            else->{}
+
+            else -> {}
         }
     }
 
     //scroll to the bottom in order to avoid textfield keyboard overlap
     LaunchedEffect(state.expenseNote) {
-        if(state.expenseNote.endsWith("\n")){
+        if (state.expenseNote.endsWith("\n")) {
 
             //delay since the notes box animates its content with 500L animation spec + 100L delay
             delay(650)
@@ -159,8 +171,7 @@ private fun TripOverviewPage(
             ) {
                 DotsLoadingAnimation()
             }
-        }
-        else {
+        } else {
             Column(
                 Modifier
                     .fillMaxSize()
@@ -185,7 +196,7 @@ private fun TripOverviewPage(
                 VerticalSpace()
                 DateHeader(
                     startDate = state.trip?.startDate ?: 0 ,
-                    endDate = state.trip?.endDate ?: 0
+                    endDate = state.trip?.endDate ?: 0 ,
                 )
 
                 //Itinerary layout
@@ -255,31 +266,42 @@ private fun TripOverviewPage(
 
                 //checklist
                 VerticalSpace(10.dp)
-                Text(
-                    "Don't forget your stuff!!",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium
-                )
-                LazyColumn(
-                    Modifier
-                        .fillMaxWidth()
-                        .heightIn(max = 500.dp) ,
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    items(
-                        items = state.checklist,
-                        key = {it.id}
-                    ){item->
-                        ChecklistItem(
-                            item = item,
-                            onCheck = {itemId, checked ->
-                                onAction(OverviewActions.CheckChecklistItem(itemId,checked))
-                            },
-                            onDelete = {itemId->
-                                onAction(OverviewActions.DeleteChecklistItem(itemId))
-                            },
-                            modifier = Modifier.animateItem()
-                        )
+                Column {
+                    ChecklistHeader(
+                        collapsed = state.checklistCollapsed ,
+                        onCollapse = {
+                            onAction(OverviewActions.OnChecklistCollapse)
+                        }
+                    )
+                    VerticalSpace(8.dp)
+                    AnimatedVisibility(!state.checklistCollapsed) {
+                        LazyColumn(
+                            Modifier
+                                .fillMaxWidth()
+                                .heightIn(max = 500.dp) ,
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            items(
+                                items = state.checklist ,
+                                key = { it.id }
+                            ) { item ->
+                                ChecklistItem(
+                                    item = item ,
+                                    onCheck = { itemId , checked ->
+                                        onAction(
+                                            OverviewActions.CheckChecklistItem(
+                                                itemId ,
+                                                checked
+                                            )
+                                        )
+                                    } ,
+                                    onDelete = { itemId ->
+                                        onAction(OverviewActions.DeleteChecklistItem(itemId))
+                                    } ,
+                                    modifier = Modifier.animateItem()
+                                )
+                            }
+                        }
                     }
                 }
 
@@ -287,15 +309,19 @@ private fun TripOverviewPage(
                 //expense notes
                 VerticalSpace(10.dp)
                 Text(
-                    "Expenses",
-                    fontSize = 16.sp,
+                    "Expenses" ,
+                    fontSize = 16.sp ,
                     fontWeight = FontWeight.Medium
                 )
                 BookLikeTextField(
-                    value = state.expenseNote,
+                    modifier = Modifier.customShadow(
+                        MaterialTheme.colorScheme.onBackground ,
+                        borderRadius = 0.dp
+                    ) ,
+                    value = state.expenseNote ,
                     onValueChange = {
                         onAction(OverviewActions.OnExpenseNoteValueChange(it))
-                    },
+                    } ,
                     onSave = {
                         onAction(OverviewActions.UpdateExpenseNote)
                     }
@@ -306,7 +332,12 @@ private fun TripOverviewPage(
 
                 //delete
                 IconTextButton(
-                    modifier = Modifier.align(Alignment.CenterHorizontally) ,
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
+                        .customShadow(
+                            MaterialTheme.colorScheme.surfaceContainer ,
+                            alpha = 0.8f ,
+                        ) ,
                     icon = com.zzz.core.R.drawable.delete ,
                     text = "Delete Trip" ,
                     shape = MaterialTheme.shapes.large ,
@@ -316,6 +347,7 @@ private fun TripOverviewPage(
                         deleteDialog = true
                     }
                 )
+
                 VerticalSpace(20.dp)
             }
         } // COL-END
@@ -357,8 +389,13 @@ private fun TripOverviewPage(
             )
         }
 
+        OverviewPageFab(
+            modifier = Modifier.align(Alignment.BottomEnd)
+                .padding(end = 16.dp , bottom = 8.dp)
+        )
+
         WanderaToast(
-            state = wanderaToastState,
+            state = wanderaToastState ,
             modifier = Modifier.align(Alignment.BottomCenter)
         )
 
@@ -367,3 +404,76 @@ private fun TripOverviewPage(
 
 }
 
+@Preview()
+@Composable
+private fun TopBarPrev() {
+    MaterialTheme {
+        var collapsed by remember { mutableStateOf(true) }
+        Box(
+            Modifier
+                .fillMaxSize()
+                .background(Color.DarkGray)
+        ) {
+            Column(
+                Modifier.align(Alignment.CenterEnd),
+                horizontalAlignment = Alignment.End,
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                CircularIconButton(
+                    icon = com.zzz.core.R.drawable.edit_day ,
+                    contentDescription = "" ,
+                    onClick = {
+                        collapsed = !collapsed
+                    }
+                )
+                androidx.compose.animation.AnimatedVisibility(
+                    !collapsed,
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.End
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically ,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Text("Edit")
+                            CircularIconButton(
+                                icon = com.zzz.core.R.drawable.edit_day ,
+                                contentDescription = "" ,
+                                onClick = {
+                                }
+                            )
+                        }
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically ,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Text("Share")
+                            CircularIconButton(
+                                icon = com.zzz.core.R.drawable.send ,
+                                contentDescription = "" ,
+                                onClick = {
+                                }
+                            )
+                        }
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically ,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Text("Mark as done")
+                            CircularIconButton(
+                                icon = com.zzz.core.R.drawable.download_done ,
+                                contentDescription = "" ,
+                                onClick = {
+                                }
+                            )
+                        }
+
+                    }
+
+                }
+            }
+
+        }
+    }
+}

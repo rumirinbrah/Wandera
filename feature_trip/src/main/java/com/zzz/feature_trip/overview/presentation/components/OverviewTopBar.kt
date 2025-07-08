@@ -1,13 +1,19 @@
 package com.zzz.feature_trip.overview.presentation.components
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -18,12 +24,13 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.zzz.core.presentation.buttons.CircularIconButton
+import com.zzz.core.presentation.modifiers.customShadow
 
 @Composable
 internal fun OverviewTopBar(
-    tripName : String = "" ,
-    onBack : ()->Unit ,
-    editTrip : ()->Unit ,
+    tripName: String = "" ,
+    onBack: () -> Unit ,
+    editTrip: () -> Unit ,
     modifier: Modifier = Modifier
 ) {
 
@@ -59,9 +66,10 @@ internal fun OverviewTopBar(
      */
 
     Row(
-        modifier.fillMaxWidth()
+        modifier
+            .fillMaxWidth()
             .clip(MaterialTheme.shapes.large) ,
-        verticalAlignment = Alignment.CenterVertically,
+        verticalAlignment = Alignment.CenterVertically ,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         CircularIconButton(
@@ -70,19 +78,20 @@ internal fun OverviewTopBar(
             icon = com.zzz.core.R.drawable.arrow_back ,
             contentDescription = "Go back" ,
             background = Color.DarkGray.copy(0.4f) ,
-            onBackground = Color.White,
+            onBackground = Color.White ,
             onClick = {
                 onBack()
             }
         )
         Text(
-            tripName,
-            fontSize = 25.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.weight(1f)
-                .padding(horizontal = 8.dp),
-            maxLines = 2,
-            overflow = TextOverflow.Ellipsis,
+            tripName ,
+            fontSize = 25.sp ,
+            fontWeight = FontWeight.Bold ,
+            modifier = Modifier
+                .weight(1f)
+                .padding(horizontal = 8.dp) ,
+            maxLines = 2 ,
+            overflow = TextOverflow.Ellipsis ,
             textAlign = TextAlign.Center
         )
 
@@ -92,15 +101,72 @@ internal fun OverviewTopBar(
             icon = com.zzz.core.R.drawable.download_done ,
             contentDescription = "Go back" ,
             background = Color.DarkGray.copy(0.4f) ,
-            onBackground = Color.White,
+            onBackground = Color.White ,
             onClick = {
 
             }
         )
 
-
-
     }
+}
+
+@Composable
+fun OverviewPageFab(
+    modifier: Modifier = Modifier
+) {
+    var collapsed by remember { mutableStateOf(true) }
 
 
+    Column(
+        modifier ,
+        horizontalAlignment = Alignment.End ,
+        verticalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+
+        AnimatedVisibility(!collapsed) {
+            Column(
+                horizontalAlignment = Alignment.End ,
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+
+                CircularIconButton(
+                    modifier = Modifier
+                        .customShadow(MaterialTheme.colorScheme.onBackground),
+                    icon = com.zzz.core.R.drawable.edit ,
+                    contentDescription = "Edit trip" ,
+                    onClick = {
+                    }
+                )
+
+                CircularIconButton(
+                    modifier = Modifier
+                        .customShadow(MaterialTheme.colorScheme.onBackground),
+                    icon = com.zzz.core.R.drawable.share ,
+                    contentDescription = "share trip plan with friends" ,
+                    onClick = {
+                    }
+                )
+
+                CircularIconButton(
+                    modifier = Modifier
+                        .customShadow(MaterialTheme.colorScheme.onBackground),
+                    icon = com.zzz.core.R.drawable.download_done ,
+                    contentDescription = "mark trip as done / completed" ,
+                    onClick = {
+                    }
+                )
+            }
+        }
+        CircularIconButton(
+            modifier = Modifier ,
+            icon = com.zzz.core.R.drawable.round_more_vert_24 ,
+            contentDescription = "Go back" ,
+            background = MaterialTheme.colorScheme.onBackground ,
+            onBackground = MaterialTheme.colorScheme.background ,
+            onClick = {
+                collapsed = !collapsed
+            }
+        )
+//
+    }
 }

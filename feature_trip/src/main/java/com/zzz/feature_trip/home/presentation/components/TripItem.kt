@@ -22,13 +22,20 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawOutline
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.zzz.core.presentation.components.VerticalSpace
-import com.zzz.core.presentation.modifiers.customShadow
+import com.zzz.core.presentation.modifiers.drawFrameCorners
+import com.zzz.core.presentation.modifiers.homeTripItemShape
 import com.zzz.core.theme.WanderaTheme
 import com.zzz.data.trip.TripWithDays
 import com.zzz.feature_trip.home.util.getDateDifference
@@ -37,8 +44,11 @@ import com.zzz.feature_trip.home.util.getDateDifference
 fun TripItem(
     tripWithDays: TripWithDays ,
     onClick: (tripId : Long) -> Unit ,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
+
+    val density = LocalDensity.current
+    val frameColor = MaterialTheme.colorScheme.onBackground
 
     val dayImages = remember(tripWithDays.days) {
         tripWithDays.days.map {
@@ -62,7 +72,7 @@ fun TripItem(
                     onClick(trip.id)
                 }
             )
-            .padding(16.dp)
+            .padding(22.dp)
 
     ) {
         Row(

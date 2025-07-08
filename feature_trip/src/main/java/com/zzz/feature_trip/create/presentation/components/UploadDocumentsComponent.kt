@@ -60,7 +60,8 @@ fun UploadDocumentComponent(
 
     //docs
     Column(
-        modifier.fillMaxWidth()
+        modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         Text(
             "Add tickets, documents, ID, etc." ,
@@ -71,7 +72,7 @@ fun UploadDocumentComponent(
             text = "(these files are not uploaded anywhere & are stored on your own device, make sure you don't delete them)" ,
             style = MaterialTheme.typography.bodySmall
         )
-        Spacer(Modifier.height(8.dp))
+        Spacer(Modifier.height(4.dp))
         Row(
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {

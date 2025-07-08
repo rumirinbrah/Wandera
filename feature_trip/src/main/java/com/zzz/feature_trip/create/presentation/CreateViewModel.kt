@@ -464,7 +464,7 @@ class CreateViewModel(
         }
         viewModelScope.launch {
             val item = ChecklistEntity(
-                title = title ,
+                title = title.trim() ,
                 tripId = sessionData.tripId
             )
             changeChecklistDialogVisibility(false)
