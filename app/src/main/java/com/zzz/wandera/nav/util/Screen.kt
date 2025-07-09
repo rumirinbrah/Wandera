@@ -17,8 +17,15 @@ sealed class Screen {
         @Serializable
         data class UpdateTripScreen(val tripId : Long)
 
+        /**
+         * Will be used for both adding and updating a day
+         */
         @Serializable
-        data object AddDayScreen
+        data class AddDayScreen(
+            val tripId: Long = 0,
+            val isUpdating: Boolean = false,
+            val dayId : Long = 0
+        )
 
         @Serializable
         data object DayDetailsScreen

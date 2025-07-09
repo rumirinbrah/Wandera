@@ -60,8 +60,9 @@ import com.zzz.feature_trip.create.presentation.components.DocumentCard
 import com.zzz.feature_trip.create.presentation.components.IndicatorCard
 import com.zzz.feature_trip.create.presentation.components.ItineraryItem
 import com.zzz.feature_trip.create.presentation.components.UploadDocumentComponent
-import com.zzz.feature_trip.create.presentation.states.CreateAction
-import com.zzz.feature_trip.create.presentation.states.TripState
+import com.zzz.feature_trip.create.presentation.viewmodel.CreateAction
+import com.zzz.feature_trip.create.presentation.viewmodel.CreateViewModel
+import com.zzz.feature_trip.create.presentation.viewmodel.TripState
 import com.zzz.feature_trip.create.util.toFormattedDate
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
@@ -69,10 +70,10 @@ import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun CreateRoot(
-    modifier: Modifier = Modifier,
-    onNavToAddDay : ()->Unit,
-    onEditDay :()->Unit,
-    navigateUp: () -> Unit,
+    modifier: Modifier = Modifier ,
+    onNavToAddDay : (tripId : Long)->Unit ,
+    onEditDay :(dayId : Long)->Unit ,
+    navigateUp: () -> Unit ,
     createViewModel: CreateViewModel = koinViewModel() ,
 ) {
 
@@ -107,8 +108,8 @@ private fun CreateTripPage(
     docs : List<UserDocument>,
     events : Flow<UIEvents>,
     onAction :(CreateAction)->Unit,
-    onNavToAddDay : ()->Unit,
-    onEditDay : ()->Unit,
+    onNavToAddDay : (tripId : Long)->Unit ,
+    onEditDay :(dayId : Long)->Unit ,
     navigateUp : ()->Unit
 ) {
     val snackbarState = remember {  SnackbarHostState() }
@@ -253,7 +254,9 @@ private fun CreateTripPage(
                 IconTextButton(
                     icon = com.zzz.core.R.drawable.add ,
                     text = "Add Day" ,
-                    onClick = onNavToAddDay
+                    onClick = {
+                        onNavToAddDay(tripState.tripId)
+                    }
                 )
             }
             AnimatedVisibility(days.isEmpty()){
@@ -267,8 +270,7 @@ private fun CreateTripPage(
                     ItineraryItem(
                         day,
                         onClick = {id->
-                            onAction(CreateAction.DayActions.FetchDayById(id))
-                            onEditDay()
+                            onEditDay(id)
                         },
                         onDelete = {id->
                             println("id is $id")

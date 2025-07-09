@@ -61,6 +61,7 @@ internal fun UploadImageComponent(
                 shape = RoundedCornerShape(50) ,
             )
         }
+        /*
         AnimatedVisibility(image != null) {
             ImageComponentWithDefaultBackground(
                 title = dayTitle ,
@@ -68,5 +69,7 @@ internal fun UploadImageComponent(
                 modifier = Modifier.size(70.dp)
             )
         }
+
+         */
     }
 }

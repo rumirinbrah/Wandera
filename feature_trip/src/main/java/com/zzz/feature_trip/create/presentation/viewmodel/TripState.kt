@@ -1,8 +1,9 @@
-package com.zzz.feature_trip.create.presentation.states
+package com.zzz.feature_trip.create.presentation.viewmodel
 
 import com.zzz.data.note.model.ChecklistEntity
 
 internal data class TripState(
+    val tripId : Long = 0L,
     val tripTitle : String = "",
     val startDate : Long? = null,
     val endDate : Long? = null,

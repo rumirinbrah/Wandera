@@ -1,4 +1,4 @@
-package com.zzz.feature_trip.create.presentation
+package com.zzz.feature_trip.create.presentation.viewmodel
 
 import android.net.Uri
 import android.util.Log
@@ -17,10 +17,6 @@ import com.zzz.data.trip.source.DaySource
 import com.zzz.data.trip.source.TodoSource
 import com.zzz.data.trip.source.TripSource
 import com.zzz.data.trip.source.UserDocSource
-import com.zzz.feature_trip.create.presentation.states.CreateAction
-import com.zzz.feature_trip.create.presentation.states.DayState
-import com.zzz.feature_trip.create.presentation.states.SessionData
-import com.zzz.feature_trip.create.presentation.states.TripState
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -104,60 +100,6 @@ class CreateViewModel(
 
     fun onAction(action: CreateAction) {
         when (action) {
-            //=========== DAY ===========
-            is CreateAction.DayActions -> {
-
-                when (action) {
-                    CreateAction.DayActions.CreateDaySession -> {
-                        createDaySession()
-                    }
-
-                    CreateAction.DayActions.ClearDayState -> {
-                        resetDayState()
-                    }
-
-                    //title
-                    is CreateAction.DayActions.OnDayTitleChange -> {
-                        onDayTitleChange(action.title)
-                    }
-                    //image
-                    is CreateAction.DayActions.OnPickImage -> {
-                        onPickImage(action.imageUri)
-                    }
-                    //add todos
-                    is CreateAction.DayActions.OnAddTodoLocation -> {
-                        onAddTodo(action.title , action.isTodo)
-                    }
-                    //delete todos
-                    is CreateAction.DayActions.OnDeleteTodoLocation -> {
-                        deleteTodoByDayId(action.id)
-                    }
-                    //discard dialog
-                    is CreateAction.DayActions.OnDialogVisibilityChange -> {
-                        onDialogVisibilityChange(action.visible)
-                    }
-
-                    is CreateAction.DayActions.OnDeleteDay -> {
-                        deleteDayById(action.id)
-                    }
-                    //fetch
-                    is CreateAction.DayActions.FetchDayById -> {
-                        fetchDayById(action.id)
-                    }
-                    //discard
-                    CreateAction.DayActions.OnDiscardCreation -> {
-                        discardDayCreation()
-                    }
-                    //save day
-                    CreateAction.DayActions.OnSaveDay -> {
-                        //saveDay()
-                    }
-
-                    CreateAction.DayActions.OnUpdateDay -> {
-                        updateDay()
-                    }
-                }
-            }
 
             //=========== TRIP ===========
             is CreateAction.TripActions -> {
@@ -207,10 +149,13 @@ class CreateViewModel(
                             getUserDocsFlow()
                         }
                     }
-
                     else -> Unit
 
                 }
+            }
+
+            is CreateAction.DayActions.OnDeleteDay->{
+                deleteDayById(action.id)
             }
 
             CreateAction.OnDiscardTripCreation -> {
@@ -220,12 +165,22 @@ class CreateViewModel(
             CreateAction.OnSave -> {
                 saveTrip()
             }
+            else->{}
 
         }
     }
 
 
     //=========== DAY ===========
+    /**
+     * Delete Day entity by id
+     */
+    private fun deleteDayById(dayId: Long) {
+        viewModelScope.launch {
+            daySource.deleteDayById(dayId)
+        }
+    }
+    /*
     private fun onDayTitleChange(title: String) {
         viewModelScope.launch {
             _dayState.update {
@@ -306,14 +261,7 @@ class CreateViewModel(
         return true
     }
 
-    /**
-     * Delete Day entity by id
-     */
-    private fun deleteDayById(dayId: Long) {
-        viewModelScope.launch {
-            daySource.deleteDayById(dayId)
-        }
-    }
+
 
     /**
      * Updates title of the day
@@ -395,6 +343,8 @@ class CreateViewModel(
             sessionData = sessionData.copy(dayId = 0)
         }
     }
+
+     */
 
 
     //=========== TRIP ===========
@@ -614,6 +564,9 @@ class CreateViewModel(
                 endDate = 0L
             )
             val id = tripSource.addTrip(tempTrip)
+            _tripState.update {
+                it.copy(tripId = id)
+            }
             sessionData = sessionData.copy(tripId = id)
 
             Log.d("CreateVM" , "createTripSession: Session id $id")

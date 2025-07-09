@@ -7,11 +7,7 @@ import com.google.mlkit.nl.translate.TranslateRemoteModel
 import com.google.mlkit.nl.translate.Translation
 import com.google.mlkit.nl.translate.Translator
 import com.google.mlkit.nl.translate.TranslatorOptions
-import com.zzz.data.translate.model.TranslationModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.suspendCancellableCoroutine
-import kotlinx.coroutines.withContext
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
@@ -65,7 +61,6 @@ class TranslationManager {
         languageCode: String ,
         wifiRequired : Boolean = true
     ) = suspendCancellableCoroutine<Unit> { continuation ->
-
 
         val newModel = TranslateRemoteModel.Builder(languageCode).build()
 

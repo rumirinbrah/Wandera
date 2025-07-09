@@ -152,7 +152,7 @@ private fun TripOverviewPage(
 
     BackHandler {
         when{
-            state.fabCollapsed ->{
+            !state.fabCollapsed ->{
                 onAction(OverviewActions.OnFabCollapse(true))
             }
             else->{

@@ -1,6 +1,7 @@
 package com.zzz.feature_trip.di
 
-import com.zzz.feature_trip.create.presentation.CreateViewModel
+import com.zzz.feature_trip.create.presentation.viewmodel.CreateViewModel
+import com.zzz.feature_trip.create.presentation.viewmodel.DayViewModel
 import com.zzz.feature_trip.home.presentation.HomeViewModel
 import com.zzz.feature_trip.overview.presentation.viewmodel.OverviewViewModel
 import com.zzz.feature_trip.update.presentation.viewmodel.UpdateTripViewModel
@@ -17,6 +18,12 @@ val createModule = module {
             docSource = get(),
             expenseNoteSource = get(),
             checklistSource = get()
+        )
+    }
+    viewModel{
+        DayViewModel(
+            daySource = get(),
+            todoSource = get()
         )
     }
     viewModel {

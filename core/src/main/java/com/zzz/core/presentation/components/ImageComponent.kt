@@ -41,6 +41,7 @@ fun ImageComponent(
     imageUri: Uri? = null ,
     contentDescription: String = "" ,
     colorFilter: ColorFilter? = null ,
+    alpha : Float = 1f,
     background: Color = MaterialTheme.colorScheme.surfaceContainer ,
     contentScale: ContentScale = ContentScale.Crop ,
     modifier: Modifier = Modifier
@@ -55,6 +56,7 @@ fun ImageComponent(
         contentDescription = "Image - $contentDescription" ,
         contentScale = contentScale ,
         colorFilter = colorFilter ,
+        alpha = alpha,
         modifier = modifier
             .background(background)
     )

@@ -13,7 +13,7 @@ import com.zzz.data.trip.source.DaySource
 import com.zzz.data.trip.source.TodoSource
 import com.zzz.data.trip.source.TripSource
 import com.zzz.data.trip.source.UserDocSource
-import com.zzz.feature_trip.create.presentation.states.CreateAction
+import com.zzz.feature_trip.create.presentation.viewmodel.CreateAction
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
@@ -61,7 +61,7 @@ class UpdateTripViewModel(
             is CreateAction.DayActions -> {
 
                 when (action) {
-                    CreateAction.DayActions.CreateDaySession -> {
+                    is CreateAction.DayActions.CreateDaySession -> {
                         createDaySession()
                     }
                     CreateAction.DayActions.ClearDayState->{

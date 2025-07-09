@@ -1,4 +1,4 @@
-package com.zzz.feature_trip.create.presentation.states
+package com.zzz.feature_trip.create.presentation.viewmodel
 
 internal data class SessionData(
     val tripId : Long =0 ,

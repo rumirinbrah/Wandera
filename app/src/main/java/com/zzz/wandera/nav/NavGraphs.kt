@@ -15,8 +15,9 @@ import com.zzz.core.presentation.toast.WanderaToastState
 import com.zzz.wandera.nav.util.Screen
 import com.zzz.feature_trip.create.presentation.AddDayRoot
 import com.zzz.feature_trip.create.presentation.CreateRoot
-import com.zzz.feature_trip.create.presentation.CreateViewModel
-import com.zzz.feature_trip.create.presentation.states.CreateAction
+import com.zzz.feature_trip.create.presentation.viewmodel.CreateViewModel
+import com.zzz.feature_trip.create.presentation.viewmodel.CreateAction
+import com.zzz.feature_trip.create.presentation.viewmodel.DayViewModel
 import com.zzz.feature_trip.overview.presentation.DayDetailsRoot
 import com.zzz.feature_trip.home.presentation.HomeRoot
 import com.zzz.feature_trip.home.presentation.HomeViewModel
@@ -78,11 +79,11 @@ fun NavGraphBuilder.homeNavGraph(
             }
             CreateRoot(
                 Modifier.padding(innerPadding),
-                onNavToAddDay = {
-                    navController.navigate(Screen.HomeGraph.AddDayScreen)
+                onNavToAddDay = {tripId->
+                    navController.navigate(Screen.HomeGraph.AddDayScreen(tripId = tripId))
                 },
-                onEditDay = {
-                    navController.navigate(Screen.HomeGraph.AddDayScreen)
+                onEditDay = {dayId->
+                    navController.navigate(Screen.HomeGraph.AddDayScreen(isUpdating = true , dayId = dayId))
                 },
                 navigateUp = {
                     navController.navigateUp()
@@ -122,22 +123,33 @@ fun NavGraphBuilder.homeNavGraph(
         }
         //create -> add day
         composable<Screen.HomeGraph.AddDayScreen> { backStack->
-            /*
-            not necessary to use remember here(doing for recovering process death scenarios)
-             */
 
-            val parentEntry = remember(backStack) {
-                navController.getBackStackEntry(Screen.HomeGraph.CreateTripScreen)
+            val route = backStack.toRoute<Screen.HomeGraph.AddDayScreen>()
+
+            val dayViewModel = koinViewModel<DayViewModel>()
+
+            //ADD LAUNCHED EFFECT HERE
+            LaunchedEffect(Unit) {
+                if(route.isUpdating){
+                    dayViewModel.onAction(
+                        CreateAction
+                            .DayActions
+                            .FetchDayById(route.dayId)
+                    )
+                }else{
+                    dayViewModel.onAction(
+                        CreateAction
+                            .DayActions
+                            .CreateDaySession(route.tripId)
+                    )
+                }
             }
-            val createViewModel = koinViewModel<CreateViewModel>(viewModelStoreOwner = parentEntry)
-
-
             AddDayRoot(
                 Modifier.padding(innerPadding),
                 navigateUp = {
                     navController.navigateUp()
                 },
-                createViewModel = createViewModel
+                dayViewModel = dayViewModel
             )
 
         }

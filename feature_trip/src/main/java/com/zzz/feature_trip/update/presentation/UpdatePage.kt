@@ -51,7 +51,7 @@ import com.zzz.feature_trip.create.presentation.components.DocumentCard
 import com.zzz.feature_trip.create.presentation.components.IndicatorCard
 import com.zzz.feature_trip.create.presentation.components.ItineraryItem
 import com.zzz.feature_trip.create.presentation.components.UploadDocumentComponent
-import com.zzz.feature_trip.create.presentation.states.CreateAction
+import com.zzz.feature_trip.create.presentation.viewmodel.CreateAction
 import com.zzz.feature_trip.create.util.toFormattedDate
 import com.zzz.feature_trip.update.presentation.viewmodel.UpdateTripState
 import com.zzz.feature_trip.update.presentation.viewmodel.UpdateTripViewModel

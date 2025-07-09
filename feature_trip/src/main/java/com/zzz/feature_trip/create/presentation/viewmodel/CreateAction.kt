@@ -1,7 +1,6 @@
-package com.zzz.feature_trip.create.presentation.states
+package com.zzz.feature_trip.create.presentation.viewmodel
 
 import android.net.Uri
-import com.zzz.data.trip.model.Trip
 
 sealed class CreateAction {
 
@@ -27,7 +26,7 @@ sealed class CreateAction {
 
     //day
     sealed class DayActions : CreateAction(){
-        data object CreateDaySession : DayActions()
+        data class CreateDaySession(val tripId: Long) : DayActions()
 
         data class OnDayTitleChange(val title: String) : DayActions()
         data class OnAddTodoLocation( val title: String , val isTodo: Boolean) : DayActions()
