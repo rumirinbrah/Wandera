@@ -37,7 +37,6 @@ import kotlinx.coroutines.withContext
 class CreateViewModel(
     private val tripSource: TripSource ,
     private val daySource: DaySource ,
-    private val todoSource: TodoSource ,
     private val docSource: UserDocSource ,
     private val expenseNoteSource: ExpenseNoteSource ,
     private val checklistSource: ChecklistSource ,
@@ -88,6 +87,7 @@ class CreateViewModel(
             "init..."
         }
 
+        /*
         createTripSession(
             onDone = {
                 getTripDaysFlow()
@@ -95,6 +95,8 @@ class CreateViewModel(
                 getTripChecklistFlow()
             }
         )
+
+         */
 
     }
 
@@ -147,9 +149,12 @@ class CreateViewModel(
                         createTripSession {
                             getTripDaysFlow()
                             getUserDocsFlow()
+                            getTripChecklistFlow()
                         }
                     }
-                    else -> Unit
+                    is CreateAction.TripActions.FetchTripData ->{
+                        fetchTripData(action.tripId)
+                    }
 
                 }
             }
@@ -170,6 +175,22 @@ class CreateViewModel(
         }
     }
 
+    /*
+    if(sessionOngoing){
+            return
+        }
+        viewModelScope.launch {
+            sessionOngoing = true
+            val trip = tripSource.getTripById(tripId)
+            _state.update {
+                it.copy(
+                    tripId = tripId,
+                    tripTitle = trip.tripName,
+                    startDate =trip.startDate ,
+                    endDate = trip.endDate
+                )
+            }
+     */
 
     //=========== DAY ===========
     /**
@@ -574,7 +595,39 @@ class CreateViewModel(
         }
 
     }
+    private fun fetchTripData(tripId : Long){
+        if(_tripState.value.sessionOngoing){
+            return
+        }
+        viewModelScope.launch {
+            log {
+                "Fetching trip data for $tripId..."
+            }
+            _tripState.update {
+                it.copy(
+                    sessionOngoing = true,
+                    isUpdating = true
+                )
+            }
+            sessionData = sessionData.copy(tripId = tripId)
 
+
+            val trip = tripSource.getTripById(tripId)
+            _tripState.update {
+                it.copy(
+                    tripId = tripId ,
+                    tripTitle = trip.tripName ,
+                    startDate = trip.startDate ,
+                    endDate = trip.endDate
+                )
+            }
+            getTripDaysFlow()
+            getUserDocsFlow()
+            getTripChecklistFlow()
+        }
+    }
+
+    /*
     /**
      * This function creates an entry for Day into the DB for session management
      * @return - Id of the entry, can be used to clear data if user cancels creation
@@ -592,6 +645,8 @@ class CreateViewModel(
             getDayTodosFlow()
         }
     }
+
+     */
 
     //DB GET REQs
     //Days flow
@@ -627,6 +682,7 @@ class CreateViewModel(
         }
     }
 
+    /*
     //TODOs flow
     private fun getDayTodosFlow() {
         collectTodosJob = viewModelScope.launch {
@@ -650,6 +706,8 @@ class CreateViewModel(
                 }
         }
     }
+
+     */
 
     //Docs flow
     private fun getUserDocsFlow() {

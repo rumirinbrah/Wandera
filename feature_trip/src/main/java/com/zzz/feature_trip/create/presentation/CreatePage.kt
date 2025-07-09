@@ -139,7 +139,11 @@ private fun CreateTripPage(
         }
     }
     BackHandler {
-        showConfirmDiscardDialog = true
+        if(tripState.isUpdating){
+            navigateUp()
+        }else{
+            showConfirmDiscardDialog = true
+        }
     }
 
     Box(modifier.fillMaxSize()){
@@ -163,7 +167,11 @@ private fun CreateTripPage(
                     background = Color.DarkGray.copy(0.3f) ,
                     onBackground = Color.White,
                     onClick = {
-                        showConfirmDiscardDialog = true
+                        if(tripState.isUpdating){
+                            navigateUp()
+                        }else{
+                            showConfirmDiscardDialog = true
+                        }
                     }
                 )
                 Text(

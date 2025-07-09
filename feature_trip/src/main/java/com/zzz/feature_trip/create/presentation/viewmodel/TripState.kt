@@ -10,7 +10,8 @@ internal data class TripState(
     val checklist : List<ChecklistEntity> = emptyList(),
     val showAddChecklistDialog : Boolean = false,
     val saving : Boolean = false,
-    val sessionOngoing : Boolean = false
+    val sessionOngoing : Boolean = false,
+    val isUpdating : Boolean = false
 )
 /*
 val tripTitle : String = "",

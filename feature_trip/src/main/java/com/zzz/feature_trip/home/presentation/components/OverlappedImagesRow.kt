@@ -42,6 +42,7 @@ internal fun OverlappedImagesRow(
             .padding(4.dp)
     ) {
         images.take(maxImagesVisible).onEachIndexed { index , uri ->
+
             Box(
                 Modifier
                     .offset(

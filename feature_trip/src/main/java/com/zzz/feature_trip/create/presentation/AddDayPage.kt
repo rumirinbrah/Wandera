@@ -3,7 +3,6 @@ package com.zzz.feature_trip.create.presentation
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -175,7 +174,7 @@ private fun AddDayPage(
                         background = Color.DarkGray.copy(0.5f) ,
                         onBackground = Color.White ,
                         onClick = {
-                            onAction(CreateAction.DayActions.ClearDayState)
+                            //onAction(CreateAction.DayActions.ClearDayState)
                             navigateUp()
                         }
                     )

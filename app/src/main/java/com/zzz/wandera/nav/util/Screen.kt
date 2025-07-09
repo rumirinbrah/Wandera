@@ -12,7 +12,7 @@ sealed class Screen {
         data object HomeScreen
 
         @Serializable
-        data object CreateTripScreen
+        data class CreateTripScreen(val tripId: Long? = null)
 
         @Serializable
         data class UpdateTripScreen(val tripId : Long)

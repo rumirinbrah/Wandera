@@ -114,6 +114,9 @@ internal fun OverviewTopBar(
 fun OverviewPageFab(
     collapsed : Boolean = true,
     onCollapse : (collapsed : Boolean)->Unit,
+    onEdit : ()->Unit,
+    onShare :()->Unit,
+    onMarkAsDone : () ->Unit,
     modifier: Modifier = Modifier
 ) {
 
@@ -136,6 +139,7 @@ fun OverviewPageFab(
                     icon = com.zzz.core.R.drawable.edit ,
                     contentDescription = "Edit trip" ,
                     onClick = {
+                        onEdit()
                     }
                 )
 
@@ -145,6 +149,7 @@ fun OverviewPageFab(
                     icon = com.zzz.core.R.drawable.share ,
                     contentDescription = "share trip plan with friends" ,
                     onClick = {
+                        onShare()
                     }
                 )
 
@@ -154,6 +159,7 @@ fun OverviewPageFab(
                     icon = com.zzz.core.R.drawable.download_done ,
                     contentDescription = "mark trip as done / completed" ,
                     onClick = {
+                        onMarkAsDone()
                     }
                 )
             }

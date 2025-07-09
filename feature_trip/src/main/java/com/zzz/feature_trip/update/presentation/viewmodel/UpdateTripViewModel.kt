@@ -57,56 +57,6 @@ class UpdateTripViewModel(
 
     fun onAction(action: CreateAction) {
         when (action) {
-            //=========== DAY ===========
-            is CreateAction.DayActions -> {
-
-                when (action) {
-                    is CreateAction.DayActions.CreateDaySession -> {
-                        createDaySession()
-                    }
-                    CreateAction.DayActions.ClearDayState->{
-                        resetDayState()
-                    }
-
-                    //title
-                    is CreateAction.DayActions.OnDayTitleChange -> {
-                        onDayTitleChange(action.title)
-                    }
-                    //image
-                    is CreateAction.DayActions.OnPickImage -> {
-                        onPickImage(action.imageUri)
-                    }
-                    //add todos
-                    is CreateAction.DayActions.OnAddTodoLocation -> {
-                        onAddTodo(action.title , action.isTodo)
-                    }
-                    //delete todos
-                    is CreateAction.DayActions.OnDeleteTodoLocation -> {
-                        deleteTodoByDayId(action.id)
-                    }
-                    //discard dialog
-                    is CreateAction.DayActions.OnDialogVisibilityChange -> {
-                        onDialogVisibilityChange(action.visible)
-                    }
-
-                    is CreateAction.DayActions.OnDeleteDay -> {
-                        deleteDayById(action.id)
-                    }
-                    //fetch
-                    is CreateAction.DayActions.FetchDayById -> {
-                        fetchDayById(action.id)
-                    }
-                    //discard
-                    CreateAction.DayActions.OnDiscardCreation -> {
-                        discardDayCreation()
-                    }
-
-                    CreateAction.DayActions.OnUpdateDay -> {
-                        updateDay()
-                    }
-                    else->Unit
-                }
-            }
 
             //=========== TRIP ===========
             is CreateAction.TripActions -> {
@@ -138,7 +88,9 @@ class UpdateTripViewModel(
 
                 }
             }
-
+            is CreateAction.DayActions.OnDeleteDay -> {
+                deleteDayById(action.id)
+            }
 
             CreateAction.OnSave -> {
                 saveTrip()
@@ -169,59 +121,6 @@ class UpdateTripViewModel(
     }
 
     //=========== DAY ===========
-    private fun onDayTitleChange(title: String) {
-        viewModelScope.launch {
-            _state.update {
-                it.copy(dayTitle = title)
-            }
-        }
-    }
-
-    //img
-    private fun onPickImage(uri: Uri) {
-        viewModelScope.launch {
-            _state.update {
-                it.copy(image = uri)
-            }
-        }
-    }
-
-    private fun onAddTodo(title: String , isTodo: Boolean) {
-        if (dayId==-1L) {
-            return
-        }
-        viewModelScope.launch {
-            log {
-                "onAddTodo : Adding todo $title..."
-            }
-
-            val todoLoc = TodoLocation(dayId = dayId , title = title , isTodo = isTodo)
-            todoSource.addTodo(todoLoc)
-            _state.update {
-                it.copy(addTodoDialogVisible = false)
-            }
-        }
-    }
-
-    /**
-     * Delete TODOs references by the Day id
-     */
-    private fun deleteTodoByDayId(id: Long) {
-        viewModelScope.launch {
-            todoSource.deleteTodo(id)
-        }
-    }
-
-
-    private fun validateDayInput(
-        onTitleInvalid : ()->Unit
-    ) : Boolean{
-        if(_state.value.dayTitle.isBlank()){
-            onTitleInvalid()
-            return false
-        }
-        return true
-    }
 
     /**
      * Delete Day entity by id
@@ -229,96 +128,6 @@ class UpdateTripViewModel(
     private fun deleteDayById(dayId : Long){
         viewModelScope.launch {
             daySource.deleteDayById(dayId)
-        }
-    }
-    /**
-     * Updates title of the day
-     */
-    private fun updateDay() {
-        if(dayId==-1L){
-            return
-        }
-        val tripId = _state.value.tripId ?: return
-        viewModelScope.launch {
-            val day = Day(
-                id= dayId,
-                locationName = _state.value.dayTitle,
-                image = _state.value.image,
-                tripId = tripId
-            )
-
-            daySource.updateDay(day)
-            resetDayState()
-        }
-    }
-
-    /**
-     * Add TODOs dialog
-     */
-    private fun onDialogVisibilityChange(visible: Boolean) {
-        viewModelScope.launch {
-            _state.update {
-                it.copy(
-                    addTodoDialogVisible = visible
-                )
-            }
-        }
-    }
-
-    /**
-     * Fetch Day entry by id
-     */
-    private fun fetchDayById(id: Long) {
-        viewModelScope.launch {
-            val day = daySource.getDayById(id)
-            dayId = id
-
-            //start fetching todos
-            getDayTodosFlow()
-
-            _state.update {
-                it.copy(
-                    dayTitle = day.locationName ,
-                    image = day.image ,
-                )
-            }
-        }
-    }
-
-
-
-    private fun resetDayState() {
-        viewModelScope.launch {
-            delay(300)
-            collectTodosJob?.let {
-                log {
-                    "resetDayState : Cancelling TODO flows job"
-                }
-                collectTodosJob?.cancel()
-            }
-            _state.update {
-                it.copy(
-                    dayTitle = "",
-                    image = null
-                )
-            }
-            dayId = -1
-
-        }
-    }
-    /**
-     * Deletes the session Day entry in the table & gets rid of all the added TODOs as well
-     */
-    private fun discardDayCreation() {
-        if(dayId == -1L){
-            return
-        }
-        viewModelScope.launch {
-            log {
-                "discardDayCreation : Discard day $dayId"
-            }
-            daySource.deleteDayById(dayId)
-            resetDayState()
         }
     }
 
@@ -457,28 +266,6 @@ class UpdateTripViewModel(
     }
 
 
-    /**
-     * This function creates an entry for Day into the DB for session management
-     * @return - Id of the entry, can be used to clear data if user cancels creation
-     */
-    private fun createDaySession() {
-        val tripId = _state.value.tripId ?: return
-        viewModelScope.launch {
-            val tempDay = Day(
-                locationName = "" ,
-                tripId = tripId
-            )
-            val id = daySource.addDay(tempDay)
-            dayId =  id
-            log {
-                "createTripSession: Session Day id $id"
-            }
-
-            //start listening to todos
-            getDayTodosFlow()
-        }
-    }
-
     //DB GET REQs
     //Days flow
     private fun getTripDaysFlow() {
@@ -514,35 +301,6 @@ class UpdateTripViewModel(
                     _state.update {
                         it.copy(
                             days = days
-                        )
-                    }
-                }
-        }
-    }
-
-    //TODOs flow
-    private fun getDayTodosFlow() {
-        if(dayId == -1L){
-            return
-        }
-        collectTodosJob = viewModelScope.launch {
-            todoSource.getTodosByDayId(dayId)
-                .flowOn(Dispatchers.IO)
-                .catch {
-                    Log.d("CreateVM" , "getDayTodosFlow: Error")
-                    if (it is CancellationException) {
-                        throw it
-                    } else {
-                        it.message?.let { errorMsg->
-                            _events.trySend(UIEvents.Error(errorMsg))
-                        }
-                        it.printStackTrace()
-                    }
-                }
-                .collect { todoLocs ->
-                    _state.update {
-                        it.copy(
-                            todos = todoLocs
                         )
                     }
                 }

@@ -78,7 +78,7 @@ fun TripOverviewRoot(
     overviewViewModel: OverviewViewModel = koinViewModel() ,
     wanderaToastState: WanderaToastState ,
     navigateToDayDetails: () -> Unit ,
-    navigateToEditTrip: (tripId: Long) -> Unit ,
+    navToEditTrip: (tripId: Long) -> Unit ,
     navigateUp: () -> Unit ,
 ) {
     val state by overviewViewModel.overviewState.collectAsStateWithLifecycle()
@@ -95,11 +95,19 @@ fun TripOverviewRoot(
             overviewViewModel.onAction(action)
         } ,
         navigateToDayDetails = navigateToDayDetails ,
-        navigateToEditTrip = navigateToEditTrip ,
+        navToEditTrip = navToEditTrip ,
         navigateUp = navigateUp
     )
 }
 
+/**
+ * @param events One time UI events
+ * @param wanderaToastState Can be used to show custom toasts
+ * @param navigateToDayDetails View day details like todos, locations
+ * @param navToEditTrip Edit trip details
+ * @param shareTrip
+ * @param markTripAsDone
+ */
 @Composable
 private fun TripOverviewPage(
     modifier: Modifier = Modifier ,
@@ -109,7 +117,9 @@ private fun TripOverviewPage(
     wanderaToastState: WanderaToastState ,
     onAction: (OverviewActions) -> Unit ,
     navigateToDayDetails: () -> Unit ,
-    navigateToEditTrip: (tripId: Long) -> Unit ,
+    navToEditTrip: (tripId: Long) -> Unit ,
+    shareTrip : ()->Unit = {},
+    markTripAsDone : ()->Unit = {},
     navigateUp: () -> Unit ,
 ) {
     val scope = rememberCoroutineScope()
@@ -120,7 +130,6 @@ private fun TripOverviewPage(
         days.size
     }
     var deleteDialog by remember { mutableStateOf(false) }
-    var collapsed by remember { mutableStateOf(false) }
 
 
     ObserveAsEvents(events) { event ->
@@ -193,9 +202,7 @@ private fun TripOverviewPage(
                         navigateUp()
                     } ,
                     editTrip = {
-                        state.trip?.id?.let {
-                            navigateToEditTrip(it)
-                        }
+
                     }
                 )
 
@@ -397,12 +404,28 @@ private fun TripOverviewPage(
         }
 
         OverviewPageFab(
-            collapsed = state.fabCollapsed,
-            onCollapse = {collapsed->
+            collapsed = state.fabCollapsed ,
+            onCollapse = { collapsed ->
                 onAction(OverviewActions.OnFabCollapse(collapsed))
+            } ,
+            onEdit = {
+                onAction(OverviewActions.CleanUpResources)
+
+                state.trip?.id?.let {
+                    navToEditTrip(it)
+                }
+
+            } ,
+            onShare = {
+
+            } ,
+            onMarkAsDone = {
+
             },
-            modifier = Modifier.align(Alignment.BottomEnd)
-                .padding(end = 16.dp , bottom = 8.dp)
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(end = 16.dp , bottom = 8.dp) ,
+
         )
 
         WanderaToast(

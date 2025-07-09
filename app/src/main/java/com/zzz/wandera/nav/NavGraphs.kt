@@ -51,7 +51,7 @@ fun NavGraphBuilder.homeNavGraph(
             HomeRoot(
                 modifier = Modifier.padding(innerPadding),
                 navToCreateTrip = {
-                    navController.navigate(Screen.HomeGraph.CreateTripScreen)
+                    navController.navigate(Screen.HomeGraph.CreateTripScreen())
                 },
                 navToThemeSettings = {
                     navController.navigate(Screen.ThemeScreen)
@@ -68,14 +68,21 @@ fun NavGraphBuilder.homeNavGraph(
         //home -> create
         composable<Screen.HomeGraph.CreateTripScreen> { backStack->
 
+            val route = backStack.toRoute<Screen.HomeGraph.CreateTripScreen>()
+
             val parentEntry = remember(backStack) {
-                navController.getBackStackEntry(Screen.HomeGraph.CreateTripScreen)
+                navController.getBackStackEntry(Screen.HomeGraph.CreateTripScreen(route.tripId))
             }
             val createViewModel = koinViewModel<CreateViewModel>(viewModelStoreOwner = parentEntry)
 
             LaunchedEffect(Unit) {
                 navBarVisible(false)
-
+                if(route.tripId==null){
+                    createViewModel.onAction(CreateAction.TripActions.CreateSession)
+                }else{
+                    println("TRIP ID is ${route.tripId}")
+                    createViewModel.onAction(CreateAction.TripActions.FetchTripData(route.tripId))
+                }
             }
             CreateRoot(
                 Modifier.padding(innerPadding),
@@ -193,8 +200,10 @@ fun NavGraphBuilder.homeNavGraph(
                 navigateToDayDetails = {
                     navController.navigate(Screen.HomeGraph.DayDetailsScreen)
                 },
-                navigateToEditTrip = {tripId->
-                    navController.navigate(Screen.HomeGraph.UpdateTripScreen(tripId))
+                navToEditTrip = {tripId->
+                    navController.navigate(Screen.HomeGraph.CreateTripScreen(tripId)){
+                        navController.popBackStack()
+                    }
                 },
                 navigateUp = {
                     navController.navigateUp()
