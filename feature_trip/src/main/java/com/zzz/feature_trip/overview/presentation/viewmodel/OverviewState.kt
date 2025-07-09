@@ -14,5 +14,6 @@ internal data class OverviewState(
     val checklist : List<ChecklistEntity> = emptyList(),
     val checklistCollapsed : Boolean = false,
     val expenseNote : String = "",
-    val expenseNoteId : Long? = null
+    val expenseNoteId : Long? = null,
+    val fabCollapsed : Boolean = true,
 )

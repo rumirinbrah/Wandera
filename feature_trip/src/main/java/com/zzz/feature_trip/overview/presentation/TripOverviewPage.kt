@@ -151,8 +151,15 @@ private fun TripOverviewPage(
     }
 
     BackHandler {
-        onAction(OverviewActions.CleanUpResources)
-        navigateUp()
+        when{
+            state.fabCollapsed ->{
+                onAction(OverviewActions.OnFabCollapse(true))
+            }
+            else->{
+                onAction(OverviewActions.CleanUpResources)
+                navigateUp()
+            }
+        }
     }
 
     Box(
@@ -390,6 +397,10 @@ private fun TripOverviewPage(
         }
 
         OverviewPageFab(
+            collapsed = state.fabCollapsed,
+            onCollapse = {collapsed->
+                onAction(OverviewActions.OnFabCollapse(collapsed))
+            },
             modifier = Modifier.align(Alignment.BottomEnd)
                 .padding(end = 16.dp , bottom = 8.dp)
         )

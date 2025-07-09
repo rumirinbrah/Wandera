@@ -112,9 +112,10 @@ internal fun OverviewTopBar(
 
 @Composable
 fun OverviewPageFab(
+    collapsed : Boolean = true,
+    onCollapse : (collapsed : Boolean)->Unit,
     modifier: Modifier = Modifier
 ) {
-    var collapsed by remember { mutableStateOf(true) }
 
 
     Column(
@@ -164,9 +165,9 @@ fun OverviewPageFab(
             background = MaterialTheme.colorScheme.onBackground ,
             onBackground = MaterialTheme.colorScheme.background ,
             onClick = {
-                collapsed = !collapsed
+                onCollapse(!collapsed)
             }
         )
-//
+
     }
 }

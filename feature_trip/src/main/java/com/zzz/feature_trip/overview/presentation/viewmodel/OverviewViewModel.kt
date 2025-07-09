@@ -117,12 +117,17 @@ class OverviewViewModel(
                 onChecklistCollapse()
             }
 
+            is OverviewActions.OnFabCollapse->{
+                onFabCollapse(action.collapsed)
+            }
+
             //dELETE
             OverviewActions.DeleteTrip -> {
                 deleteTrip()
             }
         }
     }
+
 
     //fetch
     private fun fetchTripData(tripId: Long) {
@@ -271,6 +276,11 @@ class OverviewViewModel(
         }
     }
 
+    private fun onFabCollapse(collapsed: Boolean) {
+        _overviewState.update {
+            it.copy(fabCollapsed = collapsed)
+        }
+    }
 
     //!!!DELETE
     private fun deleteTrip() {
