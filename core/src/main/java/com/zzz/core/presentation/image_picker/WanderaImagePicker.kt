@@ -6,23 +6,11 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.DecayAnimation
-import androidx.compose.animation.core.EaseInCubic
-import androidx.compose.animation.core.FastOutLinearInEasing
-import androidx.compose.animation.core.LinearOutSlowInEasing
-import androidx.compose.animation.core.animateDecay
-import androidx.compose.animation.core.calculateTargetValue
-import androidx.compose.animation.core.exponentialDecay
-import androidx.compose.animation.core.spring
-import androidx.compose.animation.core.tween
 import androidx.compose.animation.rememberSplineBasedDecay
-import androidx.compose.animation.splineBasedDecay
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.AnchoredDraggableState
 import androidx.compose.foundation.gestures.DraggableAnchors
 import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.anchoredDraggable
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.Box
@@ -30,13 +18,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -52,12 +38,12 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.zzz.core.presentation.components.SheetState
 import com.zzz.core.presentation.components.VerticalSpace
+import com.zzz.core.presentation.components.rememberWanderaSheetState
 import com.zzz.core.presentation.events.ObserveAsEvents
 import com.zzz.core.presentation.events.UIEvents
 import com.zzz.core.presentation.image_picker.components.PickerTabRow
@@ -103,9 +89,9 @@ fun WanderaImagePicker(
     }
     val anchors = remember {
         DraggableAnchors {
-            SheetState.CLOSED at screenHeight
-            SheetState.HALF_EXPANDED at screenHeight * 0.3f
-            SheetState.EXPANDED at 0f
+            WanderaSheet.CLOSED at screenHeight
+            WanderaSheet.HALF_EXPANDED at screenHeight * 0.3f
+            WanderaSheet.EXPANDED at 0f
         }
     }
     val decay = rememberSplineBasedDecay<Float>()
@@ -121,6 +107,7 @@ fun WanderaImagePicker(
         }
     }
 
+    val sheetState = rememberWanderaSheetState()
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions()
     ) {
@@ -132,10 +119,10 @@ fun WanderaImagePicker(
 
     LaunchedEffect(launcherState.pickerVisible) {
         if (!launcherState.pickerVisible) {
-            translationY.snapTo(anchors.positionOf(SheetState.CLOSED))
+            //translationY.snapTo(anchors.positionOf(WanderaSheet.CLOSED))
             pickerViewModel.clearViewModel()
         }else{
-            translationY.animateTo(anchors.positionOf(SheetState.HALF_EXPANDED))
+            //translationY.animateTo(anchors.positionOf(WanderaSheet.HALF_EXPANDED))
             context.checkStoragePermissions(
                 notGrantedBelowAndroid12 = {
                     println("Denied for Android<=12")
@@ -203,7 +190,8 @@ fun WanderaImagePicker(
         modifier
             .fillMaxSize()
             .graphicsLayer {
-                this.translationY = translationY.value
+                //this.translationY = translationY.value
+                this.translationY = sheetState.translationY.value
             }
             .background(
                 background ,
@@ -214,9 +202,32 @@ fun WanderaImagePicker(
             Modifier
                 .fillMaxSize()
                 .draggable(
-                    state = anchorState ,
+//                    state = anchorState ,
+                    state = sheetState.draggableState,
                     orientation = Orientation.Vertical ,
                     onDragStopped = {velocity->
+                        val decayY = sheetState.calculateDecayTarget(
+                            sheetState.translationY.value,
+                            velocity
+                        )
+                        val halfAnchor = sheetState.getAnchorValue(SheetState.HALF_EXPANDED)
+                        val fullAnchor = sheetState.getAnchorValue(SheetState.EXPANDED)
+                        val closedAnchor = sheetState.getAnchorValue(SheetState.CLOSED)
+                        scope.launch {
+
+                            val targetState = when{
+                                decayY < (fullAnchor + halfAnchor)/2 -> SheetState.EXPANDED
+                                decayY > (halfAnchor + closedAnchor)/2 -> SheetState.CLOSED
+                                else -> SheetState.HALF_EXPANDED
+                            }
+                            sheetState.animateTo(targetState)
+                            if(targetState == SheetState.CLOSED){
+                                launcherState.dismiss()
+                                pickerViewModel.clearViewModel()
+                            }
+
+                        }
+                        /*
                         val decayY = decay.calculateTargetValue(
                             translationY.value,
                             velocity
@@ -241,6 +252,8 @@ fun WanderaImagePicker(
                             }
 
                         }
+
+                         */
 
 
 
@@ -332,7 +345,7 @@ fun WanderaImagePicker(
     }
 }
 
-enum class SheetState {
+enum class WanderaSheet {
     CLOSED ,
     HALF_EXPANDED ,
     EXPANDED
