@@ -51,6 +51,9 @@ dependencies {
     //koin
     implementation(project.dependencies.platform(libs.koin.bom))
     implementation(libs.koin.android)
+    implementation(libs.koin.compose.viewmodel)
+    implementation(libs.koin.androidx.compose)
+
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

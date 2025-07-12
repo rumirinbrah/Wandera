@@ -6,7 +6,9 @@ import android.content.Intent.ACTION_SEND
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
+import android.os.Build
 import android.widget.Toast
+import androidx.annotation.ChecksSdkIntAtLeast
 import androidx.compose.ui.graphics.Color
 import androidx.palette.graphics.Palette
 import kotlinx.coroutines.Dispatchers
@@ -75,6 +77,11 @@ suspend fun Context.isMimeTypeImg(uri: Uri):Boolean {
             }
         }
     }
+}
+
+@ChecksSdkIntAtLeast(parameter = 0)
+fun isSdkVersionGreaterThanEqualTo(sdk : Int) : Boolean{
+    return Build.VERSION.SDK_INT >= sdk
 }
 
 //view PDF

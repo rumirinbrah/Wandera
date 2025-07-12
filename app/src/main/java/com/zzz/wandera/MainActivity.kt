@@ -7,11 +7,15 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.zzz.core.presentation.image_picker.WanderaImagePicker
+import com.zzz.core.presentation.image_picker.rememberWanderaImagePicker
 import com.zzz.core.presentation.toast.rememberWanderaToastState
 import com.zzz.core.theme.WanderaTheme
 import com.zzz.data.note.model.ChecklistEntity
@@ -34,33 +38,38 @@ class MainActivity : ComponentActivity() {
                 useSystemTheme = false,
                 darkThemePref = themeState.isDarkMode
             ) {
-//                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-//                    val a = innerPadding
-//                    Box(
-//                        Modifier.fillMaxSize()
-//                            .padding(innerPadding),
-//                    ){
-//
-//                        ChecklistItem(
-//                            item = ChecklistEntity(
-//                                isChecked = true,
-//                                title = "Checklist"
-//                            ),
-//                            onCheck = {_,_->
-//
-//                            },
-//                            onDelete = {},
-//                            modifier = Modifier.align(Alignment.Center)
-//                        )
-//
-//                    }
-//                }
-                Navigation(
-                    themeState,
-                    toggleDarkMode = {darkMode->
-                        themeViewModel.setDarkMode(darkMode)
+                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                    val a = innerPadding
+                    Box(
+                        Modifier.fillMaxSize()
+                            .padding(innerPadding),
+                    ){
+                        val launcherState = rememberWanderaImagePicker()
+                        Button(
+                            onClick ={
+                                launcherState.launch()
+                            },
+                            modifier = Modifier.align(Alignment.TopCenter)
+                        ) {
+                            Text("Show picker")
+                        }
+                        if(launcherState.pickerVisible){
+                            WanderaImagePicker(
+                                launcherState,
+                                onImagePicked = {
+                                    launcherState.dismiss()
+                                }
+                            )
+                        }
+
                     }
-                )
+                }
+//                Navigation(
+//                    themeState,
+//                    toggleDarkMode = {darkMode->
+//                        themeViewModel.setDarkMode(darkMode)
+//                    }
+//                )
             }
         }
     }

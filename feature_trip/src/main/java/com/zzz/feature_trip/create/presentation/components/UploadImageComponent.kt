@@ -2,33 +2,33 @@ package com.zzz.feature_trip.create.presentation.components
 
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.zzz.core.presentation.buttons.NormalButton
-import com.zzz.core.presentation.components.ImageComponentWithDefaultBackground
+import com.zzz.core.util.isSdkVersionGreaterThanEqualTo
 
 /**
  * @author zyzz
  */
 @Composable
 internal fun UploadImageComponent(
-    image : Uri? = null,
-    dayTitle : String,
-    onImagePick : (Uri)->Unit,
-    isViewOnly : Boolean = false,
+    image: Uri? = null ,
+    dayTitle: String ,
+    onImagePick: (Uri) -> Unit ,
+    isViewOnly: Boolean = false ,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -37,16 +37,33 @@ internal fun UploadImageComponent(
         contract = ActivityResultContracts.PickVisualMedia()
     ) { uri ->
         uri?.let {
-            context.contentResolver.takePersistableUriPermission(uri,Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            context.contentResolver.takePersistableUriPermission(
+                uri ,
+                Intent.FLAG_GRANT_READ_URI_PERMISSION
+            )
             onImagePick(uri)
         }
     }
+    val docPicker = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        uri?.let {
+            context.contentResolver.takePersistableUriPermission(
+                uri ,
+                Intent.FLAG_GRANT_READ_URI_PERMISSION
+            )
+            onImagePick(uri)
+        }
+    }
+    val useImagePicker = remember {
+        isSdkVersionGreaterThanEqualTo(Build.VERSION_CODES.TIRAMISU)
+    }
 
     Column(
-        modifier = modifier,
+        modifier = modifier ,
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        if(!isViewOnly){
+        if (!isViewOnly) {
             Text(
                 "Have a photo of the location?" ,
                 fontSize = 16.sp ,
@@ -55,7 +72,11 @@ internal fun UploadImageComponent(
             NormalButton(
                 title = "Select image" ,
                 onClick = {
-                    imagePicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+                    if(useImagePicker){
+                        imagePicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+                    }else{
+                        docPicker.launch(arrayOf("image/*"))
+                    }
                 } ,
                 contentDescription = "Add image for the location" ,
                 shape = RoundedCornerShape(50) ,

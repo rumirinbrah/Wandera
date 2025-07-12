@@ -165,9 +165,16 @@ private fun PermissonPrev() {
 private fun getPermissionName(permission: String) : String{
     return when(permission){
         Manifest.permission.POST_NOTIFICATIONS->"Notification"
+        Manifest.permission.READ_MEDIA_IMAGES -> "Image Media Access"
+        Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED -> "Image Media Access"
+        Manifest.permission.READ_EXTERNAL_STORAGE-> "Image Media Access"
         else->"Unknown"
     }
 }
+
+/**
+ * @author zyzz
+ */
 fun Activity.openAppSettings(){
     Intent(
         Settings.ACTION_APPLICATION_DETAILS_SETTINGS,

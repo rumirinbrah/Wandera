@@ -32,6 +32,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.zzz.core.presentation.components.VerticalSpace
+import com.zzz.core.presentation.text_field.RoundedTextField
+import kotlin.math.sin
 
 /**
  * @author zyzz
@@ -43,6 +45,7 @@ fun DialogWithTextField(
     onDone: (title: String) -> Unit ,
     onDismiss: () -> Unit ,
     dismissEnabled: Boolean = true ,
+    singleLine : Boolean = true,
     modifier: Modifier = Modifier
 ) {
     val keyboard = LocalSoftwareKeyboardController.current
@@ -71,6 +74,16 @@ fun DialogWithTextField(
 
             VerticalSpace(5.dp)
 
+//            RoundedTextField(
+//                value = text,
+//                onValueChange = {text = it},
+//                placeholder = textFieldPlaceholder,
+//                imeAction = ImeAction.Done,
+//                shape = RoundedCornerShape(35),
+//                singleLine = singleLine,
+//                modifier = Modifier
+//            )
+
             OutlinedTextField(
                 value = text ,
                 onValueChange = { text = it } ,
@@ -91,8 +104,11 @@ fun DialogWithTextField(
                     unfocusedIndicatorColor = MaterialTheme.colorScheme.primaryContainer ,
                     focusedIndicatorColor = MaterialTheme.colorScheme.primaryContainer
                 ) ,
+                singleLine = singleLine,
                 modifier = Modifier
             )
+
+
 
             Row(
                 horizontalArrangement = Arrangement.spacedBy(4.dp)

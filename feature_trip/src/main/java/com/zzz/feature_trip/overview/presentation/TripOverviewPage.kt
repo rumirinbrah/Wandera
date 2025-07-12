@@ -10,7 +10,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
@@ -20,20 +19,18 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -42,7 +39,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.zzz.core.presentation.buttons.CircularIconButton
 import com.zzz.core.presentation.buttons.IconTextButton
 import com.zzz.core.presentation.components.DotsLoadingAnimation
 import com.zzz.core.presentation.components.VerticalSpace
@@ -55,7 +51,6 @@ import com.zzz.core.presentation.toast.WanderaToast
 import com.zzz.core.presentation.toast.WanderaToastState
 import com.zzz.core.theme.redToastSweep
 import com.zzz.data.trip.model.Day
-import com.zzz.feature_trip.R
 import com.zzz.feature_trip.overview.presentation.components.BookLikeTextField
 import com.zzz.feature_trip.overview.presentation.components.ChecklistHeader
 import com.zzz.feature_trip.overview.presentation.components.ChecklistItem
@@ -122,15 +117,13 @@ private fun TripOverviewPage(
     markTripAsDone : ()->Unit = {},
     navigateUp: () -> Unit ,
 ) {
-    val scope = rememberCoroutineScope()
-    val context = LocalContext.current
+
     val columnScrollState = rememberScrollState()
 
     val pagerState = rememberPagerState() {
         days.size
     }
     var deleteDialog by remember { mutableStateOf(false) }
-
 
     ObserveAsEvents(events) { event ->
         when (event) {
@@ -442,72 +435,6 @@ private fun TripOverviewPage(
 @Composable
 private fun TopBarPrev() {
     MaterialTheme {
-        var collapsed by remember { mutableStateOf(true) }
-        Box(
-            Modifier
-                .fillMaxSize()
-                .background(Color.DarkGray)
-        ) {
-            Column(
-                Modifier.align(Alignment.CenterEnd),
-                horizontalAlignment = Alignment.End,
-                verticalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                CircularIconButton(
-                    icon = com.zzz.core.R.drawable.edit_day ,
-                    contentDescription = "" ,
-                    onClick = {
-                        collapsed = !collapsed
-                    }
-                )
-                androidx.compose.animation.AnimatedVisibility(
-                    !collapsed,
-                ) {
-                    Column(
-                        horizontalAlignment = Alignment.End
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically ,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            Text("Edit")
-                            CircularIconButton(
-                                icon = com.zzz.core.R.drawable.edit_day ,
-                                contentDescription = "" ,
-                                onClick = {
-                                }
-                            )
-                        }
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically ,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            Text("Share")
-                            CircularIconButton(
-                                icon = com.zzz.core.R.drawable.send ,
-                                contentDescription = "" ,
-                                onClick = {
-                                }
-                            )
-                        }
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically ,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            Text("Mark as done")
-                            CircularIconButton(
-                                icon = com.zzz.core.R.drawable.download_done ,
-                                contentDescription = "" ,
-                                onClick = {
-                                }
-                            )
-                        }
 
-                    }
-
-                }
-            }
-
-        }
     }
 }
