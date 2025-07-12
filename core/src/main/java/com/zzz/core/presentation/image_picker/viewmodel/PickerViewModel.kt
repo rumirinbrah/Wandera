@@ -260,6 +260,9 @@ internal class PickerViewModel(
     }
     fun clearViewModel(){
         //onCleared()
+        log {
+            "Clearing picker vm..."
+        }
         allRecentImages.clear()
         currentPage = 0
         endReached = false
