@@ -5,6 +5,9 @@ import android.content.Context
 import android.os.Build
 import com.zzz.core.presentation.permission.hasPermission
 
+/**
+ * Checks storage permissions for various Android vers.
+ */
 internal fun Context.checkStoragePermissions(
     notGrantedBelowAndroid12 : ()->Unit ,
     notGrantedAboveAndroid13 : ()->Unit ,

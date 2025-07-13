@@ -38,38 +38,38 @@ class MainActivity : ComponentActivity() {
                 useSystemTheme = false,
                 darkThemePref = themeState.isDarkMode
             ) {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    val a = innerPadding
-                    Box(
-                        Modifier.fillMaxSize()
-                            .padding(innerPadding),
-                    ){
-                        val launcherState = rememberWanderaImagePicker()
-                        Button(
-                            onClick ={
-                                launcherState.launch()
-                            },
-                            modifier = Modifier.align(Alignment.TopCenter)
-                        ) {
-                            Text("Show picker")
-                        }
-                        if(launcherState.pickerVisible){
-                            WanderaImagePicker(
-                                launcherState,
-                                onImagePicked = {
-                                    launcherState.dismiss()
-                                }
-                            )
-                        }
-
-                    }
-                }
-//                Navigation(
-//                    themeState,
-//                    toggleDarkMode = {darkMode->
-//                        themeViewModel.setDarkMode(darkMode)
+//                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+//                    val a = innerPadding
+//                    Box(
+//                        Modifier.fillMaxSize()
+//                            .padding(innerPadding),
+//                    ){
+//                        val launcherState = rememberWanderaImagePicker()
+//                        Button(
+//                            onClick ={
+//                                launcherState.launch()
+//                            },
+//                            modifier = Modifier.align(Alignment.TopCenter)
+//                        ) {
+//                            Text("Show picker")
+//                        }
+//                        if(launcherState.pickerVisible){
+//                            WanderaImagePicker(
+//                                launcherState,
+//                                onImagePicked = {
+//                                    launcherState.dismiss()
+//                                }
+//                            )
+//                        }
+//
 //                    }
-//                )
+//                }
+                Navigation(
+                    themeState,
+                    toggleDarkMode = {darkMode->
+                        themeViewModel.setDarkMode(darkMode)
+                    }
+                )
             }
         }
     }

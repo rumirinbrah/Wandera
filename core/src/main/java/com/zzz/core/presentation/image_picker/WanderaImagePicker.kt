@@ -5,14 +5,9 @@ import android.net.Uri
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.rememberSplineBasedDecay
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.DraggableAnchors
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.draggable
-import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -33,10 +28,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
@@ -60,18 +54,22 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
-@OptIn(ExperimentalFoundationApi::class)
+/**
+ * Custom image picker. Handles media access permissions for API 26 to 35
+ * @param launcherState Used to hide picker when needed
+ * @param onImagePicked Callback lambda that returns the picked image
+ * @param background Background for the picker sheet
+ */
 @Composable
 fun WanderaImagePicker(
     launcherState: LauncherImagePickerState ,
     onImagePicked: (imageUri: Uri) -> Unit ,
     modifier: Modifier = Modifier ,
-    background: Color = MaterialTheme.colorScheme.surfaceContainer
+    background: Color = MaterialTheme.colorScheme.surfaceContainer ,
+    sheetShape: Shape = RoundedCornerShape(topEnd = 40.dp , topStart = 40.dp)
 ) {
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
-    val density = LocalDensity.current
-    val localConfig = LocalConfiguration.current
 
     val pagerState = rememberPagerState { 2 }
 
@@ -82,6 +80,7 @@ fun WanderaImagePicker(
     val deniedPermsQueue = permissionViewModel.permissionDialogQueue
     val permissionEvents = permissionViewModel.events
 
+    /*
     val screenHeight = remember(density) {
         with(density) {
             localConfig.screenHeightDp.dp.toPx()
@@ -107,7 +106,10 @@ fun WanderaImagePicker(
         }
     }
 
+     */
+
     val sheetState = rememberWanderaSheetState()
+
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions()
     ) {
@@ -121,20 +123,22 @@ fun WanderaImagePicker(
         if (!launcherState.pickerVisible) {
             //translationY.snapTo(anchors.positionOf(WanderaSheet.CLOSED))
             pickerViewModel.clearViewModel()
-        }else{
+        } else {
             //translationY.animateTo(anchors.positionOf(WanderaSheet.HALF_EXPANDED))
             context.checkStoragePermissions(
                 notGrantedBelowAndroid12 = {
                     println("Denied for Android<=12")
-                    permissionLauncher.launch(
-                        arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
-                    )
+//                    permissionLauncher.launch(
+//                        arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
+//                    )
+                    permissionViewModel.onPermissionResult(Manifest.permission.READ_EXTERNAL_STORAGE,false)
                 } ,
                 notGrantedAboveAndroid13 = {
                     println("Denied for Android>=13")
-                    permissionLauncher.launch(
-                        arrayOf(Manifest.permission.READ_MEDIA_IMAGES)
-                    )
+//                    permissionLauncher.launch(
+//                        arrayOf(Manifest.permission.READ_MEDIA_IMAGES)
+//                    )
+                    permissionViewModel.onPermissionResult(Manifest.permission.READ_MEDIA_IMAGES,false)
                 } ,
                 granted = {
                     pickerViewModel.onAction(ImagePickerActions.Load)
@@ -142,6 +146,7 @@ fun WanderaImagePicker(
             )
         }
     }
+    //callback
     LaunchedEffect(state.selectedImage) {
         state.selectedImage?.let {
             onImagePicked(it)
@@ -195,33 +200,42 @@ fun WanderaImagePicker(
             }
             .background(
                 background ,
-                RoundedCornerShape(topEnd = 40.dp , topStart = 40.dp)
+                sheetShape
             )
     ) {
         Column(
             Modifier
                 .fillMaxSize()
                 .draggable(
-//                    state = anchorState ,
-                    state = sheetState.draggableState,
+                    state = sheetState.draggableState ,
                     orientation = Orientation.Vertical ,
-                    onDragStopped = {velocity->
+                    onDragStopped = { velocity ->
                         val decayY = sheetState.calculateDecayTarget(
-                            sheetState.translationY.value,
+                            sheetState.translationY.value ,
                             velocity
                         )
+                        val transY = sheetState.translationY.value
                         val halfAnchor = sheetState.getAnchorValue(SheetState.HALF_EXPANDED)
                         val fullAnchor = sheetState.getAnchorValue(SheetState.EXPANDED)
                         val closedAnchor = sheetState.getAnchorValue(SheetState.CLOSED)
-                        scope.launch {
 
-                            val targetState = when{
-                                decayY < (fullAnchor + halfAnchor)/2 -> SheetState.EXPANDED
+                        scope.launch {
+                            val targetState = when {
+                                //fling up
+                                decayY < (fullAnchor + halfAnchor) / 2 -> SheetState.EXPANDED
+                                /*
+                                fling down
+                                transY < (fullAnchor + halfAnchor)/2 -> SheetState.EXPANDED
                                 decayY > (halfAnchor + closedAnchor)/2 -> SheetState.CLOSED
+
+                                 */
+                                //pull down
+                                transY > (halfAnchor + closedAnchor) / 2 -> SheetState.CLOSED
                                 else -> SheetState.HALF_EXPANDED
                             }
                             sheetState.animateTo(targetState)
-                            if(targetState == SheetState.CLOSED){
+                            //HIDE SHEET
+                            if (targetState == SheetState.CLOSED) {
                                 launcherState.dismiss()
                                 pickerViewModel.clearViewModel()
                             }
@@ -254,12 +268,10 @@ fun WanderaImagePicker(
                         }
 
                          */
-
-
-
                     }
                 )
         ) {
+            //sheet drag thumb
             Box(
                 Modifier
                     .padding(vertical = 8.dp)
@@ -271,11 +283,12 @@ fun WanderaImagePicker(
             )
 
             VerticalSpace()
+
             PickerTabRow(
                 currentTab = pagerState.currentPage ,
-                onTabChange = {
+                onTabChange = {newTab->
                     scope.launch {
-                        pagerState.animateScrollToPage(it)
+                        pagerState.animateScrollToPage(newTab)
                     }
                 }
             )
@@ -288,14 +301,10 @@ fun WanderaImagePicker(
                     0 -> {
                         RecentImagesPage(
                             images = state.images ,
-                            loadMore = {
-                                pickerViewModel.loadRecentsNextPage()
-                            } ,
-                            onImageSelect = {
-                                onImagePicked(it)
-                                launcherState.dismiss()
-                                pickerViewModel.clearViewModel()
-                            } ,
+                            loading = state.loading,
+                            onAction = { action ->
+                                pickerViewModel.onAction(action)
+                            },
                             onDismiss = {
                                 launcherState.dismiss()
                                 pickerViewModel.clearViewModel()
@@ -345,12 +354,13 @@ fun WanderaImagePicker(
     }
 }
 
+/*
 enum class WanderaSheet {
     CLOSED ,
     HALF_EXPANDED ,
     EXPANDED
 }
-
+ */
 /**
  * Used to launch & control Wandera image picker
  */

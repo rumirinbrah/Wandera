@@ -2,10 +2,6 @@ package com.zzz.core.presentation.image_picker.tabs
 
 import android.net.Uri
 import androidx.activity.compose.BackHandler
-import androidx.compose.animation.core.spring
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.scaleIn
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.clickable
@@ -14,13 +10,13 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
@@ -47,6 +43,10 @@ import com.zzz.core.presentation.image_picker.viewmodel.ImagePickerActions
 import com.zzz.core.presentation.image_picker.viewmodel.ImagePickerState
 import com.zzz.core.presentation.nav.Screen
 
+/**
+ * Composable rep a list of albums and over pics. Has dedicated navigation internally
+ * @param onDismiss User navigates up
+ */
 @Composable
 internal fun AlbumsRoot(
     state: ImagePickerState ,
@@ -102,8 +102,9 @@ internal fun AlbumsRoot(
             AlbumImagesPage(
                 images = state.albumImages ,
                 albumName = state.selectedAlbum ,
+                loading = state.loadingAlbumImages,
                 onImageSelect = { uri ->
-
+                    onAction(ImagePickerActions.SelectImage(uri))
                 } ,
                 navigateUp = {
                     onAction(ImagePickerActions.ClearAlbumImages)
@@ -117,6 +118,9 @@ internal fun AlbumsRoot(
 }
 
 //---- ALBUMS ----
+/**
+ * Displays all the albums in device
+ */
 @Composable
 private fun AllAlbumsPage(
     albums: List<GalleryAlbum> ,
@@ -150,10 +154,14 @@ private fun AllAlbumsPage(
 }
 
 //---- IMAGES ----
+/**
+ * Displays all the images in a particular album
+ */
 @Composable
-fun AlbumImagesPage(
+private fun AlbumImagesPage(
     images: List<GalleryImage> ,
     albumName: String? = null ,
+    loading : Boolean = false,
     onImageSelect: (imageUri: Uri) -> Unit ,
     navigateUp: () -> Unit ,
     modifier: Modifier = Modifier ,
@@ -178,7 +186,14 @@ fun AlbumImagesPage(
             title = albumName ?: "Unknown"
         )
         VerticalSpace()
-
+        when{
+            loading->{
+                CircularProgressIndicator(
+                    modifier = Modifier.size(25.dp)
+                        .align(Alignment.CenterHorizontally)
+                )
+            }
+        }
         LazyVerticalGrid(
             modifier = Modifier.fillMaxSize() ,
             columns = GridCells.Fixed(gridCells) ,
@@ -195,9 +210,6 @@ fun AlbumImagesPage(
                     Modifier
                         .animateItem()
                         .weight(1f)
-                        .clickable {
-                            onImageSelect(image.image)
-                        }
                 ) {
                     AsyncImage(
                         model = ImageRequest.Builder(context)
@@ -206,7 +218,10 @@ fun AlbumImagesPage(
                             .build() ,
                         contentDescription = "image" ,
                         modifier = Modifier
-                            .aspectRatio(1f) ,
+                            .aspectRatio(1f)
+                            .clickable {
+                                onImageSelect(image.image)
+                            },
                         contentScale = ContentScale.Crop
                     )
                 }
@@ -220,6 +235,9 @@ fun AlbumImagesPage(
     }
 }
 
+/**
+ * Single album item in the grid
+ */
 @Composable
 private fun AlbumItem(
     album: GalleryAlbum ,
@@ -229,9 +247,6 @@ private fun AlbumItem(
     val context = LocalContext.current
     Column(
         modifier
-            .clickable {
-                onClick(album.albumName)
-            }
             .padding(8.dp) ,
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
@@ -242,7 +257,10 @@ private fun AlbumItem(
                 .build() ,
             contentDescription = album.albumName ,
             modifier = Modifier
-                .aspectRatio(1f) ,
+                .aspectRatio(1f)
+                .clickable {
+                    onClick(album.albumName)
+                },
             contentScale = ContentScale.Crop
         )
         Text(

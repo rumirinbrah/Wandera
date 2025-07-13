@@ -1,13 +1,11 @@
 package com.zzz.core.presentation.image_picker.viewmodel
 
-import android.Manifest
 import android.content.ContentUris
 import android.content.Context
 import android.provider.MediaStore
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.zzz.core.presentation.permission.hasPermission
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -42,11 +40,14 @@ internal class PickerViewModel(
     fun onAction(action: ImagePickerActions) {
         when (action) {
             ImagePickerActions.CancelSelection -> {
-
+                clearViewModel()
             }
 
             ImagePickerActions.Load -> {
                 loadRecentImages()
+            }
+            ImagePickerActions.LoadRecentsNextPage->{
+                loadRecentsNextPage()
             }
 
             is ImagePickerActions.LoadAlbumImages -> {
@@ -127,7 +128,7 @@ internal class PickerViewModel(
     }
 
     //paging
-    fun loadRecentsNextPage() {
+    private fun loadRecentsNextPage() {
         if (endReached) {
             log {
                 "End reached for recents"
@@ -218,6 +219,9 @@ internal class PickerViewModel(
         if (albumName.isBlank()) {
             return
         }
+        log {
+            "Loading album images...2"
+        }
         viewModelScope.launch {
             _state.update {
                 it.copy(loadingAlbumImages = true , selectedAlbum = albumName)
@@ -276,7 +280,7 @@ internal class PickerViewModel(
     override fun onCleared() {
         super.onCleared()
         log {
-            "Clearing picker vm..."
+            "onCleared : Clearing picker vm..."
         }
     }
 

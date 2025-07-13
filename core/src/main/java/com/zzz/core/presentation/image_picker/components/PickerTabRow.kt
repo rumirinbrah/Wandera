@@ -1,12 +1,10 @@
 package com.zzz.core.presentation.image_picker.components
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
@@ -18,6 +16,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
+/**
+ * A tab row for wandera image picker. Has two tabs- Recents, Albums
+ */
 @Composable
 internal fun PickerTabRow(
     currentTab: Int ,
@@ -58,10 +59,13 @@ internal fun PickerTabRow(
     }
 }
 
+/**
+ * Represents a tab in the tab row
+ */
 @Composable
 private fun CustomTab(
     title :String,
-    selected : Boolean,
+    selected : Boolean = false,
     tabNo : Int,
     onClick : (Int)->Unit,
     selectedTabColor :Color = MaterialTheme.colorScheme.onBackground,
