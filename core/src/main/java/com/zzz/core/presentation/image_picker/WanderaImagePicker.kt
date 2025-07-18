@@ -108,7 +108,7 @@ fun WanderaImagePicker(
 
      */
 
-    val sheetState = rememberWanderaSheetState()
+    val sheetState = rememberWanderaSheetState(SheetState.CLOSED)
 
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions()
@@ -122,9 +122,11 @@ fun WanderaImagePicker(
     LaunchedEffect(launcherState.pickerVisible) {
         if (!launcherState.pickerVisible) {
             //translationY.snapTo(anchors.positionOf(WanderaSheet.CLOSED))
+            sheetState.animateTo(SheetState.CLOSED)
             pickerViewModel.clearViewModel()
         } else {
             //translationY.animateTo(anchors.positionOf(WanderaSheet.HALF_EXPANDED))
+            sheetState.animateTo(SheetState.HALF_EXPANDED)
             context.checkStoragePermissions(
                 notGrantedBelowAndroid12 = {
                     println("Denied for Android<=12")

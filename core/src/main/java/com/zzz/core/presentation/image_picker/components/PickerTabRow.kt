@@ -12,8 +12,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 /**
@@ -46,14 +50,16 @@ internal fun PickerTabRow(
             title = "Recent",
             onClick = onTabChange,
             selected = currentTab == 0,
-            tabNo = 0
+            tabNo = 0,
+            modifier = Modifier.fillMaxWidth()
         )
 
         CustomTab(
             title = "Albums",
             onClick = onTabChange,
             selected = currentTab == 1,
-            tabNo = 1
+            tabNo = 1,
+            modifier = Modifier.fillMaxWidth()
         )
 
     }
@@ -63,25 +69,37 @@ internal fun PickerTabRow(
  * Represents a tab in the tab row
  */
 @Composable
-private fun CustomTab(
+fun CustomTab(
     title :String,
     selected : Boolean = false,
     tabNo : Int,
     onClick : (Int)->Unit,
     selectedTabColor :Color = MaterialTheme.colorScheme.onBackground,
     unselectedTabColor :Color = MaterialTheme.colorScheme.onBackground.copy(0.5f),
+    verticalPadding : Dp = 16.dp,
+    drawIndicator : Boolean = false,
     modifier: Modifier = Modifier
 ) {
     Box(
-        modifier.fillMaxWidth()
-            .padding(vertical = 16.dp)
+        modifier
+            .padding(vertical = verticalPadding)
             .clickable(
                 indication = null,
                 interactionSource = null,
                 onClick = {
                     onClick(tabNo)
                 }
-            ),
+            )
+            .drawBehind {
+                if(selected && drawIndicator){
+                    drawLine(
+                        selectedTabColor,
+                        start = Offset(0f,size.height) ,
+                        end = Offset(size.width,size.height),
+                        strokeWidth = 5f
+                    )
+                }
+            },
         contentAlignment = Alignment.Center
     ){
         Text(

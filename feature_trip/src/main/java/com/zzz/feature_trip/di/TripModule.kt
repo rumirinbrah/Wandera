@@ -3,6 +3,7 @@ package com.zzz.feature_trip.di
 import com.zzz.feature_trip.create.presentation.viewmodel.CreateViewModel
 import com.zzz.feature_trip.create.presentation.viewmodel.DayViewModel
 import com.zzz.feature_trip.home.presentation.HomeViewModel
+import com.zzz.feature_trip.overview.presentation.tabs.note_expense.pager.expense_tracker.viewmodel.ExpenseTrackerViewModel
 import com.zzz.feature_trip.overview.presentation.viewmodel.OverviewViewModel
 import com.zzz.feature_trip.update.presentation.viewmodel.UpdateTripViewModel
 import org.koin.android.ext.koin.androidContext
@@ -46,7 +47,14 @@ val createModule = module {
             docSource = get(),
             notesSource = get(),
             checklistSource = get(),
+            expenseSource = get(),
             context = androidContext()
         )
     }
+    viewModel() {
+        ExpenseTrackerViewModel(
+            dataSource = get()
+        )
+    }
 }
+class ExpenseSheetScope

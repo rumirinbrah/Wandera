@@ -14,6 +14,7 @@ class ThemePreferences(
 
     private val pref = context.getSharedPreferences(prefName,MODE_PRIVATE)
 
+
     fun isSystemDefault():Boolean{
         return pref.getBoolean(prefSystemDefault,true)
     }
@@ -23,6 +24,8 @@ class ThemePreferences(
             apply()
         }
     }
+
+
 
     fun isDarkMode():Boolean{
         return pref.getBoolean(prefDarkMode,false)

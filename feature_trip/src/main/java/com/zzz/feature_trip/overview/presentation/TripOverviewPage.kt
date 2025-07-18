@@ -3,6 +3,7 @@ package com.zzz.feature_trip.overview.presentation
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
@@ -16,18 +17,19 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PageSize
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -37,11 +39,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.max
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.zzz.core.presentation.buttons.IconTextButton
 import com.zzz.core.presentation.components.DotsLoadingAnimation
+import com.zzz.core.presentation.components.KeyboardAware
+import com.zzz.core.presentation.components.SheetState
 import com.zzz.core.presentation.components.VerticalSpace
+import com.zzz.core.presentation.components.rememberWanderaSheetState
 import com.zzz.core.presentation.dialogs.ConfirmActionDialog
 import com.zzz.core.presentation.events.ObserveAsEvents
 import com.zzz.core.presentation.events.UIEvents
@@ -60,12 +66,17 @@ import com.zzz.feature_trip.overview.presentation.components.ItineraryPager
 import com.zzz.feature_trip.overview.presentation.components.OverviewDocumentCard
 import com.zzz.feature_trip.overview.presentation.components.OverviewPageFab
 import com.zzz.feature_trip.overview.presentation.components.OverviewTopBar
+import com.zzz.feature_trip.overview.presentation.tabs.note_expense.NoteExpenseTabRow
+import com.zzz.feature_trip.overview.presentation.tabs.note_expense.pager.expense_tracker.AddExpenseSheet
+import com.zzz.feature_trip.overview.presentation.tabs.note_expense.pager.expense_tracker.ExpensePage
 import com.zzz.feature_trip.overview.presentation.viewmodel.OverviewActions
 import com.zzz.feature_trip.overview.presentation.viewmodel.OverviewState
 import com.zzz.feature_trip.overview.presentation.viewmodel.OverviewViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
+import kotlin.math.exp
 
 @Composable
 fun TripOverviewRoot(
@@ -118,11 +129,19 @@ private fun TripOverviewPage(
     navigateUp: () -> Unit ,
 ) {
 
+    val scope = rememberCoroutineScope()
+
     val columnScrollState = rememberScrollState()
 
     val pagerState = rememberPagerState() {
         days.size
     }
+    val notesExpensePagerState = rememberPagerState { 2 }
+
+    val wanderaSheetState = rememberWanderaSheetState(
+        SheetState.CLOSED
+    )
+
     var deleteDialog by remember { mutableStateOf(false) }
 
     ObserveAsEvents(events) { event ->
@@ -313,26 +332,57 @@ private fun TripOverviewPage(
                 }
 
 
-                //expense notes
                 VerticalSpace(10.dp)
-                Text(
-                    "Expenses" ,
-                    fontSize = 16.sp ,
-                    fontWeight = FontWeight.Medium
-                )
-                BookLikeTextField(
-                    modifier = Modifier.customShadow(
-                        MaterialTheme.colorScheme.onBackground ,
-                        borderRadius = 0.dp
-                    ) ,
-                    value = state.expenseNote ,
-                    onValueChange = {
-                        onAction(OverviewActions.OnExpenseNoteValueChange(it))
-                    } ,
-                    onSave = {
-                        onAction(OverviewActions.UpdateExpenseNote)
+                NoteExpenseTabRow(
+                    currentTab = notesExpensePagerState.currentPage ,
+                    onTabChange = {
+                        scope.launch {
+                            notesExpensePagerState.animateScrollToPage(it)
+                        }
                     }
                 )
+                VerticalSpace(10.dp)
+
+                //--- Note ; Expense PAGER ---
+                HorizontalPager(
+                    state = notesExpensePagerState,
+                    verticalAlignment = Alignment.Top,
+                    modifier = Modifier
+                        .animateContentSize(),
+                ) {page->
+                    when(page){
+                        0->{
+                            KeyboardAware {
+                                BookLikeTextField(
+                                    modifier = Modifier
+                                        .customShadow(
+                                            MaterialTheme.colorScheme.onBackground ,
+                                            borderRadius = 0.dp
+                                        ) ,
+                                    value = state.expenseNote ,
+                                    onValueChange = {
+                                        onAction(OverviewActions.OnExpenseNoteValueChange(it))
+                                    } ,
+                                    onSave = {
+                                        onAction(OverviewActions.UpdateExpenseNote)
+                                    }
+                                )
+                            }
+                        }
+                        1->{
+
+                            ExpensePage(
+                                totalExpense = state.totalExpense,
+                                expenses = state.expenses,
+                                launchAddExpenseSheet = {
+                                    scope.launch {
+                                        wanderaSheetState.show()
+                                    }
+                                }
+                            )
+                        }
+                    }
+                }
 
 
                 VerticalSpace(30.dp)
@@ -354,7 +404,6 @@ private fun TripOverviewPage(
                         deleteDialog = true
                     }
                 )
-
                 VerticalSpace(20.dp)
             }
         } // COL-END
@@ -420,6 +469,14 @@ private fun TripOverviewPage(
                 .padding(end = 16.dp , bottom = 8.dp) ,
 
         )
+        when{
+            wanderaSheetState.visible->{
+                AddExpenseSheet(
+                    tripId = state.trip?.id,
+                    sheetState = wanderaSheetState,
+                )
+            }
+        }
 
         WanderaToast(
             state = wanderaToastState ,

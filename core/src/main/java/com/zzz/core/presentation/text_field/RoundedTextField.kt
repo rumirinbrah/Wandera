@@ -5,6 +5,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -16,10 +17,13 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.KeyboardType
 
 /**
+ * A custom wrapper around OutlinedTextField
  * @author zyzz
  */
 @Composable
@@ -31,11 +35,13 @@ fun RoundedTextField(
     enabled : Boolean = true ,
     maxLines : Int = 10 ,
     imeAction : ImeAction = ImeAction.Unspecified ,
+    keyboardType : KeyboardType = KeyboardType.Unspecified,
     @DrawableRes trailingIcon : Int? = null ,
     trailingIconDescription : String? = null ,
     background : Color = MaterialTheme.colorScheme.primaryContainer ,
     onBackground : Color = MaterialTheme.colorScheme.onPrimaryContainer ,
     shape: Shape = RoundedCornerShape(40) ,
+    textStyle : TextStyle = LocalTextStyle.current,
     modifier: Modifier = Modifier
 ) {
     val keyboard = LocalSoftwareKeyboardController.current
@@ -53,8 +59,13 @@ fun RoundedTextField(
             disabledTextColor = onBackground
         ),
         placeholder = {
-            Text(placeholder, color = onBackground.copy(0.5f))
+            Text(
+                placeholder ,
+                color = onBackground.copy(0.5f),
+                fontSize = textStyle.fontSize
+            )
         },
+        textStyle = textStyle,
         singleLine = singleLine,
         enabled = enabled,
         maxLines = maxLines,
@@ -74,7 +85,8 @@ fun RoundedTextField(
         ),
         keyboardOptions = KeyboardOptions(
             imeAction = imeAction,
-            capitalization = KeyboardCapitalization.Words
+            capitalization = KeyboardCapitalization.Words,
+            keyboardType = keyboardType
         )
     )
 }

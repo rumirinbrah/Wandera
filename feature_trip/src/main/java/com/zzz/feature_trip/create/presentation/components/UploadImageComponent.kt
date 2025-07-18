@@ -1,38 +1,36 @@
 package com.zzz.feature_trip.create.presentation.components
 
-import android.content.Intent
-import android.net.Uri
-import android.os.Build
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.PickVisualMediaRequest
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.zzz.core.presentation.buttons.NormalButton
-import com.zzz.core.util.isSdkVersionGreaterThanEqualTo
+import com.zzz.core.presentation.buttons.ElevatedTextButton
+import com.zzz.core.presentation.modifiers.customShadow
 
+/*
+image: Uri? = null ,
+    dayTitle: String ,
+    onImagePick: (Uri) -> Unit ,
+ */
 /**
  * @author zyzz
  */
 @Composable
 internal fun UploadImageComponent(
-    image: Uri? = null ,
-    dayTitle: String ,
-    onImagePick: (Uri) -> Unit ,
+    launchPicker : () ->Unit,
     isViewOnly: Boolean = false ,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
 
+    /*
     val imagePicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia()
     ) { uri ->
@@ -44,6 +42,7 @@ internal fun UploadImageComponent(
             onImagePick(uri)
         }
     }
+
     val docPicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocument()
     ) { uri ->
@@ -59,38 +58,49 @@ internal fun UploadImageComponent(
         isSdkVersionGreaterThanEqualTo(Build.VERSION_CODES.TIRAMISU)
     }
 
-    Column(
-        modifier = modifier ,
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        if (!isViewOnly) {
-            Text(
-                "Have a photo of the location?" ,
-                fontSize = 16.sp ,
-                fontWeight = FontWeight.Bold ,
-            )
-            NormalButton(
-                title = "Select image" ,
-                onClick = {
-                    if(useImagePicker){
-                        imagePicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
-                    }else{
-                        docPicker.launch(arrayOf("image/*"))
-                    }
-                } ,
-                contentDescription = "Add image for the location" ,
-                shape = RoundedCornerShape(50) ,
-            )
-        }
-        /*
-        AnimatedVisibility(image != null) {
-            ImageComponentWithDefaultBackground(
-                title = dayTitle ,
-                imageUri = image ,
-                modifier = Modifier.size(70.dp)
-            )
-        }
+     */
 
-         */
+    Box(){
+        Column(
+            modifier = modifier ,
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            if (!isViewOnly) {
+                Text(
+                    "Have a photo of the location?" ,
+                    fontSize = 16.sp ,
+                    fontWeight = FontWeight.Bold ,
+                )
+                ElevatedTextButton(
+                    text = "Select image" ,
+                    onClick = {
+//                        if(useImagePicker){
+//                            imagePicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+//                        }else{
+//                            docPicker.launch(arrayOf("image/*"))
+//                        }
+                        launchPicker()
+                    } ,
+                    contentDescription = "Add image for the location" ,
+                    modifier = Modifier
+                        .customShadow(
+                            color = MaterialTheme.colorScheme.onBackground,
+                            shadowRadius = 15f,
+                            alpha = 0.2f
+                        )
+                )
+            }
+            /*
+            AnimatedVisibility(image != null) {
+                ImageComponentWithDefaultBackground(
+                    title = dayTitle ,
+                    imageUri = image ,
+                    modifier = Modifier.size(70.dp)
+                )
+            }
+
+             */
+        }
     }
+
 }

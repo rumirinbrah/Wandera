@@ -2,6 +2,7 @@ package com.zzz.core.presentation.image_picker.viewmodel
 
 import android.content.ContentUris
 import android.content.Context
+import android.net.Uri
 import android.provider.MediaStore
 import android.util.Log
 import androidx.lifecycle.ViewModel
@@ -59,7 +60,7 @@ internal class PickerViewModel(
             }
 
             is ImagePickerActions.SelectImage -> {
-
+                selectImage(action.image)
             }
         }
     }
@@ -252,6 +253,14 @@ internal class PickerViewModel(
                     albumImages = emptyList() ,
                     selectedAlbum = "Unknown"
                 )
+            }
+        }
+    }
+
+    private fun selectImage(imageUri : Uri){
+        viewModelScope.launch {
+            _state.update {
+                it.copy(selectedImage = imageUri)
             }
         }
     }
