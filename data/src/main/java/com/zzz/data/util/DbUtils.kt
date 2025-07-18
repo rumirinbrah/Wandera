@@ -13,4 +13,6 @@ internal object DbUtils {
 
     const val EXPENSE_TABLE_NAME = "expense_table"
     const val CHECKLIST_TABLE_NAME = "checklist_table"
+    const val TRACK_EXPENSE_TABLE_NAME = "track_expense_table"
+
 }

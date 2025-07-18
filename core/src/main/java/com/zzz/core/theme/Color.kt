@@ -27,12 +27,12 @@ val lightOnErrorContainer = Color(0xFFFFFFFF)
 val darkBackground = Color(0xFF1B1B1B)
 val darkOnBackground = Color(0xFFF3F3F3)
 
-val darkPrimary = Color(0xFFFCFF4A)
-val darkOnPrimary = Color(0xFF000000)
-val darkPrimaryContainer = Color(0xFF414132) //0xFF414132
+val darkPrimary = Color(0xFFE32121) //0xFFFCFF4A
+val darkOnPrimary = Color(0xFFF6F6F6) //0xFF000000
+val darkPrimaryContainer = Color(0xFF423333) //0xFF414132
 val darkOnPrimaryContainer = Color(0xFFEEEEEE)
 
-val darkSecondary = Color(0xFF506900)
+val darkSecondary = Color(0xFFA13F3F)
 val darkOnSecondary = Color(0xFFF3F3F3)
 
 val darkSurface = Color(0xFF181818)
@@ -40,14 +40,14 @@ val darkOnSurface = Color(0xFFEEEEEE)
 val darkSurfaceContainer = Color(0xFF323232)
 val darkOnSurfaceContainer = Color(0xFFEEEEEE)
 
-val darkErrorContainer = Color(0xFFDF3838)
+val darkErrorContainer = Color(0xFFAB2424)
 val darkOnErrorContainer = Color(0xFFFFFFFF)
 
 //theme pg
 val nightSky = Color(0xFF322838)
 val daySky = Color(0xFF5A93BC)
 
-val successGreen = Color(0xFF77B678)
+val successGreen = Color(0xFF328F37)
 val failureRed = Color(0xFFD95C54)
 
 //toast

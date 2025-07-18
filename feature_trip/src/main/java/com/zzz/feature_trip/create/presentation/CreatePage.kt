@@ -39,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.zzz.core.presentation.buttons.CircularIconButton
+import com.zzz.core.presentation.buttons.ElevatedIconTextButton
 import com.zzz.core.presentation.buttons.IconTextButton
 import com.zzz.core.presentation.buttons.NormalButton
 import com.zzz.core.presentation.components.VerticalSpace
@@ -48,12 +49,16 @@ import com.zzz.core.presentation.dialogs.DialogWithTextField
 import com.zzz.core.presentation.dialogs.LoadingDialog
 import com.zzz.core.presentation.events.ObserveAsEvents
 import com.zzz.core.presentation.events.UIEvents
+import com.zzz.core.presentation.image_picker.WanderaImagePicker
+import com.zzz.core.presentation.image_picker.rememberWanderaImagePicker
+import com.zzz.core.presentation.modifiers.customShadow
 import com.zzz.core.presentation.snackbar.WanderaSnackbar
 import com.zzz.core.presentation.snackbar.showWanderaSnackbar
 import com.zzz.core.presentation.text_field.RoundedTextField
 import com.zzz.core.theme.WanderaTheme
 import com.zzz.data.trip.model.Day
 import com.zzz.data.trip.model.UserDocument
+import com.zzz.feature_trip.R
 import com.zzz.feature_trip.create.presentation.components.AddChecklistComponent
 import com.zzz.feature_trip.create.presentation.components.ChecklistItemViewOnly
 import com.zzz.feature_trip.create.presentation.components.DocumentCard
@@ -71,8 +76,8 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun CreateRoot(
     modifier: Modifier = Modifier ,
-    onNavToAddDay : (tripId : Long)->Unit ,
-    onEditDay :(dayId : Long)->Unit ,
+    onNavToAddDay: (tripId: Long) -> Unit ,
+    onEditDay: (dayId: Long) -> Unit ,
     navigateUp: () -> Unit ,
     createViewModel: CreateViewModel = koinViewModel() ,
 ) {
@@ -80,73 +85,73 @@ fun CreateRoot(
     val tripState by createViewModel.tripState.collectAsStateWithLifecycle()
     val days by createViewModel.days.collectAsStateWithLifecycle()
     val docs by createViewModel.docs.collectAsStateWithLifecycle()
-
-
-
     val uiEvents = createViewModel.events
 
+
     CreateTripPage(
-        modifier,
-        tripState = tripState,
-        days = days,
-        docs = docs,
-        events = uiEvents,
-        onAction = {action->
+        modifier ,
+        tripState = tripState ,
+        days = days ,
+        docs = docs ,
+        events = uiEvents ,
+        onAction = { action ->
             createViewModel.onAction(action)
-        },
-        onNavToAddDay = onNavToAddDay,
-        onEditDay = onEditDay,
+        } ,
+        onNavToAddDay = onNavToAddDay ,
+        onEditDay = onEditDay ,
         navigateUp = navigateUp
     )
 }
 
 @Composable
 private fun CreateTripPage(
-    modifier: Modifier = Modifier,
-    tripState : TripState,
-    days : List<Day>,
-    docs : List<UserDocument>,
-    events : Flow<UIEvents>,
-    onAction :(CreateAction)->Unit,
-    onNavToAddDay : (tripId : Long)->Unit ,
-    onEditDay :(dayId : Long)->Unit ,
-    navigateUp : ()->Unit
+    modifier: Modifier = Modifier ,
+    tripState: TripState ,
+    days: List<Day> ,
+    docs: List<UserDocument> ,
+    events: Flow<UIEvents> ,
+    onAction: (CreateAction) -> Unit ,
+    onNavToAddDay: (tripId: Long) -> Unit ,
+    onEditDay: (dayId: Long) -> Unit ,
+    navigateUp: () -> Unit
 ) {
-    val snackbarState = remember {  SnackbarHostState() }
-
     val scope = rememberCoroutineScope()
+
+    val snackbarState = remember { SnackbarHostState() }
 
     var showDatePicker by remember { mutableStateOf(false) }
     var showConfirmDiscardDialog by remember { mutableStateOf(false) }
 
 
 
-    ObserveAsEvents(events) {event->
-        when(event){
+    ObserveAsEvents(events) { event ->
+        when (event) {
             is UIEvents.Error -> {
                 scope.launch {
                     snackbarState.showWanderaSnackbar(
-                        message = event.errorMsg,
+                        message = event.errorMsg ,
                     )
 
                 }
             }
+
             UIEvents.Success -> {
                 //sent when saved to db!
                 navigateUp()
             }
-            else->{}
+
+            else -> {}
         }
     }
     BackHandler {
-        if(tripState.isUpdating){
+        if (tripState.isUpdating) {
             navigateUp()
-        }else{
+        } else {
             showConfirmDiscardDialog = true
         }
     }
 
-    Box(modifier.fillMaxSize()){
+    Box(modifier.fillMaxSize()) {
         Column(
             Modifier
                 .fillMaxSize()
@@ -155,27 +160,31 @@ private fun CreateTripPage(
                 .padding(16.dp) ,
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Box (
+            Box(
                 Modifier.fillMaxWidth()
-            ){
+            ) {
                 CircularIconButton(
                     modifier = Modifier
                         .padding(4.dp)
-                        .align(Alignment.CenterStart),
+                        .align(Alignment.CenterStart) ,
                     icon = com.zzz.core.R.drawable.arrow_back ,
                     contentDescription = "Go back" ,
                     background = Color.DarkGray.copy(0.3f) ,
-                    onBackground = Color.White,
+                    onBackground = Color.White ,
                     onClick = {
-                        if(tripState.isUpdating){
+                        if (tripState.isUpdating) {
                             navigateUp()
-                        }else{
+                        } else {
                             showConfirmDiscardDialog = true
                         }
                     }
                 )
                 Text(
-                    "Create new adventure!" ,
+                    if (tripState.isUpdating) {
+                        "Update details"
+                    } else {
+                        "Create new adventure!"
+                    } ,
                     fontSize = 18.sp ,
                     fontWeight = FontWeight.Bold ,
                     modifier = Modifier.align(Alignment.Center)
@@ -193,11 +202,11 @@ private fun CreateTripPage(
             RoundedTextField(
                 value = tripState.tripTitle ,
                 placeholder = "Give your trip a title!" ,
-                onValueChange = {value->
+                onValueChange = { value ->
                     onAction(CreateAction.TripActions.OnTripTitleChange(value))
                 } ,
-                imeAction = ImeAction.Done,
-                singleLine = true,
+                imeAction = ImeAction.Done ,
+                singleLine = true ,
                 modifier = Modifier.fillMaxWidth()
             )
 
@@ -223,12 +232,12 @@ private fun CreateTripPage(
                     } ,
                     iconSize = 30.dp
                 )
-                if(tripState.startDate!=null && tripState.endDate!=null){
+                if (tripState.startDate != null && tripState.endDate != null) {
                     Row {
-                        Text(tripState.startDate.toFormattedDate()+" - ")
+                        Text(tripState.startDate.toFormattedDate() + " - ")
                         Text(tripState.endDate.toFormattedDate("dd MMM yyyy"))
                     }
-                }else{
+                } else {
                     Text("None selected")
                 }
             }
@@ -239,7 +248,7 @@ private fun CreateTripPage(
                         Log.d("date" , "Selected date start $start ; end $end ")
                         showDatePicker = false
 
-                        onAction(CreateAction.TripActions.OnDateSelect(start,end))
+                        onAction(CreateAction.TripActions.OnDateSelect(start , end))
                     } ,
                     onDismiss = {
                         showDatePicker = false
@@ -259,6 +268,15 @@ private fun CreateTripPage(
                     fontSize = 16.sp ,
                     fontWeight = FontWeight.Bold ,
                 )
+                ElevatedIconTextButton(
+                    icon = com.zzz.core.R.drawable.add ,
+                    text = "Add Day" ,
+                    onClick = {
+                        onNavToAddDay(tripState.tripId)
+                    },
+                    modifier = Modifier
+                )
+                /*
                 IconTextButton(
                     icon = com.zzz.core.R.drawable.add ,
                     text = "Add Day" ,
@@ -266,21 +284,26 @@ private fun CreateTripPage(
                         onNavToAddDay(tripState.tripId)
                     }
                 )
+
+                 */
             }
-            AnimatedVisibility(days.isEmpty()){
-                IndicatorCard("Added itinerary will appear here")
+            AnimatedVisibility(days.isEmpty()) {
+                IndicatorCard(
+                    "Added itinerary will appear here",
+                    image = com.zzz.core.R.drawable.itinerary_illustration
+                )
             }
             Column(
-                Modifier.fillMaxWidth(),
+                Modifier.fillMaxWidth() ,
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                days.onEach {day->
+                days.onEach { day ->
                     ItineraryItem(
-                        day,
-                        onClick = {id->
+                        day ,
+                        onClick = { id ->
                             onEditDay(id)
-                        },
-                        onDelete = {id->
+                        } ,
+                        onDelete = { id ->
                             println("id is $id")
                             onAction(CreateAction.DayActions.OnDeleteDay(id))
                         }
@@ -293,29 +316,33 @@ private fun CreateTripPage(
             VerticalSpace(5.dp)
 
             UploadDocumentComponent(
-                onAddDoc = { uri,name->
-                    onAction(CreateAction.TripActions.OnDocumentUpload(uri,name))
+                onAddDoc = { uri , name ->
+                    onAction(CreateAction.TripActions.OnDocumentUpload(uri , name))
                 }
             )
-            if(docs.isEmpty()){
-                IndicatorCard("Added documents will appear here")
+            if (docs.isEmpty()) {
+                IndicatorCard(
+                    "Added documents will appear here",
+                    image = com.zzz.core.R.drawable.itinerary_illustration
+                )
             }
             LazyColumn(
-                Modifier.fillMaxWidth()
-                    .heightIn(max = 400.dp),
+                Modifier
+                    .fillMaxWidth()
+                    .heightIn(max = 400.dp) ,
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(
-                    items = docs,
+                    items = docs ,
                     key = {
                         it.id
                     }
-                ){document->
+                ) { document ->
                     DocumentCard(
-                        document = document,
-                        onDelete = {docId->
+                        document = document ,
+                        onDelete = { docId ->
                             onAction(CreateAction.TripActions.DeleteDocument(docId))
-                        },
+                        } ,
                         modifier = Modifier.animateItem(
 
                         )
@@ -331,19 +358,20 @@ private fun CreateTripPage(
                 }
             )
             LazyColumn(
-                Modifier.fillMaxWidth()
-                    .heightIn(max = 400.dp),
+                Modifier
+                    .fillMaxWidth()
+                    .heightIn(max = 400.dp) ,
                 verticalArrangement = Arrangement.spacedBy(8.dp)
-            ){
+            ) {
                 items(
-                    tripState.checklist,
-                    key = {it.id}
-                ){item->
+                    tripState.checklist ,
+                    key = { it.id }
+                ) { item ->
                     ChecklistItemViewOnly(
-                        item,
+                        item ,
                         onDelete = {
                             onAction(CreateAction.TripActions.DeleteChecklistEntity(it))
-                        },
+                        } ,
                         modifier = Modifier.animateItem()
                     )
                 }
@@ -385,7 +413,7 @@ private fun CreateTripPage(
                 icon = com.zzz.core.R.drawable.arrow_45 ,
                 text = "Choose language" ,
                 onClick = {
-                },
+                } ,
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             )
 
@@ -396,30 +424,33 @@ private fun CreateTripPage(
                 onClick = {
                     onAction(CreateAction.OnSave)
                     //navigateUp()
-                },
-                background = MaterialTheme.colorScheme.onBackground,
+                } ,
+                background = MaterialTheme.colorScheme.onBackground ,
+                onBackground = MaterialTheme.colorScheme.background,
                 modifier = Modifier.fillMaxWidth()
             )
 
 
         }
-        when{
-            tripState.saving->{
+        when {
+            tripState.saving -> {
                 LoadingDialog(modifier = Modifier.align(Alignment.Center))
             }
-            tripState.showAddChecklistDialog ->{
+
+            tripState.showAddChecklistDialog -> {
                 DialogWithTextField(
-                    title = "Add checklist item",
-                    textFieldPlaceholder = "E.g. Tripod, Perfume",
+                    title = "Add checklist item" ,
+                    textFieldPlaceholder = "E.g. Tripod, Perfume" ,
                     onDismiss = {
                         onAction(CreateAction.TripActions.ShowAddChecklistDialog(false))
-                    },
+                    } ,
                     onDone = {
                         onAction(CreateAction.TripActions.AddChecklistEntity(it))
                     }
                 )
             }
-            showConfirmDiscardDialog ->{
+
+            showConfirmDiscardDialog -> {
                 ConfirmActionDialog(
                     title = "Are you sure you want to go back? All created data will be lost" ,
                     actionText = "Discard" ,
@@ -436,10 +467,11 @@ private fun CreateTripPage(
         }
 
         SnackbarHost(
-            hostState = snackbarState,
-            modifier = Modifier.align(Alignment.BottomCenter)
-                .padding(vertical = 4.dp, horizontal = 8.dp)
-        ){
+            hostState = snackbarState ,
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(vertical = 4.dp , horizontal = 8.dp)
+        ) {
             WanderaSnackbar(
                 it
             )
@@ -452,10 +484,10 @@ private fun CreateTripPage(
 @Preview
 @Composable
 private fun HomePrev() {
-    WanderaTheme { 
+    WanderaTheme {
         CreateRoot(
-            onNavToAddDay = {},
-            onEditDay = {},
+            onNavToAddDay = {} ,
+            onEditDay = {} ,
             navigateUp = {}
         )
     }

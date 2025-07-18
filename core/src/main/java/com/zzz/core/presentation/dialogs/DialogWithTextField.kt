@@ -24,6 +24,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -33,6 +34,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.zzz.core.presentation.components.VerticalSpace
 import com.zzz.core.presentation.text_field.RoundedTextField
+import com.zzz.core.theme.successGreen
 import kotlin.math.sin
 
 /**
@@ -119,10 +121,10 @@ fun DialogWithTextField(
                         onDismiss()
                     } ,
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.errorContainer ,
+                        containerColor = MaterialTheme.colorScheme.surfaceContainer ,
                     )
                 ) {
-                    Text("Cancel" , color = MaterialTheme.colorScheme.onErrorContainer)
+                    Text("Cancel" , color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
                 Button(
                     modifier = Modifier.widthIn(100.dp , 150.dp) ,
@@ -130,9 +132,16 @@ fun DialogWithTextField(
                         onDone(text.trim())
                         text = ""
                     } ,
-                    enabled = text.trim().isNotEmpty()
+                    enabled = text.trim().isNotEmpty(),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = successGreen ,
+                    )
                 ) {
-                    Text("Done")
+                    Text(
+                        "Done" ,
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold
+                    )
                 }
             }
 
