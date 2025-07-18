@@ -9,11 +9,14 @@ import com.zzz.data.note.source.ChecklistSource
 import com.zzz.data.note.source.ExpenseNoteSource
 import com.zzz.data.trip.DayWithTodos
 import com.zzz.data.trip.model.Day
+import com.zzz.data.trip.model.ExpenseEntity
 import com.zzz.data.trip.source.DaySource
+import com.zzz.data.trip.source.ExpenseSource
 import com.zzz.data.trip.source.TodoSource
 import com.zzz.data.trip.source.TripSource
 import com.zzz.data.trip.source.UserDocSource
 import com.zzz.feature_trip.overview.data.local.ItineraryLayoutPref
+import com.zzz.feature_trip.overview.domain.toUIEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
@@ -22,6 +25,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -39,6 +43,7 @@ class OverviewViewModel(
     private val docSource: UserDocSource ,
     private val notesSource: ExpenseNoteSource ,
     private val checklistSource: ChecklistSource,
+    private val expenseSource : ExpenseSource,
     context: Context
 ) : ViewModel() {
 
@@ -155,18 +160,17 @@ class OverviewViewModel(
                         loading = false
                     )
                 }
+                sessionOnGoing = true
 
                 collectDaysFlow(tripId)
                 collectChecklistFlow(tripId)
+                collectExpensesFlow(tripId)
 
                 val expenseNote = notesSource.getNote(tripId)
-                //Log.d("overviewVM" , "fetch: Note is ${expenseNote.text}, id is ${expenseNote.id}")
 
                 _overviewState.update {
                     it.copy(expenseNote = expenseNote.text , expenseNoteId = expenseNote.id)
                 }
-
-                sessionOnGoing = true
 
 
             } catch (e: Exception) {
@@ -350,6 +354,46 @@ class OverviewViewModel(
                         it.copy(checklist = list)
                     }
                 }
+        }
+    }
+    private fun collectExpensesFlow(tripId: Long){
+        viewModelScope.launch {
+            expenseSource.getExpensesByTripId(tripId)
+                .flowOn(Dispatchers.IO)
+                .catch {
+                    Log.d("overviewVM" , "collectExpensesFlow: Error")
+                    if (it is CancellationException) {
+                        throw it
+                    } else {
+                        it.printStackTrace()
+                    }
+                }
+                .onCompletion {
+                    if (it is CancellationException) {
+                        throw it
+                    }
+                }
+                .collect{ data: List<ExpenseEntity> ->
+                    val uiList = data.map {
+                        it.toUIEntity()
+                    }
+                    _overviewState.update {
+                        it.copy(expenses = uiList)
+                    }
+                    computeTotalExpense()
+                }
+        }
+    }
+    private fun computeTotalExpense(){
+        viewModelScope.launch {
+            val expenses = _overviewState.value.expenses
+            var total= 0
+            expenses.onEach {
+                total += it.amount
+            }
+            _overviewState.update {
+                it.copy(totalExpense = total)
+            }
         }
     }
 

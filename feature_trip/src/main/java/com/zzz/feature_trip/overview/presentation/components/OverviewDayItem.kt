@@ -16,22 +16,22 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.paint
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.zzz.core.presentation.buttons.CircularIconButton
+import com.zzz.core.presentation.modifiers.drawStrikethroughLine
 import com.zzz.data.trip.model.Day
 
 /**
+ * Used in column layout of itinerary in TripOverviewPage
  * @author zyzz
- * Used in LazyList layout of itinerary
  */
 @Composable
 fun OverviewDayItem(
@@ -40,6 +40,7 @@ fun OverviewDayItem(
     markDayStatus: (isDone: Boolean , dayId: Long) -> Unit ,
     modifier: Modifier = Modifier
 ) {
+
     val backgroundBrush = remember {
         Brush.linearGradient(
             colors = listOf(
@@ -48,22 +49,7 @@ fun OverviewDayItem(
             )
         )
     }
-    val textDecoration = remember(day.isDone) {
-        if (day.isDone) {
-            println("Decorating ${day.locationName}")
-            TextDecoration.LineThrough
-        } else {
-            println("Not Decorating ${day.locationName}")
-            null
-        }
-    }
-    val fontFamily = remember(day.isDone) {
-        if (day.isDone) {
-            FontFamily.Cursive
-        } else {
-            null
-        }
-    }
+
 
     Row(
         modifier
@@ -87,11 +73,21 @@ fun OverviewDayItem(
             day.locationName ,
             fontSize = 17.sp ,
             color = Color.White ,
-            textDecoration = textDecoration ,
-            fontFamily = fontFamily ,
-            fontWeight = FontWeight.Bold,
+            fontWeight = FontWeight.Bold ,
             modifier = Modifier
-                .alpha(if(day.isDone) 0.5f else 1f)
+                .alpha(if (day.isDone) 0.5f else 1f)
+                .drawBehind {
+                    if(day.isDone){
+                        drawStrikethroughLine(
+                            color = Color.White ,
+                            progress = 1f ,
+                            strokeWidth = 5f
+                        )
+                    }
+
+                }
+                .padding(horizontal = 4.dp)
+
 
         )
         CircularIconButton(
@@ -103,6 +99,7 @@ fun OverviewDayItem(
             contentDescription = "Mark ${day.locationName} as done" ,
             onClick = {
                 Log.d("done" , "OverviewDayItem: Marking ${day.locationName} as done")
+
                 markDayStatus(!day.isDone , day.id)
             } ,
             background = Color.Gray.copy(0.5f) ,

@@ -10,6 +10,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -25,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
@@ -38,6 +40,7 @@ import com.zzz.core.domain.DailyTask
 import com.zzz.core.presentation.components.DualOptionSelector
 import com.zzz.core.presentation.components.VerticalSpace
 import com.zzz.core.theme.WanderaTheme
+import com.zzz.core.theme.successGreen
 
 /**
  * @author zyzz
@@ -125,9 +128,12 @@ fun OptionSelectorDialog(
                     onDone(text.trim(),isTodo)
                     text = ""
                 },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = successGreen
+                ),
                 enabled = text.trim().isNotEmpty()
             ) {
-                Text("Done")
+                Text("Done", color = Color.White)
             }
 
 
