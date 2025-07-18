@@ -85,7 +85,7 @@ internal fun BottomNavItem(
                     modifier = Modifier.size(iconSize) ,
                     painter = painterResource(navItem.icon) ,
                     contentDescription = navItem.title ,
-                    tint = if (selected) MaterialTheme.colorScheme.background else MaterialTheme.colorScheme.onBackground
+                    tint = if (selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onBackground
                 )
             }
         }

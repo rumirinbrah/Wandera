@@ -1,7 +1,9 @@
 package com.zzz.core.presentation.headers
 
 import androidx.annotation.DrawableRes
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
@@ -13,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -24,15 +27,18 @@ fun ActionButtonHeader(
     title : String ,
     fontSize : TextUnit = 20.sp,
     fontWeight : FontWeight = FontWeight.Bold,
+    itemsSpacing : Dp = 16.dp,
     onAction: () -> Unit ,
     modifier: Modifier = Modifier
 ) {
-    Box(
-        modifier.fillMaxWidth()
+    Row(
+        modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(itemsSpacing)
     ) {
         IconButton(
             onAction,
-            modifier = Modifier.align(Alignment.CenterStart)
+            modifier = Modifier
         ) {
             Icon(
                 painter = painterResource(actionIcon) ,
@@ -42,7 +48,7 @@ fun ActionButtonHeader(
         }
         Text(
             title ,
-            modifier = Modifier.align(Alignment.Center),
+            modifier = Modifier,
             fontSize = fontSize,
             fontWeight = fontWeight,
             maxLines = 1,

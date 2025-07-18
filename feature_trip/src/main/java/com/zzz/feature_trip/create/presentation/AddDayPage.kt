@@ -41,6 +41,8 @@ import com.zzz.core.presentation.dialogs.ConfirmActionDialog
 import com.zzz.core.presentation.dialogs.OptionSelectorDialog
 import com.zzz.core.presentation.events.ObserveAsEvents
 import com.zzz.core.presentation.events.UIEvents
+import com.zzz.core.presentation.image_picker.WanderaImagePicker
+import com.zzz.core.presentation.image_picker.rememberWanderaImagePicker
 import com.zzz.core.presentation.text_field.RoundedTextField
 import com.zzz.feature_trip.create.presentation.components.IndicatorCard
 import com.zzz.feature_trip.create.presentation.components.TodoLocationItem
@@ -88,6 +90,8 @@ private fun AddDayPage(
     var backHandlerDialog by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
+    val imagePicker = rememberWanderaImagePicker()
+
     ObserveAsEvents(events) { event ->
         when (event) {
             is UIEvents.Error -> {
@@ -119,7 +123,8 @@ private fun AddDayPage(
             imageUri = dayState.image,
             contentDescription = "Cover image",
             background = MaterialTheme.colorScheme.background,
-            modifier = Modifier.align(Alignment.TopCenter)
+            modifier = Modifier
+                .align(Alignment.TopCenter)
                 .fillMaxWidth()
                 .height(350.dp)
                 .blur(5.dp),
@@ -146,14 +151,18 @@ private fun AddDayPage(
                             backHandlerDialog = true
                         } ,
                         contentDescription = "cancel" ,
-                        background = MaterialTheme.colorScheme.errorContainer ,
-                        onBackground = MaterialTheme.colorScheme.onErrorContainer ,
+                        background = MaterialTheme.colorScheme.surfaceContainer ,
+                        onBackground = MaterialTheme.colorScheme.onSurfaceVariant ,
                         verticalPadding = 4.dp ,
                     )
                     NormalButton(
                         title = "Save" ,
                         onClick = {
-                            onAction(CreateAction.DayActions.OnUpdateDay)
+                            if(dayState.dayTitle.isBlank()){
+                                Toast.makeText(context , "Oops! Seems you forgot to enter the title." , Toast.LENGTH_SHORT).show()
+                            }else{
+                                onAction(CreateAction.DayActions.OnUpdateDay)
+                            }
                         } ,
                         contentDescription = "save" ,
                         verticalPadding = 4.dp
@@ -184,7 +193,7 @@ private fun AddDayPage(
                             onAction(CreateAction.DayActions.OnUpdateDay)
                         } ,
                         contentDescription = "update day" ,
-                        verticalPadding = 4.dp
+                        verticalPadding = 4.dp,
                     )
                 }
             }
@@ -223,12 +232,9 @@ private fun AddDayPage(
             //image
             VerticalSpace(5.dp)
             UploadImageComponent(
-                image = dayState.image ,
-                dayTitle = dayState.dayTitle ,
-                onImagePick = { uri ->
-                    onAction(CreateAction.DayActions.OnPickImage(uri))
-                } ,
-                //isViewOnly = dayState.isUpdating
+                launchPicker = {
+                    imagePicker.launch()
+                }
             )
 
             //toddooos
@@ -294,6 +300,21 @@ private fun AddDayPage(
                 }
             }
         }
+
+
+        when{
+            imagePicker.pickerVisible->{
+                WanderaImagePicker(
+                    imagePicker,
+                    modifier = modifier,
+                    onImagePicked = {uri->
+                        onAction(CreateAction.DayActions.OnPickImage(uri))
+                        imagePicker.dismiss()
+                    }
+                )
+            }
+        }
+
         //add dialog
         if (dayState.dialogVisible) {
             OptionSelectorDialog(
