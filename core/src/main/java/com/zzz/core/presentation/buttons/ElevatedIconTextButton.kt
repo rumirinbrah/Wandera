@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -58,4 +59,30 @@ fun ElevatedIconTextButton(
         Text(text, color = MaterialTheme.colorScheme.onBackground)
     }
 }
-
+@Composable
+fun ElevatedTextButton(
+    text: String ,
+    onClick: () -> Unit ,
+    enabled : Boolean = true,
+    contentDescription : String? = null,
+    modifier: Modifier = Modifier ,
+) {
+    Box (
+        modifier = modifier
+            .clip(RoundedCornerShape(50))
+            .background(MaterialTheme.colorScheme.background)
+            .border(
+                1.dp ,
+                MaterialTheme.colorScheme.onBackground,
+                RoundedCornerShape(50)
+            )
+            .clickable(
+                onClickLabel = contentDescription,
+                enabled = enabled,
+                onClick = onClick
+            )
+            .padding(vertical = 8.dp , horizontal = 16.dp) ,
+    ){
+        Text(text, color = MaterialTheme.colorScheme.onBackground)
+    }
+}

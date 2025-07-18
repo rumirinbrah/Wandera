@@ -35,9 +35,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.zzz.core.presentation.components.VerticalSpace
 import com.zzz.core.theme.WanderaTheme
+import com.zzz.core.theme.lightOnBackground
+import com.zzz.core.theme.lightPrimary
+import com.zzz.core.theme.lightSecondary
+import com.zzz.core.theme.lightSurface
+import com.zzz.core.theme.lightSurfaceContainer
 import com.zzz.feature_translate.R
 import kotlinx.coroutines.launch
 
+/**
+ * Instruction about the download feature. Has hardcoded values for light scheme
+ * @param onFinish Called when user done reading all
+ */
 @Composable
 fun FirstTimeInstructions(
     onFinish :()->Unit,
@@ -46,9 +55,9 @@ fun FirstTimeInstructions(
     val pagerState = rememberPagerState() { 2 }
     val scope = rememberCoroutineScope()
 
-    val curveColor = MaterialTheme.colorScheme.secondary
-    val color1 = MaterialTheme.colorScheme.surface
-    val color2 = MaterialTheme.colorScheme.surfaceContainer
+    val curveColor = lightSecondary
+    val color1 = lightSurface
+    val color2 = lightSurfaceContainer
 
     val backgroundBrush = remember {
         Brush.linearGradient(
@@ -100,7 +109,8 @@ fun FirstTimeInstructions(
                             "Seems its your first time here--here's some information to get you started!",
                             textAlign = TextAlign.Center,
                             fontSize = 15.sp,
-                            fontWeight = FontWeight.Medium
+                            fontWeight = FontWeight.Medium,
+                            color = lightOnBackground
                         )
                         VerticalSpace(40.dp)
 
@@ -115,16 +125,18 @@ fun FirstTimeInstructions(
                         Text(
                             "You can download over 50 translation models & easily use them without network!",
                             fontSize = 16.sp,
-                            textAlign = TextAlign.Center
+                            textAlign = TextAlign.Center,
+                            color = lightOnBackground
                         )
+
                         TextButton(
                             onClick = {
                                 scope.launch {
                                     pagerState.animateScrollToPage(1)
                                 }
-                            }
+                            },
                         ) {
-                            Text("Next")
+                            Text("Next" , color = lightPrimary)
                         }
                     }
 
@@ -137,12 +149,16 @@ fun FirstTimeInstructions(
                         Text(
                             "Need many languages? Your phone might feel the weight!",
                             textAlign = TextAlign.Center,
-                            fontSize = 15.sp
+                            fontSize = 15.sp,
+                            color = lightOnBackground
                         )
                         VerticalSpace(40.dp)
 
                         Text(
                             text = buildAnnotatedString {
+                                pushStyle(
+                                    SpanStyle(color = lightOnBackground)
+                                )
                                 append("The models you download are stored on your own device, and they may take up to ")
                                 withStyle(
                                     SpanStyle(
@@ -168,7 +184,7 @@ fun FirstTimeInstructions(
                                 onFinish()
                             }
                         ) {
-                            Text("Start translating")
+                            Text("Start translating" , color = lightPrimary)
                         }
                     }
                 }

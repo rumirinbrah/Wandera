@@ -246,7 +246,7 @@ internal fun BookLikeTextField(
                             fontSize = 15.sp ,
                         )
                     ){
-                        append("You can save your trip expenses here!\nFor ex, ")
+                        append("You can save some notes here!\nFor ex, ")
                     }
                     withStyle(
                         SpanStyle(
