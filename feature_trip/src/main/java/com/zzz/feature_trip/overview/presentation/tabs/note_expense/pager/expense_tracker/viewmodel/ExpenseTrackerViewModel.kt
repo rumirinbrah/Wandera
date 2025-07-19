@@ -156,6 +156,9 @@ class ExpenseTrackerViewModel(
     }
 
     private fun resetState(){
+        log {
+            "RESET STATE"
+        }
         viewModelScope.launch {
             _state.update {
                 AddExpenseState()

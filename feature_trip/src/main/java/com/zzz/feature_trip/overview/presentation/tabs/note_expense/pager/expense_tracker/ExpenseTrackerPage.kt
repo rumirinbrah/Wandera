@@ -20,6 +20,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -226,145 +228,148 @@ internal fun AddExpenseSheet(
             .background(sheetBackground)
             .padding(16.dp)
     ) {
-        BottomSheetHandle(
-            Modifier.align(Alignment.CenterHorizontally)
-        )
-        VerticalSpace()
-        if (state.loading) {
-            CircularProgressIndicator(Modifier.align(Alignment.CenterHorizontally))
-        }
-        //price
-        RoundedTextField(
-            value = state.amount ,
-            onValueChange = {
-                expenseViewModel.onAction(ExpenseActions.OnAmountChange(it))
-            } ,
-            placeholder = "Amount" ,
-            background = MaterialTheme.colorScheme.surfaceContainer ,
-            onBackground = MaterialTheme.colorScheme.onSurfaceVariant ,
-            keyboardType = KeyboardType.Number ,
-            trailingIcon = R.drawable.dollar ,
-            textStyle = TextStyle(
-                fontSize = 20.sp ,
-                fontWeight = FontWeight.Bold
-            ) ,
-            singleLine = true ,
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        //EXPENSE TYPE
-        VerticalSpace(10.dp)
-        Text(
-            "What did you spend on?" ,
-            fontWeight = FontWeight.Bold ,
-            fontSize = 16.sp ,
-            color = onSheetBackground
-        )
-        FlowRow(
-            horizontalArrangement = Arrangement.spacedBy(8.dp) ,
+        Column(
+            Modifier.fillMaxWidth()
+                .verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            flowRowItems.onEach { type ->
-                ExpenseTypeFlowRowItem(
-                    item = type ,
-                    selected = type.shortTitle == state.expenseType ,
-                    onClick = {
-                        expenseViewModel.onAction(ExpenseActions.OnExpenseTypeChange(type.shortTitle))
-                    }
-                )
+
+            VerticalSpace(5.dp)
+            if (state.loading) {
+                CircularProgressIndicator(Modifier.align(Alignment.CenterHorizontally))
             }
-        }
+            //price
+            RoundedTextField(
+                value = state.amount ,
+                onValueChange = {
+                    expenseViewModel.onAction(ExpenseActions.OnAmountChange(it))
+                } ,
+                placeholder = "Amount" ,
+                background = MaterialTheme.colorScheme.surfaceContainer ,
+                onBackground = MaterialTheme.colorScheme.onSurfaceVariant ,
+                keyboardType = KeyboardType.Number ,
+                trailingIcon = R.drawable.dollar ,
+                textStyle = TextStyle(
+                    fontSize = 20.sp ,
+                    fontWeight = FontWeight.Bold
+                ) ,
+                singleLine = true ,
+                modifier = Modifier.fillMaxWidth()
+            )
 
-        //titlew
-        VerticalSpace(10.dp)
-        RoundedTextField(
-            value = state.title ?: "" ,
-            onValueChange = {
-                expenseViewModel.onAction(ExpenseActions.OnTitleChange(it))
-            } ,
-            placeholder = "Title (Optional)" ,
-            background = MaterialTheme.colorScheme.surfaceContainer ,
-            onBackground = MaterialTheme.colorScheme.onSurfaceVariant ,
-            singleLine = true ,
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        //split
-        VerticalSpace(10.dp)
-        RoundedTextField(
-            value = state.splitInto ?: "" ,
-            onValueChange = {
-                expenseViewModel.onAction(ExpenseActions.OnSplitIntoChange(it))
-            } ,
-            placeholder = "Split Into (Optional)" ,
-            background = MaterialTheme.colorScheme.surfaceContainer ,
-            onBackground = MaterialTheme.colorScheme.onSurfaceVariant ,
-            keyboardType = KeyboardType.Number ,
-            singleLine = true ,
-            textStyle = TextStyle(
+            //EXPENSE TYPE
+            VerticalSpace(10.dp)
+            Text(
+                "What did you spend on?" ,
                 fontWeight = FontWeight.Bold ,
-                fontSize = 20.sp ,
-            ) ,
-            modifier = Modifier
-        )
-
-        //save
-        VerticalSpace(30.dp)
-        when {
-            state.saving -> {
-                CircularProgressIndicator(
-                    modifier = Modifier
-                        .size(25.dp)
-                        .align(Alignment.CenterHorizontally) ,
-                    strokeWidth = 5.dp ,
-                )
+                fontSize = 16.sp ,
+                color = onSheetBackground
+            )
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp) ,
+            ) {
+                flowRowItems.onEach { type ->
+                    ExpenseTypeFlowRowItem(
+                        item = type ,
+                        selected = type.shortTitle == state.expenseType ,
+                        onClick = {
+                            expenseViewModel.onAction(ExpenseActions.OnExpenseTypeChange(type.shortTitle))
+                        }
+                    )
+                }
             }
 
-            state.updating -> {
-                NormalButton(
-                    title = "Update" ,
-                    onClick = {
-                        tripId?.let {
-                            expenseViewModel.onAction(ExpenseActions.Update(it))
-                        }
-                    } ,
-                    shape = MaterialTheme.shapes.small ,
-                    background = successGreen ,
-                    onBackground = Color.White ,
-                    modifier = Modifier.align(Alignment.CenterHorizontally) ,
-                    animationSpec = tween(200)
-                )
-                NormalButton(
-                    title = "Delete" ,
-                    onClick = {
-                        tripId?.let {
-                            expenseViewModel.onAction(ExpenseActions.DeleteExpense)
-                        }
-                    } ,
-                    enabled = !state.loading,
-                    shape = MaterialTheme.shapes.small ,
-                    background = MaterialTheme.colorScheme.surfaceContainer ,
-                    onBackground = MaterialTheme.colorScheme.onBackground ,
-                    modifier = Modifier.align(Alignment.CenterHorizontally) ,
-                )
-            }
+            //titlew
+            VerticalSpace(10.dp)
+            RoundedTextField(
+                value = state.title ?: "" ,
+                onValueChange = {
+                    expenseViewModel.onAction(ExpenseActions.OnTitleChange(it))
+                } ,
+                placeholder = "Title (Optional)" ,
+                background = MaterialTheme.colorScheme.surfaceContainer ,
+                onBackground = MaterialTheme.colorScheme.onSurfaceVariant ,
+                singleLine = true ,
+                modifier = Modifier.fillMaxWidth()
+            )
 
-            else -> {
-                NormalButton(
-                    title = "Save" ,
-                    onClick = {
-                        tripId?.let {
-                            expenseViewModel.onAction(ExpenseActions.Save(it))
-                        }
-                    } ,
-                    shape = MaterialTheme.shapes.small ,
-                    background = successGreen ,
-                    onBackground = Color.White ,
-                    modifier = Modifier.align(Alignment.CenterHorizontally) ,
-                    animationSpec = tween(200)
-                )
+            //split
+            VerticalSpace(10.dp)
+            RoundedTextField(
+                value = state.splitInto ?: "" ,
+                onValueChange = {
+                    expenseViewModel.onAction(ExpenseActions.OnSplitIntoChange(it))
+                } ,
+                placeholder = "Split Into (Optional)" ,
+                background = MaterialTheme.colorScheme.surfaceContainer ,
+                onBackground = MaterialTheme.colorScheme.onSurfaceVariant ,
+                keyboardType = KeyboardType.Number ,
+                singleLine = true ,
+                textStyle = TextStyle(
+                    fontWeight = FontWeight.Bold ,
+                    fontSize = 20.sp ,
+                ) ,
+                modifier = Modifier
+            )
+
+            //save
+            VerticalSpace(30.dp)
+            when {
+                state.saving -> {
+                    CircularProgressIndicator(
+                        modifier = Modifier
+                            .size(25.dp)
+                            .align(Alignment.CenterHorizontally) ,
+                        strokeWidth = 5.dp ,
+                    )
+                }
+
+                state.updating -> {
+                    NormalButton(
+                        title = "Update" ,
+                        onClick = {
+                            tripId?.let {
+                                expenseViewModel.onAction(ExpenseActions.Update(it))
+                            }
+                        } ,
+                        shape = MaterialTheme.shapes.small ,
+                        background = successGreen ,
+                        onBackground = Color.White ,
+                        modifier = Modifier.align(Alignment.CenterHorizontally) ,
+                        animationSpec = tween(200)
+                    )
+                    NormalButton(
+                        title = "Delete" ,
+                        onClick = {
+                            tripId?.let {
+                                expenseViewModel.onAction(ExpenseActions.DeleteExpense)
+                            }
+                        } ,
+                        enabled = !state.loading,
+                        shape = MaterialTheme.shapes.small ,
+                        background = MaterialTheme.colorScheme.surfaceContainer ,
+                        onBackground = MaterialTheme.colorScheme.onBackground ,
+                        modifier = Modifier.align(Alignment.CenterHorizontally) ,
+                    )
+                }
+
+                else -> {
+                    NormalButton(
+                        title = "Save" ,
+                        onClick = {
+                            tripId?.let {
+                                expenseViewModel.onAction(ExpenseActions.Save(it))
+                            }
+                        } ,
+                        shape = MaterialTheme.shapes.small ,
+                        background = successGreen ,
+                        onBackground = Color.White ,
+                        modifier = Modifier.align(Alignment.CenterHorizontally) ,
+                        animationSpec = tween(200)
+                    )
+                }
             }
         }
-
     }
 }
 

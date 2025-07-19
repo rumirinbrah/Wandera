@@ -6,6 +6,7 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Paint
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.toArgb
@@ -148,9 +149,19 @@ fun DrawScope.drawFrameCorners(
     )
 }
 
-
-
-
-
+fun DrawScope.drawTicketCutout(
+    centerX : Float,
+    color: Color = Color.Black,
+    cutoutSize : Dp = 10.dp
+){
+    val cutoutSizePx = cutoutSize.toPx()
+    val path = Path().apply {
+        moveTo(centerX - cutoutSizePx , 0f)
+        lineTo(centerX , cutoutSizePx)
+        lineTo(centerX + cutoutSizePx , 0f)
+        close()
+    }
+    drawPath(path , color)
+}
 
 

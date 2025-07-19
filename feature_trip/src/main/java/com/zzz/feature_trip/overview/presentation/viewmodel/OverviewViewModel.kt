@@ -214,7 +214,9 @@ class OverviewViewModel(
     private fun updateSelectedExpenseItem(itemId : Long?){
         viewModelScope.launch {
             _overviewState.update {
-                it.copy(selectedExpenseId = itemId)
+                it.copy(
+                    selectedExpenseId = itemId,
+                )
             }
         }
     }
@@ -387,6 +389,7 @@ class OverviewViewModel(
                     }
                 }
                 .onCompletion {
+                    Log.d("overviewVM" , "collectExpensesFlow: On COMPLETE")
                     if (it is CancellationException) {
                         throw it
                     }

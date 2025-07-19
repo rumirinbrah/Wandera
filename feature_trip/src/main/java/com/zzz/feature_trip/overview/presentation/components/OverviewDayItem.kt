@@ -71,7 +71,7 @@ fun OverviewDayItem(
     ) {
         Text(
             day.locationName ,
-            fontSize = 17.sp ,
+            fontSize = 20.sp ,
             color = Color.White ,
             fontWeight = FontWeight.Bold ,
             modifier = Modifier

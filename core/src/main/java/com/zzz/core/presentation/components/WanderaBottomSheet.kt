@@ -107,12 +107,13 @@ fun rememberWanderaSheetState(
 fun BottomSheetHandle(
     modifier: Modifier = Modifier ,
     color: Color = MaterialTheme.colorScheme.onBackground.copy(0.5f) ,
+    verticalPadding : Dp = 10.dp,
     width: Dp = 30.dp ,
     height: Dp = 5.dp ,
 ) {
     Box(
         modifier
-            .padding(vertical = 8.dp)
+            .padding(vertical = verticalPadding)
             .clip(MaterialTheme.shapes.large)
             .width(width)
             .height(height)
@@ -211,6 +212,11 @@ fun WanderaBottomSheet(
                     ) ,
                 verticalArrangement = Arrangement.spacedBy(verticalSpacing)
             ) {
+                BottomSheetHandle(
+                    Modifier.align(Alignment.CenterHorizontally),
+                    verticalPadding = 10.dp
+
+                )
                 content()
             }
         }
