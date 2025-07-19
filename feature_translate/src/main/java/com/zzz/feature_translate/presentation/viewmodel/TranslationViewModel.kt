@@ -69,7 +69,8 @@ class TranslationViewModel(
                     TranslateAction.TranslatorAction.ClearResources -> TODO()
                     is TranslateAction.TranslatorAction.CreateTranslator -> TODO()
                     is TranslateAction.TranslatorAction.TranslateText -> {
-                        translate()
+                        //translate()
+                        translateWithFormatting()
                     }
 
                     is TranslateAction.TranslatorAction.ChangeDestLanguage -> {
@@ -190,6 +191,44 @@ class TranslationViewModel(
                     )
                 }
                 println(result)
+            } catch (e: Exception) {
+                _state.update {
+                    it.copy(translating = false)
+                }
+                _events.send(
+                    UIEvents.Error(
+                        e.message ?: "An unknown error occurred while translating"
+                    )
+                )
+            }
+
+        }
+    }
+
+    private fun translateWithFormatting() {
+        viewModelScope.launch {
+            if (!validateTranslatorInput()) {
+                _events.send(UIEvents.Error("Please select valid translate methods!"))
+                return@launch
+            }
+            _state.update {
+                it.copy(translating = true)
+            }
+            createTranslator()
+            try {
+                val textLines = _state.value.sourceText.split("\n")
+                val translatedLines = textLines.map {
+                    translationManager.translateText(it)
+                }
+
+                //val result = translationManager.translateText(_state.value.sourceText)
+                val result = translatedLines.joinToString("\n")
+                _state.update {
+                    it.copy(
+                        translating = false ,
+                        translatedText = result
+                    )
+                }
             } catch (e: Exception) {
                 _state.update {
                     it.copy(translating = false)

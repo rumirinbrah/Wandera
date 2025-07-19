@@ -94,7 +94,7 @@ private fun TranslateHome(
     val pagerState = rememberPagerState {
         2
     }
-    var firstTime by remember { mutableStateOf(true) }
+    var firstTime by remember { mutableStateOf(false) }
 
 
 

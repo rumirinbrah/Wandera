@@ -20,6 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.zzz.core.presentation.buttons.ElevatedIconTextButton
@@ -85,7 +86,10 @@ fun TranslateTextPage(
             placeholder = "Type something..." ,
             modifier = Modifier
                 .fillMaxWidth()
-                .heightIn(min = 100.dp , max = 300.dp)
+                .heightIn(min = 100.dp , max = 300.dp),
+            textStyle = TextStyle(
+                fontSize = 20.sp
+            )
         )
         Row(
             horizontalArrangement = Arrangement.spacedBy(4.dp) ,
@@ -123,13 +127,13 @@ fun TranslateTextPage(
                 Modifier.clip(MaterialTheme.shapes.medium)
                     .fillMaxWidth()
                     .background(MaterialTheme.colorScheme.surfaceContainer)
-                    .padding(8.dp)
+                    .padding(vertical = 8.dp , horizontal = 16.dp)
             ) {
                 Text(
                     text = state.translatedText.ifEmpty {
                         "Translated text will appear here..."
                     } ,
-                    fontSize = 16.sp
+                    fontSize = 20.sp
                 )
             }
 

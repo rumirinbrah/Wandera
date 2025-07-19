@@ -4,6 +4,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,7 +17,6 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -28,6 +28,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.zzz.data.translate.model.TranslationModel
@@ -91,21 +92,44 @@ fun DropDownList(
             expanded ,
             onDismissRequest = { expanded = false } ,
             modifier = Modifier.width(menuWidth)
+                .heightIn(max= 300.dp)
+                .background(MaterialTheme.colorScheme.surface)
         ) {
-            items.onEach {model->
-                TextButton(
-                    modifier = Modifier.fillMaxWidth(),
-                    onClick = {
-                        onClick(model.name,model.languageCode)
-                        expanded = false
+            when{
+                items.isEmpty()->{
+                    Box(
+                        Modifier.fillMaxWidth()
+                            .padding(horizontal = 4.dp , vertical = 8.dp),
+                        contentAlignment = Alignment.Center
+                    ){
+                        Text(
+                            "You haven't downloaded any",
+                            color = MaterialTheme.colorScheme.onBackground,
+                            textAlign = TextAlign.Center
+                        )
                     }
-                ) {
-                    Text(
-                        model.name,
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
+                }
+                else->{
+                    items.onEach {model->
+                        Box(
+                            Modifier.fillMaxWidth()
+                                .clickable {
+                                    onClick(model.name,model.languageCode)
+                                    expanded = false
+                                }
+                                .padding(horizontal = 4.dp , vertical = 8.dp),
+                            contentAlignment = Alignment.Center
+                        ){
+                            Text(
+                                model.name,
+                                color = MaterialTheme.colorScheme.onBackground
+                            )
+                        }
+                    }
+
                 }
             }
+
         }
 
     }
