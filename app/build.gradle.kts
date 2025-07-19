@@ -95,6 +95,7 @@ dependencies {
 
     implementation(project(":feature_trip"))
     implementation(project(":feature_translate"))
+    implementation(project(":feature_settings"))
     implementation(project(":core"))
     implementation(project(":data"))
 }

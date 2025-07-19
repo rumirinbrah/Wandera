@@ -323,7 +323,7 @@ private fun CreateTripPage(
             if (docs.isEmpty()) {
                 IndicatorCard(
                     "Added documents will appear here",
-                    image = com.zzz.core.R.drawable.itinerary_illustration
+                    image = R.drawable.upload_files_undraw
                 )
             }
             LazyColumn(

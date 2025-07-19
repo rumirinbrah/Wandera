@@ -242,13 +242,12 @@ fun TicketLikeTripItem(
                 Row(
                     Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     Text(
                         trip.tripName,
                         fontWeight = FontWeight.Bold,
                         fontSize = 20.sp,
-                        modifier = Modifier.weight(1f),
                         color = onBackground
                     )
                     // Color(0xFFFFEAEA)
@@ -257,7 +256,8 @@ fun TicketLikeTripItem(
                         onBackground = Color.Black,
                         startDate = trip.startDate ,
                         endDate = trip.endDate,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.weight(1f)
                     )
                 }
                 Text(

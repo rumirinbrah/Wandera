@@ -8,10 +8,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -27,6 +29,7 @@ fun ActionButtonHeader(
     title : String ,
     fontSize : TextUnit = 20.sp,
     fontWeight : FontWeight = FontWeight.Bold,
+    textColor : Color = MaterialTheme.colorScheme.onBackground.copy(0.8f),
     itemsSpacing : Dp = 16.dp,
     onAction: () -> Unit ,
     modifier: Modifier = Modifier
@@ -51,6 +54,7 @@ fun ActionButtonHeader(
             modifier = Modifier,
             fontSize = fontSize,
             fontWeight = fontWeight,
+            color = textColor,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )

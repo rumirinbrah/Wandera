@@ -2,9 +2,10 @@ package com.zzz.core.presentation.headers
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -20,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.zzz.core.R
 import java.text.SimpleDateFormat
+import java.time.LocalDate
 import java.util.Date
 import java.util.Locale
 
@@ -34,7 +36,8 @@ fun DateHeader(
     modifier: Modifier = Modifier
 ) {
     Row(
-        modifier.clip(MaterialTheme.shapes.large)
+        modifier
+            .clip(MaterialTheme.shapes.large)
             .background(background)
             .padding(8.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -53,6 +56,43 @@ fun DateHeader(
         )
     }
 }
+
+@Composable
+fun VerticalDateHeader(
+    date : LocalDate ,
+    dateFontSize: TextUnit = 25.sp ,
+    monthFontSize: TextUnit = 14.sp ,
+    fontWeight: FontWeight = FontWeight.Bold ,
+    textColor: Color = MaterialTheme.colorScheme.onBackground.copy(0.8f) ,
+    containerColor : Color = MaterialTheme.colorScheme.primaryContainer ,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier
+            .background(
+                containerColor,
+                RoundedCornerShape(topEnd = 20.dp, bottomEnd = 20.dp)
+            )
+            .padding(vertical = 4.dp , horizontal = 16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = date.month.name.take(3),
+            color = textColor,
+            fontSize = monthFontSize,
+            modifier = modifier
+        )
+        Text(
+            "${date.dayOfMonth}",
+            fontSize = dateFontSize,
+            fontWeight = fontWeight,
+            color = textColor,
+            modifier = modifier
+        )
+    }
+
+}
+
 private fun Long.toFormattedDate(format : String = "dd MMM") : String{
     val formatter = SimpleDateFormat(format, Locale.getDefault())
     return formatter.format(Date(this))

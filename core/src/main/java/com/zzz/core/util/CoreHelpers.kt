@@ -14,9 +14,14 @@ import androidx.palette.graphics.Palette
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.time.Instant
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
+import java.util.Date
 
+/**
+ * Converts a URI to a Bitmap
+ */
 suspend fun getBitmapFromUri(context: Context , uri: Uri): Bitmap? {
     return withContext(Dispatchers.IO) {
         try {
@@ -32,6 +37,9 @@ suspend fun getBitmapFromUri(context: Context , uri: Uri): Bitmap? {
     }
 
 }
+/**
+ * Extracts dominant colors from a bitmap
+ */
 suspend fun getColorFromBitmap(bitmap: Bitmap): Color? {
     return withContext(Dispatchers.Default){
         val palette = Palette.from(bitmap).generate()
@@ -44,7 +52,9 @@ suspend fun getColorFromBitmap(bitmap: Bitmap): Color? {
 
 }
 
-//Long to Date
+/**
+ * Long to LocalDateTime
+ */
 fun Long.toLocalDateTime():LocalDateTime{
     return try {
         LocalDateTime.ofInstant(Instant.ofEpochMilli(this) , ZoneId.systemDefault())
@@ -52,7 +62,17 @@ fun Long.toLocalDateTime():LocalDateTime{
         e.printStackTrace()
         LocalDateTime.now()
     }
-
+}
+fun Long.toLocalDate() : LocalDate{
+    return try {
+        LocalDateTime.ofInstant(
+            Instant.ofEpochMilli(this) ,
+            ZoneId.systemDefault()
+        ).toLocalDate()
+    }catch (e : Exception){
+        e.printStackTrace()
+        LocalDateTime.now().toLocalDate()
+    }
 }
 
 suspend fun Context.isMimeTypeImg(uri: Uri):Boolean {
