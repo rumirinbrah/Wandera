@@ -19,19 +19,26 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.zzz.core.presentation.components.VerticalSpace
+import com.zzz.core.presentation.headers.ActionButtonHeader
 
 @Composable
 internal fun ChecklistBoxSettingsPage(
+    navUp : ()->Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
         modifier.fillMaxSize() ,
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Text(
-            text = "Checklist container settings",
-            fontSize = 20.sp,
-            fontWeight = FontWeight.Medium,
+        ActionButtonHeader(
+            actionIcon = com.zzz.core.R.drawable.arrow_back ,
+            title = "Checklist settings" ,
+            fontSize = 20.sp ,
+            itemsSpacing = 8.dp ,
+            fontWeight = FontWeight.Bold ,
+            onAction = {
+                navUp()
+            }
         )
         VerticalSpace()
 

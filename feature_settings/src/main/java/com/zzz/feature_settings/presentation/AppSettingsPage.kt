@@ -37,6 +37,7 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun AppSettingsRoot(
     modifier: Modifier = Modifier ,
+    navToThemeSettings :() ->Unit,
     navUp: () -> Unit
 ) {
 
@@ -46,13 +47,16 @@ fun AppSettingsRoot(
     val state by settingsViewModel.state.collectAsStateWithLifecycle()
 
     NavHost(
+        modifier = modifier
+            .padding(16.dp) ,
         navController = navController ,
         startDestination = SettingScreen.SettingsRoot
     ) {
         composable<SettingScreen.SettingsRoot> {
             AppSettingsPage(
-                modifier = modifier ,
-                navUp = {},
+                modifier = Modifier ,
+                navUp = navUp,
+                navToThemeSettings = navToThemeSettings,
                 navToHomeLayoutSettings = {
                     navController.navigate(SettingScreen.HomeLayoutSettings)
                 } ,
@@ -63,12 +67,18 @@ fun AppSettingsRoot(
         }
         composable<SettingScreen.HomeLayoutSettings> {
             HomeLayoutSettingsPage(
-                modifier = modifier
+                modifier = Modifier,
+                navUp = {
+                    navController.navigateUp()
+                }
             )
         }
         composable<SettingScreen.ChecklistBoxSettings> {
             ChecklistBoxSettingsPage(
-                modifier = modifier
+                modifier = Modifier,
+                navUp = {
+                    navController.navigateUp()
+                }
             )
         }
     }
@@ -79,6 +89,7 @@ fun AppSettingsRoot(
 @Composable
 internal fun AppSettingsPage(
     navUp: () -> Unit,
+    navToThemeSettings: () -> Unit ,
     navToHomeLayoutSettings: () -> Unit ,
     navToChecklistSettings: () -> Unit ,
     modifier: Modifier = Modifier
@@ -93,7 +104,6 @@ internal fun AppSettingsPage(
     ) {
         Column(
             Modifier
-                .padding(16.dp)
                 .verticalScroll(scrollState) ,
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
@@ -113,34 +123,37 @@ internal fun AppSettingsPage(
             SettingsSection(
                 sectionTitle = "Customize Layout"
             ) {
-                SettingsItem(
-                    icon = com.zzz.core.R.drawable.list_layout ,
-                    title = "Home layout settings" ,
-                    subTitle = "Change the way items appear on your home screen!" ,
-                    containerColor = MaterialTheme.colorScheme.surfaceContainer ,
-                    contentColor = MaterialTheme.colorScheme.onBackground ,
-                    shadowOffsetY = 10f ,
-                    shadowAlpha = 0.3f ,
-                    onClick = {
-                        navToHomeLayoutSettings()
-                    }
-                )
-                VerticalSpace(8.dp)
-                SettingsItem(
-                    icon = com.zzz.core.R.drawable.download_done ,
-                    iconTint = successGreen ,
-                    title = "Checklist container settings" ,
-                    subTitle = "Change shape of the checklist containers." ,
-                    containerColor = MaterialTheme.colorScheme.surfaceContainer ,
-                    contentColor = MaterialTheme.colorScheme.onBackground ,
-                    shadowOffsetY = 10f ,
-                    shadowAlpha = 0.3f ,
-                    onClick = {
-                        navToChecklistSettings()
-                    }
-                )
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    SettingsItem(
+                        icon = com.zzz.core.R.drawable.list_layout ,
+                        title = "Home layout settings" ,
+                        subTitle = "Change the way items appear on your home screen!" ,
+                        containerColor = MaterialTheme.colorScheme.surfaceContainer ,
+                        contentColor = MaterialTheme.colorScheme.onBackground ,
+                        shadowOffsetY = 5f ,
+                        shadowAlpha = 0.2f ,
+                        onClick = {
+                            navToHomeLayoutSettings()
+                        }
+                    )
+                    SettingsItem(
+                        icon = com.zzz.core.R.drawable.download_done ,
+                        iconTint = successGreen ,
+                        title = "Checklist container settings" ,
+                        subTitle = "Change shape of the checklist containers." ,
+                        containerColor = MaterialTheme.colorScheme.surfaceContainer ,
+                        contentColor = MaterialTheme.colorScheme.onBackground ,
+                        onClick = {
+                            navToChecklistSettings()
+                        }
+                    )
+                }
+
             }
 
+            //--- THEME ---
             SettingsSection(
                 sectionTitle = "Customize Theme"
             ) {
@@ -151,10 +164,8 @@ internal fun AppSettingsPage(
                     subTitle = "Dark theme, Light theme, its up to you!" ,
                     containerColor = MaterialTheme.colorScheme.surfaceContainer ,
                     contentColor = MaterialTheme.colorScheme.onBackground ,
-                    shadowOffsetY = 10f ,
-                    shadowAlpha = 0.3f ,
                     onClick = {
-
+                        navToThemeSettings()
                     }
                 )
             }
@@ -169,8 +180,6 @@ internal fun AppSettingsPage(
                     subTitle = "Would love to hear from you, be it feature requests or bugs." ,
                     containerColor = MaterialTheme.colorScheme.surfaceContainer ,
                     contentColor = MaterialTheme.colorScheme.onBackground ,
-                    shadowOffsetY = 10f ,
-                    shadowAlpha = 0.3f ,
                     onClick = {
 
                     }
@@ -187,8 +196,6 @@ internal fun AppSettingsPage(
                     subTitle = "It'll only take a few minutes, y'know?" ,
                     containerColor = MaterialTheme.colorScheme.surfaceContainer ,
                     contentColor = MaterialTheme.colorScheme.onBackground ,
-                    shadowOffsetY = 10f ,
-                    shadowAlpha = 0.3f ,
                     onClick = {
 
                     }
@@ -204,7 +211,8 @@ internal fun AppSettingsPage(
 private fun AppSeettingsPrev() {
     MaterialTheme {
         AppSettingsRoot(
-            navUp = {}
+            navUp = {},
+            navToThemeSettings = {}
         )
     }
 }

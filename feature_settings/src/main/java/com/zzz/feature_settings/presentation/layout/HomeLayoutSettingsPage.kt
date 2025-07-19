@@ -21,20 +21,28 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.zzz.core.presentation.components.VerticalSpace
+import com.zzz.core.presentation.headers.ActionButtonHeader
 
 @Composable
 internal fun HomeLayoutSettingsPage(
+    navUp : ()->Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
         modifier.fillMaxSize() ,
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Text(
-            text = "Home layout settings",
-            fontSize = 20.sp,
-            fontWeight = FontWeight.Medium,
+        ActionButtonHeader(
+            actionIcon = com.zzz.core.R.drawable.arrow_back ,
+            title = "Home settings" ,
+            fontSize = 20.sp ,
+            itemsSpacing = 8.dp ,
+            fontWeight = FontWeight.Bold ,
+            onAction = {
+                navUp()
+            }
         )
+
         VerticalSpace()
 
         Row(
@@ -78,6 +86,6 @@ internal fun HomeLayoutSettingsPage(
 @Composable
 private fun IDK() {
     MaterialTheme {
-        HomeLayoutSettingsPage()
+        HomeLayoutSettingsPage(navUp = {})
     }
 }
