@@ -29,6 +29,7 @@ import com.zzz.core.presentation.modifiers.customShadow
 import com.zzz.wandera.nav.util.Screen
 import com.zzz.core.presentation.theme_change.ChangeThemePage
 import com.zzz.core.presentation.toast.rememberWanderaToastState
+import com.zzz.feature_settings.presentation.AppSettingsRoot
 import com.zzz.feature_translate.presentation.TranslateRoot
 import com.zzz.feature_translate.presentation.viewmodel.TranslationViewModel
 import com.zzz.feature_trip.recents.presentation.RecentsRoot
@@ -62,6 +63,21 @@ fun Navigation(
                 startDestination = Screen.HomeGraph
             ) {
 
+                composable<Screen.SettingsScreen> {
+                    LaunchedEffect(Unit) {
+                        navBarVisible = false
+                    }
+
+                    AppSettingsRoot(
+                        modifier = Modifier.padding(innerPadding),
+                        navToThemeSettings = {
+                            navController.navigate(Screen.ThemeScreen)
+                        },
+                        navUp = {
+                            navController.navigateUp()
+                        }
+                    )
+                }
                 //HOME
                 homeNavGraph(
                     navController ,

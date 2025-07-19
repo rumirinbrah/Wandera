@@ -98,11 +98,11 @@ fun PermissionDialog(
                         onClick = onGoToSettings,
                         modifier = Modifier.weight(1f) ,
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.primary
+                            containerColor = MaterialTheme.colorScheme.primaryContainer
                         ) ,
                         shape = MaterialTheme.shapes.small
                     ) {
-                        Text("Go to settings ->" , color = MaterialTheme.colorScheme.onPrimary)
+                        Text("Go to settings ->" , color = MaterialTheme.colorScheme.onPrimaryContainer)
                     }
                 }
                 else{
@@ -126,11 +126,14 @@ fun PermissionDialog(
                         } ,
                         modifier = Modifier.weight(1f) ,
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.primary
+                            containerColor = MaterialTheme.colorScheme.primaryContainer
                         ) ,
                         shape = MaterialTheme.shapes.small
                     ) {
-                        Text("Okay" , color = MaterialTheme.colorScheme.onPrimary)
+                        Text(
+                            "Okay" ,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
                     }
 
                 }
@@ -138,7 +141,7 @@ fun PermissionDialog(
             }
 
         } ,
-        containerColor = MaterialTheme.colorScheme.surface,
+        containerColor = MaterialTheme.colorScheme.background,
         modifier = modifier
     )
 
@@ -147,7 +150,7 @@ fun PermissionDialog(
 @Preview
 @Composable
 private fun PermissonPrev() {
-    WanderaTheme {
+    MaterialTheme {
         PermissionDialog(
             permission = Manifest.permission.POST_NOTIFICATIONS ,
             isPermanentlyDeclined = true,

@@ -40,6 +40,7 @@ internal fun SettingsSection(
 ) {
     Column(
         modifier.fillMaxWidth()
+//            .background(Color.Yellow)
     ) {
         Text(
             text = sectionTitle,
@@ -70,8 +71,8 @@ internal fun SettingsItem(
     containerColor: Color = MaterialTheme.colorScheme.surfaceContainer ,
     contentColor : Color = MaterialTheme.colorScheme.onSurfaceVariant ,
     shadowColor : Color = MaterialTheme.colorScheme.onBackground ,
-    shadowAlpha : Float = 0.3f ,
-    shadowOffsetY : Float = 10f
+    shadowAlpha : Float = 0.2f ,
+    shadowOffsetY : Float = 5f
 ) {
 
     Row (
@@ -80,7 +81,8 @@ internal fun SettingsItem(
                 color = shadowColor ,
                 alpha = shadowAlpha ,
                 offsetY = shadowOffsetY,
-                borderRadius = 0.dp
+                borderRadius = 0.dp,
+                shadowRadius = 7f
             )
             .clip(containerShape)
             .fillMaxWidth()

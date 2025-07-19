@@ -54,7 +54,8 @@ fun NavGraphBuilder.homeNavGraph(
                     navController.navigate(Screen.HomeGraph.CreateTripScreen())
                 },
                 navToThemeSettings = {
-                    navController.navigate(Screen.ThemeScreen)
+                    //navController.navigate(Screen.ThemeScreen)
+                    navController.navigate(Screen.SettingsScreen)
                 },
                 onNavBarVisibilityChange = {visible->
                     navBarVisible(visible)

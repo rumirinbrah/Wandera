@@ -44,4 +44,7 @@ sealed class Screen {
     @Serializable
     data object ThemeScreen : Screen()
 
+    @Serializable
+    data object SettingsScreen : Screen()
+
 }

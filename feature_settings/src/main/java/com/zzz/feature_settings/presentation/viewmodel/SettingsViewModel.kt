@@ -17,7 +17,7 @@ class SettingsViewModel(
     private val settingsPref = SettingsPreferences(context)
 
     private val _state = MutableStateFlow(AppSettingsState())
-    val state = _state.asStateFlow()
+    internal val state = _state.asStateFlow()
 
     init {
         _state.update {

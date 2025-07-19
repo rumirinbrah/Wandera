@@ -8,6 +8,7 @@ import androidx.core.content.getSystemService
 import com.zzz.core.di.coreModule
 import com.zzz.core.platform.notification.NotificationUtil
 import com.zzz.data.di.dbModule
+import com.zzz.feature_settings.di.settingsModule
 import com.zzz.feature_translate.di.translateModule
 import com.zzz.feature_trip.di.createModule
 import com.zzz.wandera.di.appModule
@@ -26,7 +27,8 @@ class WanderaApp : Application() {
                 appModule ,
                 createModule ,
                 dbModule,
-                translateModule
+                translateModule,
+                settingsModule
             )
         }
     }

@@ -184,7 +184,7 @@ private fun HomePage(
                 Modifier.fillMaxWidth()
                     .heightIn(max = 800.dp) ,
                 state = lazyListState,
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
 
                 items(

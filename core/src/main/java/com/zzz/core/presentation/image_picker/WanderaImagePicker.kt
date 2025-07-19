@@ -130,20 +130,22 @@ fun WanderaImagePicker(
             context.checkStoragePermissions(
                 notGrantedBelowAndroid12 = {
                     println("Denied for Android<=12")
-//                    permissionLauncher.launch(
-//                        arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
-//                    )
-                    permissionViewModel.onPermissionResult(Manifest.permission.READ_EXTERNAL_STORAGE,false)
+                    permissionLauncher.launch(
+                        arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
+                    )
+                    //permissionViewModel.onPermissionResult(Manifest.permission.READ_EXTERNAL_STORAGE,false)
                 } ,
                 notGrantedAboveAndroid13 = {
                     println("Denied for Android>=13")
-//                    permissionLauncher.launch(
-//                        arrayOf(Manifest.permission.READ_MEDIA_IMAGES)
-//                    )
-                    permissionViewModel.onPermissionResult(Manifest.permission.READ_MEDIA_IMAGES,false)
+                    permissionLauncher.launch(
+                        arrayOf(Manifest.permission.READ_MEDIA_IMAGES)
+                    )
+                    //permissionViewModel.onPermissionResult(Manifest.permission.READ_MEDIA_IMAGES,false)
                 } ,
                 granted = {
                     pickerViewModel.onAction(ImagePickerActions.Load)
+                    //permissionViewModel.onPermissionResult(Manifest.permission.READ_MEDIA_IMAGES,false)
+
                 }
             )
         }
@@ -154,6 +156,7 @@ fun WanderaImagePicker(
             onImagePicked(it)
             delay(500)
             pickerViewModel.clearViewModel()
+            launcherState.dismiss()
         }
     }
 
