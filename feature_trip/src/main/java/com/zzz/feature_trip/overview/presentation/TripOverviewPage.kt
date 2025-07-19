@@ -171,10 +171,16 @@ private fun TripOverviewPage(
         }
     }
 
+
     BackHandler {
         when{
             !state.fabCollapsed ->{
                 onAction(OverviewActions.OnFabCollapse(true))
+            }
+            wanderaSheetState.visible ->{
+                scope.launch {
+                    wanderaSheetState.animateTo(SheetState.CLOSED)
+                }
             }
             else->{
                 onAction(OverviewActions.CleanUpResources)
@@ -370,11 +376,17 @@ private fun TripOverviewPage(
                             }
                         }
                         1->{
-
                             ExpensePage(
                                 totalExpense = state.totalExpense,
                                 expenses = state.expenses,
+                                groupedExpenses = state.groupedExpenses,
                                 launchAddExpenseSheet = {
+                                    scope.launch {
+                                        wanderaSheetState.show()
+                                    }
+                                },
+                                onExpenseItemClick = {itemId: Long ->
+                                    onAction(OverviewActions.SelectExpenseItem(itemId))
                                     scope.launch {
                                         wanderaSheetState.show()
                                     }
@@ -407,6 +419,8 @@ private fun TripOverviewPage(
                 VerticalSpace(20.dp)
             }
         } // COL-END
+
+        //------ OVERLAYS ------
         if (deleteDialog) {
             ConfirmActionDialog(
                 title = buildAnnotatedString {
@@ -473,7 +487,11 @@ private fun TripOverviewPage(
             wanderaSheetState.visible->{
                 AddExpenseSheet(
                     tripId = state.trip?.id,
+                    itemId = state.selectedExpenseId,
                     sheetState = wanderaSheetState,
+                    onClosed = {
+                        onAction(OverviewActions.SelectExpenseItem(null))
+                    }
                 )
             }
         }

@@ -5,7 +5,11 @@ import com.zzz.data.trip.DayWithTodos
 import com.zzz.data.trip.model.Trip
 import com.zzz.data.trip.model.UserDocument
 import com.zzz.feature_trip.overview.domain.ExpenseEntityUI
+import java.time.LocalDate
 
+/**
+ *
+ */
 internal data class OverviewState(
     val loading : Boolean = false,
     val trip : Trip? = null,
@@ -17,6 +21,8 @@ internal data class OverviewState(
     val expenseNote : String = "",
     val expenseNoteId : Long? = null,
     val expenses : List<ExpenseEntityUI> = emptyList(),
+    val selectedExpenseId : Long? = null,
+    val groupedExpenses : Map<LocalDate , List<ExpenseEntityUI>> = emptyMap(),
     val totalExpense : Int? = null,
     val fabCollapsed : Boolean = true,
 )

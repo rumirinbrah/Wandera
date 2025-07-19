@@ -19,6 +19,8 @@ sealed class OverviewActions {
     data object UpdateExpenseNote : OverviewActions()
     data class OnExpenseNoteValueChange(val value : String) : OverviewActions()
 
+    data class SelectExpenseItem(val itemId : Long?) : OverviewActions()
+
     //checklist
     data class CheckChecklistItem(val itemId : Long , val checked : Boolean) : OverviewActions()
     data class DeleteChecklistItem(val itemId : Long) : OverviewActions()

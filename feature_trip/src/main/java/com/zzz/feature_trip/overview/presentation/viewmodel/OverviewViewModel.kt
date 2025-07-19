@@ -5,6 +5,8 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.zzz.core.presentation.events.UIEvents
+import com.zzz.core.util.toLocalDate
+import com.zzz.core.util.toLocalDateTime
 import com.zzz.data.note.source.ChecklistSource
 import com.zzz.data.note.source.ExpenseNoteSource
 import com.zzz.data.trip.DayWithTodos
@@ -21,6 +23,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
@@ -33,6 +36,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.Date
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.math.exp
 
@@ -111,6 +115,10 @@ class OverviewViewModel(
                 onNoteValueChange(action.value)
             }
 
+            is OverviewActions.SelectExpenseItem ->{
+                updateSelectedExpenseItem(action.itemId)
+            }
+
             //------ Cheklist -----
             is OverviewActions.CheckChecklistItem->{
                 checkChecklistItem(action.itemId,action.checked)
@@ -162,6 +170,8 @@ class OverviewViewModel(
                 }
                 sessionOnGoing = true
 
+                ensureActive()
+
                 collectDaysFlow(tripId)
                 collectChecklistFlow(tripId)
                 collectExpensesFlow(tripId)
@@ -197,6 +207,14 @@ class OverviewViewModel(
         viewModelScope.launch {
             _overviewState.update {
                 it.copy(expenseNote = value)
+            }
+        }
+    }
+
+    private fun updateSelectedExpenseItem(itemId : Long?){
+        viewModelScope.launch {
+            _overviewState.update {
+                it.copy(selectedExpenseId = itemId)
             }
         }
     }
@@ -377,8 +395,16 @@ class OverviewViewModel(
                     val uiList = data.map {
                         it.toUIEntity()
                     }
+                    val groupedList = uiList.groupBy {
+                        it.timestamp.toLocalDate()
+                    }
+                    println(groupedList.keys)
+
                     _overviewState.update {
-                        it.copy(expenses = uiList)
+                        it.copy(
+                            expenses = uiList,
+                            groupedExpenses = groupedList
+                        )
                     }
                     computeTotalExpense()
                 }
