@@ -21,11 +21,9 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -63,10 +61,10 @@ import com.zzz.core.presentation.components.WanderaBottomSheet
 import com.zzz.core.presentation.components.WanderaSheetState
 import com.zzz.core.presentation.events.ObserveAsEvents
 import com.zzz.core.presentation.events.UIEvents
+import com.zzz.core.presentation.headers.VerticalDateHeader
 import com.zzz.core.presentation.text_field.RoundedTextField
 import com.zzz.core.theme.successGreen
 import com.zzz.feature_trip.R
-import com.zzz.feature_trip.create.util.toFormattedDate
 import com.zzz.feature_trip.overview.domain.ExpenseEntityUI
 import com.zzz.feature_trip.overview.domain.ExpenseType
 import com.zzz.feature_trip.overview.domain.expenseTypes
@@ -74,11 +72,14 @@ import com.zzz.feature_trip.overview.presentation.tabs.note_expense.pager.expens
 import com.zzz.feature_trip.overview.presentation.tabs.note_expense.pager.expense_tracker.viewmodel.ExpenseTrackerViewModel
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
+import java.time.LocalDate
 
 @Composable
 fun ExpensePage(
-    expenses : List<ExpenseEntityUI>,
-    totalExpense : Int? = null,
+    expenses: List<ExpenseEntityUI> ,
+    groupedExpenses: Map<LocalDate , List<ExpenseEntityUI>> ,
+    totalExpense: Int? = null ,
+    onExpenseItemClick :(itemId : Long) ->Unit,
     launchAddExpenseSheet: () -> Unit ,
     modifier: Modifier = Modifier
 ) {
@@ -89,7 +90,7 @@ fun ExpensePage(
         Modifier.fillMaxSize()
     ) {
         Column(
-            modifier.fillMaxWidth(),
+            modifier.fillMaxWidth() ,
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             //header
@@ -103,8 +104,8 @@ fun ExpensePage(
                     onClick = {
                         launchAddExpenseSheet()
                     } ,
-                    buttonSize = 40.dp,
-                    background = MaterialTheme.colorScheme.surfaceContainer,
+                    buttonSize = 40.dp ,
+                    background = MaterialTheme.colorScheme.surfaceContainer ,
                     onBackground = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Text("Add new")
@@ -115,16 +116,19 @@ fun ExpensePage(
             //--- TOTAL ---
             totalExpense?.let {
                 Text(
-                    "Total $it",
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
+                    "Total $it" ,
+                    fontSize = 20.sp ,
+                    fontWeight = FontWeight.Bold ,
+                    modifier = Modifier.align(Alignment.Start)
                 )
             }
             LazyColumn(
-                Modifier.fillMaxWidth()
-                    .heightIn(max = 400.dp),
+                Modifier
+                    .fillMaxWidth()
+                    .heightIn(max = 400.dp) ,
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
+                /*
                 items(
                     expenses,
                     key = {it.id}
@@ -135,6 +139,23 @@ fun ExpensePage(
                     )
 
                 }
+                 */
+                groupedExpenses.onEach { (date , list) ->
+                    item {
+                        VerticalDateHeader(date = date)
+                    }
+                    items(
+                        list ,
+                        key = { it.id }
+                    ) { item ->
+                        ExpenseEntityItem(
+                            item ,
+                            onClick = onExpenseItemClick,
+                            modifier = Modifier.animateItem()
+                        )
+                    }
+                }
+
             }
 
         }
@@ -147,7 +168,9 @@ fun ExpensePage(
 @Composable
 internal fun AddExpenseSheet(
     tripId: Long? = null ,
+    itemId: Long? = null ,
     sheetState: WanderaSheetState ,
+    onClosed: () -> Unit = {} ,
     modifier: Modifier = Modifier ,
     sheetBackground: Color = MaterialTheme.colorScheme.surface ,
     onSheetBackground: Color = MaterialTheme.colorScheme.onSurface.copy(0.8f) ,
@@ -183,15 +206,21 @@ internal fun AddExpenseSheet(
         }
     }
     LaunchedEffect(sheetState.visible) {
-        if(sheetState.visible){
+        if (sheetState.visible) {
             scope.launch {
                 sheetState.animateTo(SheetState.HALF_EXPANDED)
             }
         }
     }
+    LaunchedEffect(itemId) {
+        itemId?.let {
+            expenseViewModel.onAction(ExpenseActions.FetchExpenseData(itemId))
+        }
+    }
 
     WanderaBottomSheet(
         sheetState ,
+        onSheetClosed = onClosed ,
         modifier = modifier
             .fillMaxSize()
             .background(sheetBackground)
@@ -201,7 +230,9 @@ internal fun AddExpenseSheet(
             Modifier.align(Alignment.CenterHorizontally)
         )
         VerticalSpace()
-
+        if (state.loading) {
+            CircularProgressIndicator(Modifier.align(Alignment.CenterHorizontally))
+        }
         //price
         RoundedTextField(
             value = state.amount ,
@@ -226,11 +257,11 @@ internal fun AddExpenseSheet(
         Text(
             "What did you spend on?" ,
             fontWeight = FontWeight.Bold ,
-            fontSize = 16.sp,
+            fontSize = 16.sp ,
             color = onSheetBackground
         )
         FlowRow(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp) ,
         ) {
             flowRowItems.onEach { type ->
                 ExpenseTypeFlowRowItem(
@@ -278,26 +309,57 @@ internal fun AddExpenseSheet(
 
         //save
         VerticalSpace(30.dp)
-        when{
-            state.saving->{
+        when {
+            state.saving -> {
                 CircularProgressIndicator(
-                    modifier = Modifier.size(25.dp)
-                        .align(Alignment.CenterHorizontally),
-                    strokeWidth = 5.dp,
+                    modifier = Modifier
+                        .size(25.dp)
+                        .align(Alignment.CenterHorizontally) ,
+                    strokeWidth = 5.dp ,
                 )
             }
-            else->{
+
+            state.updating -> {
                 NormalButton(
-                    title = "Save",
+                    title = "Update" ,
+                    onClick = {
+                        tripId?.let {
+                            expenseViewModel.onAction(ExpenseActions.Update(it))
+                        }
+                    } ,
+                    shape = MaterialTheme.shapes.small ,
+                    background = successGreen ,
+                    onBackground = Color.White ,
+                    modifier = Modifier.align(Alignment.CenterHorizontally) ,
+                    animationSpec = tween(200)
+                )
+                NormalButton(
+                    title = "Delete" ,
+                    onClick = {
+                        tripId?.let {
+                            expenseViewModel.onAction(ExpenseActions.DeleteExpense)
+                        }
+                    } ,
+                    enabled = !state.loading,
+                    shape = MaterialTheme.shapes.small ,
+                    background = MaterialTheme.colorScheme.surfaceContainer ,
+                    onBackground = MaterialTheme.colorScheme.onBackground ,
+                    modifier = Modifier.align(Alignment.CenterHorizontally) ,
+                )
+            }
+
+            else -> {
+                NormalButton(
+                    title = "Save" ,
                     onClick = {
                         tripId?.let {
                             expenseViewModel.onAction(ExpenseActions.Save(it))
                         }
-                    },
-                    shape = MaterialTheme.shapes.small,
-                    background = successGreen,
-                    onBackground = Color.White,
-                    modifier = Modifier.align(Alignment.CenterHorizontally),
+                    } ,
+                    shape = MaterialTheme.shapes.small ,
+                    background = successGreen ,
+                    onBackground = Color.White ,
+                    modifier = Modifier.align(Alignment.CenterHorizontally) ,
                     animationSpec = tween(200)
                 )
             }
@@ -332,8 +394,7 @@ private fun ExpenseTypeFlowRowItem(
             }
             .widthIn(50.dp , 80.dp)
             .aspectRatio(1f)
-            .padding(4.dp)
-        ,
+            .padding(4.dp) ,
         horizontalAlignment = Alignment.CenterHorizontally ,
         verticalArrangement = Arrangement.Center
     ) {
@@ -356,7 +417,9 @@ private fun ExpenseTypeFlowRowItem(
 @Composable
 fun ExpenseEntityItem(
     item: ExpenseEntityUI ,
+    onClick: (itemId: Long) -> Unit = {},
     modifier: Modifier = Modifier ,
+    clickEnabled: Boolean = true ,
     background: Color = MaterialTheme.colorScheme.background ,
     onBackground: Color = MaterialTheme.colorScheme.onSurfaceVariant ,
 ) {
@@ -365,17 +428,23 @@ fun ExpenseEntityItem(
             .clip(MaterialTheme.shapes.large)
             .fillMaxWidth()
             .background(background)
+            .clickable(
+                enabled = clickEnabled,
+                onClick = {
+                    onClick(item.id)
+                }
+            )
             .padding(8.dp) ,
         verticalAlignment = Alignment.CenterVertically ,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
 
         Column {
-            Text(item.timestamp.toFormattedDate())
             Box(
-                Modifier.background(Color(item.iconBackground))
+                Modifier
+                    .background(Color(item.iconBackground))
                     .padding(8.dp)
-            ){
+            ) {
                 Icon(
                     painter = painterResource(item.icon) ,
                     contentDescription = item.title ?: "Expense item" ,
@@ -387,14 +456,13 @@ fun ExpenseEntityItem(
         Column(
             Modifier
                 .weight(1f)
-                .padding(4.dp)
-            ,
+                .padding(4.dp) ,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
                 item.title ?: "Untitled" ,
-                color = onBackground,
-                textAlign = TextAlign.Center,
+                color = onBackground ,
+                textAlign = TextAlign.Center ,
                 maxLines = 3
             )
             item.splitInto?.let {
@@ -407,8 +475,8 @@ fun ExpenseEntityItem(
         }
 
         Column(
-            Modifier.widthIn(min = 70.dp , max=60.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
+            Modifier.widthIn(min = 70.dp , max = 60.dp) ,
+            horizontalAlignment = Alignment.CenterHorizontally ,
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             Text(
@@ -430,8 +498,8 @@ fun ExpenseEntityItem(
                             val perHead = (item.amount / it)
                             append("$perHead each")
                         }
-                    },
-                    textAlign = TextAlign.Center,
+                    } ,
+                    textAlign = TextAlign.Center ,
                     lineHeight = 15.sp
                 )
             }
@@ -450,8 +518,8 @@ private fun SheetPrev() {
                 amount = 5570 ,
                 title = "Breakfast" ,
                 icon = R.drawable.fastfood ,
-                splitInto = 10,
-                iconBackground = Color.Green.toArgb(),
+                splitInto = 10 ,
+                iconBackground = Color.Green.toArgb() ,
                 timestamp = 2L
             )
         )

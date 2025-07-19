@@ -6,7 +6,9 @@ import androidx.lifecycle.viewModelScope
 import com.zzz.core.presentation.events.UIEvents
 import com.zzz.data.trip.model.ExpenseEntity
 import com.zzz.data.trip.source.ExpenseSource
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.onStart
@@ -14,6 +16,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class ExpenseTrackerViewModel(
     private val dataSource : ExpenseSource
@@ -38,6 +41,10 @@ class ExpenseTrackerViewModel(
 
     fun onAction(action: ExpenseActions){
         when(action){
+            is ExpenseActions.FetchExpenseData->{
+                fetchExpenseData(action.itemId)
+            }
+
             is ExpenseActions.OnAmountChange -> {
                 onAmountChange(action.amount)
             }
@@ -56,6 +63,12 @@ class ExpenseTrackerViewModel(
             }
             is ExpenseActions.Save -> {
                 saveExpense(action.tripId)
+            }
+            is ExpenseActions.Update ->{
+                updateExpense(action.tripId)
+            }
+            ExpenseActions.DeleteExpense ->{
+                deleteExpense()
             }
         }
     }
@@ -98,6 +111,50 @@ class ExpenseTrackerViewModel(
         }
     }
 
+    private fun fetchExpenseData(expenseId : Long){
+        viewModelScope.launch {
+            log {
+                "fetching expense $expenseId..."
+            }
+            try {
+                _state.update {
+                    it.copy(
+                        loading = true,
+                        updating = true
+                    )
+                }
+                withContext(Dispatchers.IO){
+                    val item = dataSource.getExpenseById(expenseId)
+                    log {
+                        "fetched expense ${item.title}"
+                    }
+                    withContext(Dispatchers.Main){
+                        _state.update {
+                            it.copy(
+                                amount = item.amount.toString(),
+                                title = item.title,
+                                expenseType = item.expenseType,
+                                splitInto = item.splitInto?.toString(),
+                                timestamp = item.timestamp
+                            )
+                        }
+                    }
+                }
+
+
+                _state.update {
+                    it.copy(loading = false , expenseId = expenseId)
+                }
+            }catch (e : Exception){
+                _state.update {
+                    it.copy(loading = false)
+                }
+                ensureActive()
+                e.printStackTrace()
+            }
+        }
+    }
+
     private fun resetState(){
         viewModelScope.launch {
             _state.update {
@@ -127,7 +184,7 @@ class ExpenseTrackerViewModel(
                     title = values.title ,
                     splitInto = values.splitInto?.toInt() ,
                     expenseType = values.expenseType,
-                    tripId = tripId
+                    tripId = tripId,
                 )
                 val id =dataSource.addExpense(entity)
                 log {
@@ -146,10 +203,76 @@ class ExpenseTrackerViewModel(
             }
 
         }
-
-
-
     }
+    private fun updateExpense(tripId: Long){
+        if(_state.value.saving){
+            log {
+                "Already saving"
+            }
+            return
+        }
+        val valid = validateUserInput()
+        if(!valid){
+            log {
+                "Invalid data"
+            }
+            return
+        }
+        viewModelScope.launch {
+            log {
+                "Updating..."
+            }
+            val values = _state.value
+            val itemId = values.expenseId ?: return@launch
+
+            try {
+                _state.update {
+                    it.copy(saving = true)
+                }
+                val entity = ExpenseEntity(
+                    id =  itemId,
+                    amount =  values.amount.toInt(),
+                    title =  values.title,
+                    expenseType =  values.expenseType,
+                    splitInto =  values.splitInto?.toInt(),
+                    timestamp =  values.timestamp,
+                    tripId = tripId
+                )
+
+                dataSource.updateExpense(entity)
+                log{
+                    "Updated $itemId"
+                }
+                _events.send(UIEvents.Success)
+                _state.update {
+                    it.copy(saving = false)
+                }
+            }catch (e: NumberFormatException){
+                e.printStackTrace()
+                _state.update {
+                    it.copy(saving = false)
+                }
+                _events.trySend(UIEvents.Error("Failed to save expense!"))
+                log {
+                    "Error formatting number!"
+                }
+            }
+        }
+    }
+    private fun deleteExpense(){
+        val itemId = _state.value.expenseId ?: return
+        viewModelScope.launch {
+            _state.update {
+                it.copy(loading = true)
+            }
+            dataSource.deleteExpense(itemId)
+            _state.update {
+                it.copy(loading = false)
+            }
+            _events.send(UIEvents.Success)
+        }
+    }
+
     private fun validateUserInput(
 
     ):Boolean{

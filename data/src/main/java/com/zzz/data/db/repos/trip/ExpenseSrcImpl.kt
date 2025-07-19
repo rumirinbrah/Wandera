@@ -13,8 +13,16 @@ class ExpenseSrcImpl(
         return dao.addExpense(item)
     }
 
+    override suspend fun updateExpense(item: ExpenseEntity) {
+        dao.updateExpense(item)
+    }
+
     override suspend fun deleteExpense(itemId: Long) {
         dao.deleteExpense(itemId)
+    }
+
+    override suspend fun getExpenseById(itemId: Long): ExpenseEntity {
+        return dao.getExpenseById(itemId)
     }
 
     override fun getExpensesByTripId(tripId: Long): Flow<List<ExpenseEntity>> {
