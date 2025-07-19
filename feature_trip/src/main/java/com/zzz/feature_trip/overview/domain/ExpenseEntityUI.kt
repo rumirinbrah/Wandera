@@ -31,57 +31,34 @@ fun ExpenseEntity.toUIEntity() : ExpenseEntityUI{
     )
 }
 
+/**
+ * Maps short titles to drawables
+ */
+private val iconMap = mapOf(
+    "ff" to R.drawable.fastfood,
+    "fl" to R.drawable.flight,
+    "tr" to R.drawable.taxi,
+    "sh" to R.drawable.shopping_bag,
+    "ht" to R.drawable.hotel,
+    "med" to R.drawable.hospital,
+    "rt" to R.drawable.cycle,
+)
+/**
+ * Maps short titles to colors
+ */
+private val iconBackgroundMap = mapOf(
+    "ff" to Color(0xFFCEBE36).toArgb(),
+    "fl" to Color(0xFFCE382D).toArgb(),
+    "tr" to Color(0xFFD79637).toArgb(),
+    "sh" to Color(0xFF2EA4D9).toArgb(),
+    "ht" to Color(0xFF348CD2).toArgb(),
+    "med" to Color(0xFF29BD2F).toArgb(),
+    "rt" to Color(0xFF3639CE).toArgb(),
+)
+
 private fun String.toDrawableRes():Int{
-    return when(this) {
-        "ff" -> {
-            R.drawable.fastfood
-        }
-        "fl" -> {
-            R.drawable.flight
-        }
-        "tr" -> {
-            R.drawable.taxi
-        }
-        "sh" -> {
-            R.drawable.shopping_bag
-        }
-        "ht" -> {
-            R.drawable.hotel
-        }
-        "med" -> {
-            R.drawable.hospital
-        }
-        "rt" -> {
-            R.drawable.cycle
-        }
-        else -> R.drawable.dollar
-    }
+    return iconMap[this] ?: R.drawable.dollar
 }
 private fun getIconBackground(shortTitle : String):Int{
-    return when(shortTitle) {
-        "ff" -> {
-            Color(0xFFCEBE36).toArgb()
-        }
-        "fl" -> {
-            Color(0xFFCE382D).toArgb()
-        }
-        "tr" -> {
-            Color(0xFFD79637).toArgb()
-        }
-        "sh" -> {
-            Color(0xFF2EA4D9).toArgb()
-        }
-        "ht" -> {
-            Color(0xFF348CD2).toArgb()
-        }
-        "med" -> {
-            Color(0xFF29BD2F).toArgb()
-
-        }
-        "rt" -> {
-            Color(0xFF3639CE).toArgb()
-        }
-        else -> Color(0xFFB08C2C).toArgb()
-
-    }
+    return iconBackgroundMap[shortTitle] ?: Color(0xFFB08C2C).toArgb()
 }
