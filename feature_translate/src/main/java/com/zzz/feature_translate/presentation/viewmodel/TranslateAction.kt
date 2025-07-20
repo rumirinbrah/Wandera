@@ -14,6 +14,7 @@ sealed class TranslateAction {
     }
 
     sealed class TranslatorAction : TranslateAction(){
+        data class SetTextFormatting(val keepFormatting : Boolean) : TranslatorAction()
         data class ChangeSrcLanguage(val name : String,val modelCode: String) : TranslatorAction()
         data class ChangeDestLanguage(val name: String,val modelCode: String) : TranslatorAction()
         data object TranslateText : TranslatorAction()

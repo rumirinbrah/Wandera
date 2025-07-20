@@ -24,8 +24,10 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.zzz.core.presentation.buttons.ElevatedIconTextButton
+import com.zzz.core.presentation.components.CheckboxCircular
 import com.zzz.core.presentation.components.VerticalSpace
 import com.zzz.core.presentation.text_field.RoundedTextField
+import com.zzz.core.theme.successGreen
 import com.zzz.data.translate.model.TranslationModel
 import com.zzz.feature_translate.R
 import com.zzz.feature_translate.presentation.tab_translate.components.DropDownList
@@ -91,6 +93,26 @@ fun TranslateTextPage(
                 fontSize = 20.sp
             )
         )
+        Row (
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ){
+            CheckboxCircular(
+                checked = state.keepFormatting ,
+                onCheck = {
+                    onAction(TranslateAction.TranslatorAction.SetTextFormatting(it))
+                } ,
+                modifier = Modifier ,
+                onBackground = successGreen ,
+                background = MaterialTheme.colorScheme.surfaceContainer,
+                iconSize = 20.dp
+            )
+            Text(
+                "Keep text formatting" ,
+                fontSize = 13.sp
+            )
+        }
+        //---- Action Buttons ----
         Row(
             horizontalArrangement = Arrangement.spacedBy(4.dp) ,
             modifier = Modifier.align(Alignment.CenterHorizontally)

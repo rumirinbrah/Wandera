@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -49,6 +50,7 @@ import com.zzz.feature_translate.presentation.tab_download.components.FilterButt
 import com.zzz.feature_translate.presentation.tab_download.components.TranslateModelItem
 import com.zzz.feature_translate.presentation.viewmodel.TranslateAction
 import com.zzz.feature_translate.presentation.viewmodel.TranslateState
+import kotlinx.coroutines.delay
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -59,11 +61,13 @@ internal fun DownloadModelPage(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-
-    var confirmDeleteDialog by remember { mutableStateOf(false) }
+    val lazyListState = rememberLazyListState()
 
     val permissionViewModel = koinViewModel<PermissionViewModel>()
     val deniedPermsQueue = permissionViewModel.permissionDialogQueue
+
+    var confirmDeleteDialog by remember { mutableStateOf(false) }
+
 
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
@@ -78,6 +82,13 @@ internal fun DownloadModelPage(
             if (!granted) {
                 permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
             }
+        }
+    }
+
+    LaunchedEffect(state.downloadsFilter) {
+        if(!state.downloadsFilter){
+            delay(500)
+            lazyListState.animateScrollToItem(lazyListState.layoutInfo.viewportStartOffset)
         }
     }
 
@@ -106,7 +117,7 @@ internal fun DownloadModelPage(
             Row(
                 Modifier
                     .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.primary) ,
+                    .background(MaterialTheme.colorScheme.primary.copy(0.8f)) ,
                 horizontalArrangement = Arrangement.Center
             ) {
                 Text(
@@ -123,7 +134,16 @@ internal fun DownloadModelPage(
         ) {
 
 
-            VerticalSpace()
+            //----- HEADER -----
+            VerticalSpace(20.dp)
+            Text(
+                "Browse models" ,
+                fontSize = 20.sp ,
+                fontWeight = FontWeight.Bold ,
+                textAlign = TextAlign.Center
+            )
+            //----- FILTER -----
+            VerticalSpace(10.dp)
             FilterButton(
                 text = "Downloaded" ,
                 onClick = {
@@ -132,19 +152,15 @@ internal fun DownloadModelPage(
                 filtered = state.downloadsFilter
             )
             VerticalSpace(10.dp)
-            Text(
-                "Browse models" ,
-                fontSize = 15.sp ,
-                fontWeight = FontWeight.Bold ,
-                textAlign = TextAlign.Center
-            )
+
             LazyColumn(
                 Modifier.fillMaxWidth() ,
                 verticalArrangement = Arrangement.spacedBy(8.dp) ,
+                state = lazyListState
             ) {
 
                 items(
-                    models ,
+                    state.filteredModels,//models ,
                     key = { it.name }
                 ) { model ->
                     TranslateModelItem(

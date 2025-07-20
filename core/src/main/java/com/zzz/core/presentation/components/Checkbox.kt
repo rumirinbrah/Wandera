@@ -16,6 +16,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
+/**
+ * Custom checkbox
+ * @param iconSize Overall size of the checkbox
+ * @author zyzz
+ */
 @Composable
 fun CheckboxCircular(
     checked: Boolean,

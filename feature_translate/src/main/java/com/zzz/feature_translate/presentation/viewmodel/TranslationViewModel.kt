@@ -15,7 +15,6 @@ import com.zzz.feature_translate.manager.TranslationManager
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flowOn
@@ -33,11 +32,34 @@ class TranslationViewModel(
     private val networkObserver: NetworkObserver
 ) : ViewModel() {
 
+    private var loggingEnabled = true
+
     private val _models = MutableStateFlow<List<TranslationModel>>(emptyList())
     val models = _models.asStateFlow()
 
-    private val _state = MutableStateFlow(TranslateState())
+    private val _state = MutableStateFlow(
+        TranslateState()
+    )
     val state = _state.asStateFlow()
+
+    /*
+    val niga = combine(
+        _state,
+        _models
+    ){translateState,models->
+        println("--COMBINE--")
+        if(translateState.downloadsFilter){
+            translateState.copy(filteredModels = models.filter { it.downloaded })
+        }else{
+            translateState.copy(filteredModels = models)
+        }
+    }.stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(5000L),
+        _state.value
+    )
+
+     */
 
     private var internalState = InternalState()
 
@@ -69,17 +91,19 @@ class TranslationViewModel(
                     TranslateAction.TranslatorAction.ClearResources -> TODO()
                     is TranslateAction.TranslatorAction.CreateTranslator -> TODO()
                     is TranslateAction.TranslatorAction.TranslateText -> {
-                        //translate()
-                        translateWithFormatting()
+                        resolveTranslate()
                     }
 
                     is TranslateAction.TranslatorAction.ChangeDestLanguage -> {
                         changeDestLang(action.name , action.modelCode)
                     }
-
                     is TranslateAction.TranslatorAction.ChangeSrcLanguage -> {
                         changeSrcLang(action.name , action.modelCode)
                     }
+                    is TranslateAction.TranslatorAction.SetTextFormatting->{
+                        setTextFormatting(action.keepFormatting)
+                    }
+
                 }
             }
 
@@ -95,7 +119,7 @@ class TranslationViewModel(
 
                     is TranslateAction.ManagerAction.DownloadModel -> {
                         //downloadModel(action.modelCode , action.name)
-                        checkConnectivityAndDownloadModel(action.modelCode,action.name)
+                        checkConnectivityAndDownloadModel(action.modelCode , action.name)
                     }
 
                     TranslateAction.ManagerAction.DownloadModelWithCellularData -> {
@@ -103,7 +127,7 @@ class TranslationViewModel(
                     }
 
                     is TranslateAction.ManagerAction.FilterByDownloads -> {
-                        //setDownloadFilter(action.filter)
+                        setDownloadsFilter(action.filter)
                     }
 
                     //UI
@@ -127,6 +151,8 @@ class TranslationViewModel(
 
     private fun collectModels() {
         viewModelScope.launch {
+            println("Collecting...")
+
             _state.update {
                 it.copy(loading = true)
             }
@@ -146,8 +172,44 @@ class TranslationViewModel(
                     _models.update {
                         newModels
                     }
+                    updateUiModels()
                 }
         }
+    }
+
+    private fun setDownloadsFilter(filter: Boolean) {
+        viewModelScope.launch {
+            log {
+                "Filter by downloads - $filter"
+            }
+            _state.update {
+                it.copy(
+                    downloadsFilter = filter
+                )
+            }
+            updateUiModels()
+        }
+    }
+    private fun updateUiModels(){
+        log {
+            "Updating UI models"
+        }
+        viewModelScope.launch {
+            val downloadsFilter = _state.value.downloadsFilter
+            val newList = if(downloadsFilter){
+                _models.value.filter {
+                    it.downloaded
+                }
+            }else{
+                _models.value
+            }
+            _state.update {
+                it.copy(
+                    filteredModels = newList
+                )
+            }
+        }
+
     }
 
     private fun validateDownloadedModels() {
@@ -172,7 +234,27 @@ class TranslationViewModel(
 
     //---------- TRANSLATOR -----------
 
+    /**
+     * Resolves translate call
+     */
+    private fun resolveTranslate(){
+        log {
+            "Resolve translate"
+        }
+        if(_state.value.keepFormatting){
+            translateWithFormatting()
+        }else{
+            translate()
+        }
+    }
+
+    /**
+     * Translate without keeping the original formatting. Line breaks will be removed
+     */
     private fun translate() {
+        log {
+            "Translate without formatting"
+        }
         viewModelScope.launch {
             if (!validateTranslatorInput()) {
                 _events.send(UIEvents.Error("Please select valid translate methods!"))
@@ -205,7 +287,13 @@ class TranslationViewModel(
         }
     }
 
+    /**
+     * Translate with the original text formatting.
+     */
     private fun translateWithFormatting() {
+        log {
+            "Translate with formatting"
+        }
         viewModelScope.launch {
             if (!validateTranslatorInput()) {
                 _events.send(UIEvents.Error("Please select valid translate methods!"))
@@ -257,13 +345,15 @@ class TranslationViewModel(
     private fun validateTranslatorInput(): Boolean {
         val value = _state.value
         return if (value.srcLanguageCode == null || value.destLanguageCode == null) {
-             false
-        }else{
+            false
+        } else {
             true
         }
     }
 
-    //change dest
+    /**
+     * Change DEST lang
+     */
     private fun changeDestLang(name: String , code: String) {
         viewModelScope.launch {
             sessionOngoing = false
@@ -276,8 +366,9 @@ class TranslationViewModel(
             }
         }
     }
-
-    //change ip
+    /**
+     * Change SRC lang
+     */
     private fun changeSrcLang(name: String , code: String) {
         viewModelScope.launch {
             sessionOngoing = false
@@ -287,6 +378,14 @@ class TranslationViewModel(
                     srcLanguage = name ,
                     srcLanguageCode = code
                 )
+            }
+        }
+    }
+
+    private fun setTextFormatting(keepFormatting : Boolean){
+        viewModelScope.launch {
+            _state.update {
+                it.copy(keepFormatting = keepFormatting)
             }
         }
     }
@@ -312,7 +411,9 @@ class TranslationViewModel(
     }
 
 
-    //clears input methods, src, translated text
+    /**
+     * clears input methods, src, translated text
+     */
     private fun resetTranslateTabState() {
         viewModelScope.launch {
             _state.update {
@@ -362,7 +463,8 @@ class TranslationViewModel(
             }
         }
     }
-    private fun downloadModelOverCellular(){
+
+    private fun downloadModelOverCellular() {
         viewModelScope.launch {
             dismissCellularDownloadDialog()
             if (_state.value.downloading) {
@@ -373,11 +475,12 @@ class TranslationViewModel(
 
             val modelCode = internalState.modelCode ?: return@launch
             val name = internalState.modelName ?: return@launch
-            downloadModel(modelCode,name,false)
+            downloadModel(modelCode , name , false)
             resetInternalState()
         }
     }
 
+    @Deprecated("Schedules download without network. Use checkConnectivityAndDownloadModel() instead")
     private suspend fun downloadModel(
         modelCode: String ,
         name: String ,
@@ -493,35 +596,21 @@ class TranslationViewModel(
         }
     }
 
-    private fun setDownloadFilter(filter: Boolean) {
-        viewModelScope.launch {
-            if (filter) {
-                val downloads = _models.value.filter { it.downloaded }
-                _state.update {
-                    it.copy(
-                        downloadedModels = downloads ,
-                        downloadsFilter = true
-                    )
-                }
-            } else {
-                _state.update {
-                    it.copy(
-                        downloadedModels = null ,
-                        downloadsFilter = false
-                    )
-                }
-            }
-        }
-    }
 
-    private fun observeNetwork(){
+    private fun observeNetwork() {
         viewModelScope.launch {
             networkObserver.isConnected
-                .collect{specs->
+                .collect { specs ->
                     networkSpecs = specs
                 }
         }
 
+    }
+
+    private fun log(msg : () ->String){
+        if(loggingEnabled){
+            Log.d("translateVm" , msg())
+        }
     }
 
     override fun onCleared() {
