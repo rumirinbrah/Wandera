@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -37,6 +38,8 @@ android {
 }
 
 dependencies {
+
+    implementation(libs.kotlinx.serialization.json)
 
     //runtime
     implementation(libs.androidx.lifecycle.runtime.compose)

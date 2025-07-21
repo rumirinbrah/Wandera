@@ -1,4 +1,4 @@
-package com.zzz.wandera.nav.util
+package com.zzz.wandera.presentation.nav.util
 
 import androidx.annotation.DrawableRes
 import com.zzz.core.R

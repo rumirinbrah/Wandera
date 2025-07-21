@@ -1,4 +1,4 @@
-package com.zzz.wandera.nav.util
+package com.zzz.wandera.presentation.nav.util
 
 import android.util.Log
 import androidx.compose.animation.core.Animatable

@@ -1,4 +1,4 @@
-package com.zzz.wandera.nav.util
+package com.zzz.wandera.presentation.nav.util
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -24,10 +24,10 @@ import com.zzz.core.theme.WanderaTheme
 
 @Composable
 fun BottomNavBar(
-    navController : NavHostController,
-    currentRoute : Screen = Screen.HomeGraph,
-    onRouteChange : (Screen)->Unit,
-    onHeightCalculated : (Dp)->Unit,
+    navController : NavHostController ,
+    currentRoute : Screen = Screen.HomeGraph ,
+    onRouteChange : (Screen)->Unit ,
+    onHeightCalculated : (Dp)->Unit ,
     modifier: Modifier = Modifier
 ) {
     val density = LocalDensity.current

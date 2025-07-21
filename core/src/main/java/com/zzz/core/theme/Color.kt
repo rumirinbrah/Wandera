@@ -43,6 +43,7 @@ val darkOnSurfaceContainer = Color(0xFFEEEEEE)
 val darkErrorContainer = Color(0xFFAB2424)
 val darkOnErrorContainer = Color(0xFFFFFFFF)
 
+// ----------- OTHERS ----------
 //theme pg
 val nightSky = Color(0xFF322838)
 val daySky = Color(0xFF5A93BC)
@@ -55,4 +56,6 @@ val blueToastSweep = Color(0xFF2438A9)
 val greenToastSweep = Color(0xFF35BD38)
 val redToastSweep = Color(0xFFDF3838)
 
+
+val appIconBackground = Color(0xFF01675D)
 

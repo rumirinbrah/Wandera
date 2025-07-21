@@ -52,7 +52,6 @@ fun TranslateRoot(
     bottomPadding : Dp = 0.dp,
     translationViewModel: TranslationViewModel = koinViewModel()
 ) {
-    val models by translationViewModel.models.collectAsStateWithLifecycle()
     val state by translationViewModel.state.collectAsStateWithLifecycle()
 
     val events = translationViewModel.events
@@ -60,7 +59,6 @@ fun TranslateRoot(
     TranslateHome(
         modifier,
         state = state ,
-        models = models ,
         events = events ,
         onAction = { action ->
             translationViewModel.onAction(action)
@@ -80,7 +78,7 @@ fun TranslateRoot(
 private fun TranslateHome(
     modifier: Modifier = Modifier,
     state: TranslateState ,
-    models: List<TranslationModel> ,
+    //models: List<TranslationModel> ,
     events: Flow<UIEvents> ,
     onAction: (TranslateAction) -> Unit ,
     navBarVisible : (Boolean)->Unit,
@@ -169,7 +167,6 @@ private fun TranslateHome(
                     0 -> {
                         DownloadModelPage(
                             state = state ,
-                            models ,
                             onAction = onAction ,
                         )
                     }
@@ -177,7 +174,6 @@ private fun TranslateHome(
                     1 -> {
                         TranslateTextPage(
                             state ,
-                            models ,
                             onAction
                         )
                     }

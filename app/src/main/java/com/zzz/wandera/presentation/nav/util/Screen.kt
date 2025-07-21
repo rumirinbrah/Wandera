@@ -1,4 +1,4 @@
-package com.zzz.wandera.nav.util
+package com.zzz.wandera.presentation.nav.util
 
 import kotlinx.serialization.Serializable
 
@@ -32,6 +32,12 @@ sealed class Screen {
 
         @Serializable
         data class TripOverviewScreen(val tripId : Long)
+
+        @Serializable
+        data class ExportTripScreen(val tripId: Long)
+
+        @Serializable
+        data object ImportTripScreen
 
     }
 

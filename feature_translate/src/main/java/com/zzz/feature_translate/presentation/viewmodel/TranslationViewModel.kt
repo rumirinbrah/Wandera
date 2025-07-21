@@ -35,7 +35,7 @@ class TranslationViewModel(
     private var loggingEnabled = true
 
     private val _models = MutableStateFlow<List<TranslationModel>>(emptyList())
-    val models = _models.asStateFlow()
+//    val models = _models.asStateFlow()
 
     private val _state = MutableStateFlow(
         TranslateState()
@@ -43,7 +43,7 @@ class TranslationViewModel(
     val state = _state.asStateFlow()
 
     /*
-    val niga = combine(
+    val state = combine(
         _state,
         _models
     ){translateState,models->

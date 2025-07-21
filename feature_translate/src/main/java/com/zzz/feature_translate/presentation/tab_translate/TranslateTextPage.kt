@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.selection.SelectionContainer
@@ -29,7 +28,6 @@ import com.zzz.core.presentation.components.VerticalSpace
 import com.zzz.core.presentation.text_field.RoundedTextField
 import com.zzz.core.theme.successGreen
 import com.zzz.data.translate.model.TranslationModel
-import com.zzz.feature_translate.R
 import com.zzz.feature_translate.presentation.tab_translate.components.DropDownList
 import com.zzz.feature_translate.presentation.viewmodel.TranslateAction
 import com.zzz.feature_translate.presentation.viewmodel.TranslateState
@@ -37,12 +35,11 @@ import com.zzz.feature_translate.presentation.viewmodel.TranslateState
 @Composable
 fun TranslateTextPage(
     state: TranslateState ,
-    models: List<TranslationModel> ,
     onAction: (TranslateAction) -> Unit ,
     modifier: Modifier = Modifier
 ) {
-    val availableModels = remember(models) {
-        models.filter { it.downloaded }
+    val availableModels = remember(state.filteredModels) {
+        state.filteredModels.filter { it.downloaded }
     }
 
     Column(

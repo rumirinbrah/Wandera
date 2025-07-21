@@ -1,4 +1,4 @@
-package com.zzz.wandera.nav
+package com.zzz.wandera.presentation.nav
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
@@ -12,7 +12,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import androidx.navigation.toRoute
 import com.zzz.core.presentation.toast.WanderaToastState
-import com.zzz.wandera.nav.util.Screen
+import com.zzz.wandera.presentation.nav.util.Screen
 import com.zzz.feature_trip.create.presentation.AddDayRoot
 import com.zzz.feature_trip.create.presentation.CreateRoot
 import com.zzz.feature_trip.create.presentation.viewmodel.CreateViewModel
@@ -24,6 +24,8 @@ import com.zzz.feature_trip.home.presentation.HomeViewModel
 import com.zzz.feature_trip.overview.presentation.viewmodel.OverviewActions
 import com.zzz.feature_trip.overview.presentation.viewmodel.OverviewViewModel
 import com.zzz.feature_trip.overview.presentation.TripOverviewRoot
+import com.zzz.feature_trip.share.presentation.ExportTripPage
+import com.zzz.feature_trip.share.presentation.ImportTripPage
 import com.zzz.feature_trip.update.presentation.UpdateRoot
 import com.zzz.feature_trip.update.presentation.viewmodel.UpdateTripViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -206,9 +208,29 @@ fun NavGraphBuilder.homeNavGraph(
                         navController.popBackStack()
                     }
                 },
+                shareTrip = {tripId ->
+                    navController.navigate(Screen.HomeGraph.ExportTripScreen(tripId))
+                },
+                markTripAsDone = {
+                    navController.navigate(Screen.HomeGraph.ImportTripScreen)
+                },
                 navigateUp = {
                     navController.navigateUp()
                 }
+            )
+        }
+        composable<Screen.HomeGraph.ExportTripScreen> {
+            val route = it.toRoute<Screen.HomeGraph.ExportTripScreen>()
+
+            ExportTripPage(
+                tripId = route.tripId,
+                modifier = Modifier.padding(innerPadding)
+            )
+
+        }
+        composable<Screen.HomeGraph.ImportTripScreen> {
+            ImportTripPage(
+                modifier = Modifier.padding(innerPadding)
             )
         }
     }

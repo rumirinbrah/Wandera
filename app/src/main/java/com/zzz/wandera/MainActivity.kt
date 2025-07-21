@@ -44,7 +44,9 @@ import com.zzz.core.presentation.toast.rememberWanderaToastState
 import com.zzz.core.theme.WanderaTheme
 import com.zzz.data.note.model.ChecklistEntity
 import com.zzz.feature_trip.overview.presentation.components.ChecklistItem
-import com.zzz.wandera.nav.Navigation
+import com.zzz.feature_trip.share.presentation.ExportTripPage
+import com.zzz.wandera.presentation.intro.WanderaIntro
+import com.zzz.wandera.presentation.nav.Navigation
 import com.zzz.wandera.ui.ThemeViewModel
 import org.koin.androidx.compose.koinViewModel
 
@@ -58,14 +60,6 @@ class MainActivity : ComponentActivity() {
             val themeViewModel = koinViewModel<ThemeViewModel>()
             val themeState by themeViewModel.themeState.collectAsStateWithLifecycle()
 
-            val interactionSource = remember { MutableInteractionSource() }
-            val isPressed by interactionSource.collectIsPressedAsState()
-
-            val scale = animateFloatAsState(
-                targetValue = if(isPressed) 0.95f else 1f,
-                animationSpec = tween(200)
-            )
-            val scope = rememberCoroutineScope()
 
             WanderaTheme(
                 useSystemTheme = false,
@@ -76,29 +70,11 @@ class MainActivity : ComponentActivity() {
 //                    Box(
 //                        Modifier
 //                            .fillMaxSize()
-//                            .statusBarsPadding()
+//                            //.statusBarsPadding()
 ////                            .padding(innerPadding)
 //                        ,
 //                    ){
-//                        val launcherState = rememberWanderaImagePicker()
-//                        Box(
-//                            modifier = Modifier
-//                                .align(Alignment.Center)
-//                                .scale(1f * scale.value)
-//                                .width(150.dp)
-//                                .background(Color.Gray)
-//                                .clickable(
-//                                    interactionSource = interactionSource,
-//                                    indication = null,
-//                                    onClick = {}
-//                                )
-//                                .padding(16.dp)
-//                                ,
-//                            contentAlignment = Alignment.Center
-//                        ) {
-//                            Text("Show picker")
-//                        }
-//
+//                        ExportTripPage(tripId = 0, Modifier.padding(innerPadding))
 //                    }
 //                }
                 Navigation(

@@ -85,6 +85,8 @@ fun TripOverviewRoot(
     wanderaToastState: WanderaToastState ,
     navigateToDayDetails: () -> Unit ,
     navToEditTrip: (tripId: Long) -> Unit ,
+    shareTrip : (tripId: Long) -> Unit ,
+    markTripAsDone : ()->Unit = {},
     navigateUp: () -> Unit ,
 ) {
     val state by overviewViewModel.overviewState.collectAsStateWithLifecycle()
@@ -102,6 +104,8 @@ fun TripOverviewRoot(
         } ,
         navigateToDayDetails = navigateToDayDetails ,
         navToEditTrip = navToEditTrip ,
+        shareTrip = shareTrip,
+        markTripAsDone = markTripAsDone,
         navigateUp = navigateUp
     )
 }
@@ -124,7 +128,7 @@ private fun TripOverviewPage(
     onAction: (OverviewActions) -> Unit ,
     navigateToDayDetails: () -> Unit ,
     navToEditTrip: (tripId: Long) -> Unit ,
-    shareTrip : ()->Unit = {},
+    shareTrip : (tripId : Long)->Unit = {},
     markTripAsDone : ()->Unit = {},
     navigateUp: () -> Unit ,
 ) {
@@ -473,10 +477,12 @@ private fun TripOverviewPage(
 
             } ,
             onShare = {
-
+                state.trip?.id?.let {
+                    shareTrip(it)
+                }
             } ,
             onMarkAsDone = {
-
+                markTripAsDone()
             },
             modifier = Modifier
                 .align(Alignment.BottomEnd)

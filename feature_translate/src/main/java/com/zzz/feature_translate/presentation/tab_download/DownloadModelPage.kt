@@ -45,7 +45,6 @@ import com.zzz.core.presentation.permission.PermissionDialog
 import com.zzz.core.presentation.permission.PermissionViewModel
 import com.zzz.core.presentation.permission.hasPermission
 import com.zzz.core.presentation.permission.openAppSettings
-import com.zzz.data.translate.model.TranslationModel
 import com.zzz.feature_translate.presentation.tab_download.components.FilterButton
 import com.zzz.feature_translate.presentation.tab_download.components.TranslateModelItem
 import com.zzz.feature_translate.presentation.viewmodel.TranslateAction
@@ -56,7 +55,6 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 internal fun DownloadModelPage(
     state: TranslateState ,
-    models: List<TranslationModel> ,
     onAction: (TranslateAction) -> Unit ,
     modifier: Modifier = Modifier
 ) {

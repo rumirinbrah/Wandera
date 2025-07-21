@@ -1,4 +1,4 @@
-package com.zzz.wandera.nav
+package com.zzz.wandera.presentation.nav
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
@@ -26,14 +26,14 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.zzz.core.presentation.modifiers.customShadow
-import com.zzz.wandera.nav.util.Screen
+import com.zzz.wandera.presentation.nav.util.Screen
 import com.zzz.core.presentation.theme_change.ChangeThemePage
 import com.zzz.core.presentation.toast.rememberWanderaToastState
 import com.zzz.feature_settings.presentation.AppSettingsRoot
 import com.zzz.feature_translate.presentation.TranslateRoot
 import com.zzz.feature_translate.presentation.viewmodel.TranslationViewModel
 import com.zzz.feature_trip.recents.presentation.RecentsRoot
-import com.zzz.wandera.nav.util.BottomNavBar
+import com.zzz.wandera.presentation.nav.util.BottomNavBar
 import com.zzz.wandera.ui.ThemeState
 import org.koin.androidx.compose.koinViewModel
 
