@@ -23,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -35,7 +36,9 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.zzz.core.presentation.buttons.ElevatedIconTextButton
 import com.zzz.core.presentation.components.VerticalSpace
+import com.zzz.core.presentation.events.ObserveAsEvents
 import com.zzz.feature_trip.R
+import com.zzz.feature_trip.share.domain.models.ShareEvents
 import com.zzz.feature_trip.share.presentation.viewmodel.ShareTripViewModel
 import org.koin.androidx.compose.koinViewModel
 
@@ -52,8 +55,19 @@ fun ExportTripPage(
     tripId : Long,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
+
     val shareViewModel = koinViewModel<ShareTripViewModel>()
     val state by shareViewModel.state.collectAsStateWithLifecycle()
+    val events = shareViewModel.events
+
+    ObserveAsEvents(events) {event->
+        when(event){
+            is ShareEvents.IntentGenerated -> {
+                context.startActivity(event.shareIntent)
+            }
+        }
+    }
 
     Column(
         modifier
