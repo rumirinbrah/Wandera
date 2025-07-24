@@ -1,0 +1,11 @@
+Sharing local data logic -
+
+Exporting a trip - We convert the data classes to a JSON using kotlin serialization
+
+Importing a trip - The json is decoded back to the data class & then added into the DB
+
+Sharing the trip -
+1 The JSON is written to a temp file and stored in app's cache
+2 Use file provider to create a content URI for the file so that the other apps can access the file
+3 Send the file via Intent
+
