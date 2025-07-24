@@ -28,7 +28,18 @@ class SettingsViewModel(
         }
     }
 
-    fun setTicketLikeContainer(isTicket : Boolean){
+    internal fun onAction(action: SettingsAction){
+        when(action){
+            is SettingsAction.SetChecklistContainer -> {
+                setChecklistTrapeziumBox(action.isTrapezium)
+            }
+            is SettingsAction.SetTicketContainer ->{
+                setTicketLikeContainer(action.isTicket)
+            }
+        }
+    }
+
+    private fun setTicketLikeContainer(isTicket : Boolean){
         viewModelScope.launch {
             settingsPref.setHomeTicketContainer(isTicket)
             _state.update {
@@ -39,7 +50,7 @@ class SettingsViewModel(
         }
     }
 
-    fun setChecklistTrapeziumBox(isTrapezium : Boolean){
+    private fun setChecklistTrapeziumBox(isTrapezium : Boolean){
         viewModelScope.launch {
             settingsPref.setChecklistTrapeziumBox(isTrapezium)
             _state.update {

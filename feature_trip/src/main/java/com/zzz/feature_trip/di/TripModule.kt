@@ -37,7 +37,8 @@ val createModule = module {
     }
     viewModel {
         HomeViewModel(
-            tripSource = get()
+            tripSource = get(),
+            context = androidContext()
         )
     }
     viewModel {

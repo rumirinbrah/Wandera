@@ -36,6 +36,7 @@ import com.zzz.core.theme.WanderaTheme
 import com.zzz.data.trip.TripWithDays
 import com.zzz.feature_trip.home.presentation.components.TicketLikeTripItem
 import com.zzz.feature_trip.home.presentation.components.TripItem
+import com.zzz.feature_trip.home.presentation.components.TripItemRoot
 import kotlinx.coroutines.delay
 import org.koin.androidx.compose.koinViewModel
 
@@ -191,22 +192,24 @@ private fun HomePage(
                     tripsWithDoc,
                     key = {it.trip.id}
                 ){trip->
-                    /*
-                    TripItem(
-                        tripWithDays = trip,
-                        onClick = {id->
-                            navToTripOverview(id)
-                        },
-                        modifier = Modifier.animateItem()
-                    )
 
-                     */
+                    /*
                     TicketLikeTripItem(
                         trip,
                         onClick = { id->
                             navToTripOverview(id)
                         },
                         modifier = Modifier.animateItem()
+                    )
+
+                     */
+                    TripItemRoot(
+                        trip,
+                        onClick = {id->
+                            navToTripOverview(id)
+                        },
+                        modifier = Modifier.animateItem(),
+                        ticketLikeContainer = state.homeItemTicketLikeContainer
                     )
 
                 }

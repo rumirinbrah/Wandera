@@ -1,9 +1,11 @@
 package com.zzz.feature_trip.home.presentation
 
+import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.zzz.core.presentation.events.UIEvents
+import com.zzz.data.common.SettingsPreferences
 import com.zzz.data.trip.TripWithDays
 import com.zzz.data.trip.source.TripSource
 import kotlinx.coroutines.Dispatchers
@@ -23,8 +25,12 @@ import kotlinx.coroutines.launch
 import kotlin.coroutines.cancellation.CancellationException
 
 class HomeViewModel(
-    private val tripSource: TripSource
+    private val tripSource: TripSource,
+    context: Context
 ) : ViewModel() {
+
+    private val settingsPref = SettingsPreferences(context)
+
 
     private val _events = Channel<UIEvents>()
     val events = _events.receiveAsFlow()
@@ -42,6 +48,11 @@ class HomeViewModel(
     private var collectTripsJob : Job? = null
 
     init {
+        _state.update {
+            it.copy(
+                homeItemTicketLikeContainer = settingsPref.isHomeContainerTicket()
+            )
+        }
         getTripsFlow()
     }
 

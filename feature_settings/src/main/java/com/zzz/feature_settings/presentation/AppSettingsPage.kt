@@ -67,6 +67,10 @@ fun AppSettingsRoot(
         composable<SettingScreen.HomeLayoutSettings> {
             HomeLayoutSettingsPage(
                 modifier = Modifier,
+                state = state,
+                onAction = {action->
+                    settingsViewModel.onAction(action)
+                },
                 navUp = {
                     navController.navigateUp()
                 }

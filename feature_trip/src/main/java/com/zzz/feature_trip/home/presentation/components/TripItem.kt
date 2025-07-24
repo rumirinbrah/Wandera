@@ -42,6 +42,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
@@ -57,6 +58,31 @@ import com.zzz.feature_trip.home.util.drawBarcodeIntoImage
 import com.zzz.feature_trip.home.util.drawTicketDecorationIntoImage
 import com.zzz.feature_trip.home.util.drawVerticalBarcode
 import com.zzz.feature_trip.home.util.getDateDifference
+
+@Composable
+fun TripItemRoot(
+    tripWithDays: TripWithDays ,
+    onClick: (tripId: Long) -> Unit ,
+    ticketLikeContainer : Boolean = true,
+    modifier: Modifier = Modifier
+) {
+    when{
+        ticketLikeContainer->{
+            TicketLikeTripItem(
+                tripWithDays = tripWithDays,
+                onClick = onClick,
+                modifier = modifier
+            )
+        }
+        else->{
+            TripItem(
+                tripWithDays = tripWithDays,
+                onClick = onClick,
+                modifier = modifier
+            )
+        }
+    }
+}
 
 @Composable
 fun TripItem(
@@ -208,7 +234,7 @@ fun TicketLikeTripItem(
             Modifier
                 .fillMaxWidth()
                 .padding(top = 30.dp)
-                .background(Color(0xFFE5E5E5)) ,
+                .background(Color(0xFFEFEFEF)) ,
             horizontalArrangement = Arrangement.spacedBy(4.dp) ,
 
             ) {
@@ -245,6 +271,8 @@ fun TicketLikeTripItem(
                         fontWeight = FontWeight.Bold ,
                         fontSize = 20.sp ,
                         color = containerOnBackground.copy(0.8f),
+                        maxLines = 3,
+                        overflow = TextOverflow.Ellipsis,
                         modifier = Modifier
                             .weight(
                                 1f ,
@@ -252,41 +280,43 @@ fun TicketLikeTripItem(
                             )
                             .padding(end = 4.dp)
                     )
-                    // Color(0xFFFFEAEA)
-                    DateComponent(
-                        background = Color.White.copy(0.7f) ,
-                        onBackground = Color.Black ,
-                        startDate = trip.startDate ,
-                        endDate = trip.endDate ,
-                        fontWeight = FontWeight.Bold ,
-
+                    Text(
+                        text = buildAnnotatedString {
+                            withStyle(
+                                style = SpanStyle(
+                                    fontSize = 15.sp ,
+                                    color = containerOnBackground
+                                )
+                            ) {
+                                append("Duration\n")
+                            }
+                            withStyle(
+                                style = SpanStyle(
+                                    fontSize = 13.sp ,
+                                    fontWeight = FontWeight.Bold ,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                            ) {
+                                val duration = getDateDifference(trip.startDate , trip.endDate)
+                                append("$duration Days")
+                            }
+                        } ,
+                        lineHeight = 16.sp
                     )
+                    // Color(0xFFFFEAEA)
+
                 }
 
+                VerticalSpace(5.dp)
                 //--- DURATION ---
-                Text(
-                    text = buildAnnotatedString {
-                        withStyle(
-                            style = SpanStyle(
-                                fontSize = 15.sp ,
-                                color = containerOnBackground
-                            )
-                        ) {
-                            append("Duration\n")
-                        }
-                        withStyle(
-                            style = SpanStyle(
-                                fontSize = 13.sp ,
-                                fontWeight = FontWeight.Bold ,
-                                color = MaterialTheme.colorScheme.primary
-                            )
-                        ) {
-                            val duration = getDateDifference(trip.startDate , trip.endDate)
-                            append("$duration Days")
-                        }
-                    } ,
-                    lineHeight = 16.sp
-                )
+                DateComponent(
+                    background = Color.White.copy(0.7f) ,
+                    onBackground = Color.Black ,
+                    startDate = trip.startDate ,
+                    endDate = trip.endDate ,
+                    fontWeight = FontWeight.Bold ,
+
+                    )
                 if (dayImages.any { it != null }) {
                     OverlappedImagesRow(
                         images = dayImages ,
