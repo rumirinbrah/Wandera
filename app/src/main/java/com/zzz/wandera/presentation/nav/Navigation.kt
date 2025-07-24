@@ -1,5 +1,6 @@
 package com.zzz.wandera.presentation.nav
 
+import android.net.Uri
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInVertically
@@ -41,6 +42,7 @@ import org.koin.androidx.compose.koinViewModel
 fun Navigation(
     themeState: ThemeState ,
     toggleDarkMode: (Boolean) -> Unit ,
+    tripJsonUri : Uri? = null
 ) {
     val navController = rememberNavController()
     val wanderaToastState = rememberWanderaToastState()
@@ -49,7 +51,11 @@ fun Navigation(
     var navBarHeight by remember { mutableStateOf(0.dp) }
     var currentRoute by remember { mutableStateOf<Screen>(Screen.HomeGraph) }
 
-
+    LaunchedEffect(Unit) {
+        if(tripJsonUri!=null){
+            navController.navigate(Screen.HomeGraph.ImportTripScreen)
+        }
+    }
     Scaffold(
         Modifier.fillMaxSize() ,
     ) { innerPadding ->
@@ -82,6 +88,7 @@ fun Navigation(
                 homeNavGraph(
                     navController ,
                     wanderaToastState = wanderaToastState,
+                    tripJsonUri = tripJsonUri,
                     navBarVisible = {
                         navBarVisible = it
                     } ,

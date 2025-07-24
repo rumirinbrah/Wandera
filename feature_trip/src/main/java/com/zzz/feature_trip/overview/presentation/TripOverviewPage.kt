@@ -303,42 +303,54 @@ private fun TripOverviewPage(
                 //checklist
                 VerticalSpace(10.dp)
                 Column {
-                    ChecklistHeader(
-                        collapsed = state.checklistCollapsed ,
-                        onCollapse = {
-                            onAction(OverviewActions.OnChecklistCollapse)
-                        }
-                    )
-                    VerticalSpace(8.dp)
-                    AnimatedVisibility(!state.checklistCollapsed) {
-                        LazyColumn(
-                            Modifier
-                                .fillMaxWidth()
-                                .heightIn(max = 500.dp) ,
-                            verticalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            items(
-                                items = state.checklist ,
-                                key = { it.id }
-                            ) { item ->
-                                ChecklistItem(
-                                    item = item ,
-                                    onCheck = { itemId , checked ->
-                                        onAction(
-                                            OverviewActions.CheckChecklistItem(
-                                                itemId ,
-                                                checked
-                                            )
+
+                            ChecklistHeader(
+                                collapsed = state.checklistCollapsed ,
+                                onCollapse = {
+                                    onAction(OverviewActions.OnChecklistCollapse)
+                                }
+                            )
+                            VerticalSpace(8.dp)
+
+                            AnimatedVisibility(!state.checklistCollapsed) {
+                                if(state.checklist.isEmpty()){
+                                    Text(
+                                        "Seems like you haven't created a checklist...",
+                                        color = MaterialTheme.colorScheme.onBackground.copy(0.7f)
+                                    )
+
+                                }
+
+                                LazyColumn(
+                                    Modifier
+                                        .fillMaxWidth()
+                                        .heightIn(max = 500.dp) ,
+                                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                                ) {
+                                    items(
+                                        items = state.checklist ,
+                                        key = { it.id }
+                                    ) { item ->
+                                        ChecklistItem(
+                                            item = item ,
+                                            onCheck = { itemId , checked ->
+                                                onAction(
+                                                    OverviewActions.CheckChecklistItem(
+                                                        itemId ,
+                                                        checked
+                                                    )
+                                                )
+                                            } ,
+                                            onDelete = { itemId ->
+                                                onAction(OverviewActions.DeleteChecklistItem(itemId))
+                                            } ,
+                                            modifier = Modifier.animateItem()
                                         )
-                                    } ,
-                                    onDelete = { itemId ->
-                                        onAction(OverviewActions.DeleteChecklistItem(itemId))
-                                    } ,
-                                    modifier = Modifier.animateItem()
-                                )
+                                    }
+                                }
                             }
-                        }
-                    }
+
+
                 }
 
 

@@ -1,5 +1,6 @@
 package com.zzz.feature_trip.overview.presentation.components
 
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.heightIn
@@ -27,6 +28,7 @@ internal fun ItineraryPager(
     modifier: Modifier = Modifier
 ) {
     Column(
+        Modifier.animateContentSize(),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         when{

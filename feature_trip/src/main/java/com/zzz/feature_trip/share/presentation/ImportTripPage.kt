@@ -7,13 +7,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -27,18 +24,48 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.zzz.core.presentation.buttons.IconTextButton
+import com.zzz.core.presentation.buttons.WanderaTextButton
 import com.zzz.core.presentation.components.VerticalSpace
+import com.zzz.core.presentation.headers.ActionButtonHeader
 import com.zzz.feature_trip.R
+import com.zzz.feature_trip.share.presentation.viewmodel.ShareAction
+import com.zzz.feature_trip.share.presentation.viewmodel.ShareState
 import com.zzz.feature_trip.share.presentation.viewmodel.ShareTripViewModel
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
-fun ImportTripPage(
+fun ImportTripRoot(
     tripJsonUri: Uri? = null,
+    shareTripViewModel: ShareTripViewModel = koinViewModel() ,
+    navToSettings : ()->Unit= {},
+    navUp : () ->Unit,
     modifier: Modifier = Modifier
 ) {
-    val shareViewModel = koinViewModel<ShareTripViewModel>()
-    val state by shareViewModel.state.collectAsStateWithLifecycle()
+    val state by shareTripViewModel.state.collectAsStateWithLifecycle()
+
+    ImportTripPage(
+        tripJsonUri = tripJsonUri,
+        state = state,
+        onAction = {action->
+            shareTripViewModel.onAction(action)
+        },
+        navToSettings = navToSettings ,
+        navUp = navUp,
+        modifier = modifier
+    )
+}
+@Composable
+internal fun ImportTripPage(
+    tripJsonUri: Uri? = null ,
+    state : ShareState ,
+    onAction : (action : ShareAction)->Unit ,
+    navToSettings : ()->Unit= {},
+    navUp : () ->Unit,
+    modifier: Modifier = Modifier
+) {
+    //val shareViewModel = koinViewModel<ShareTripViewModel>()
+    //val state by shareViewModel.state.collectAsStateWithLifecycle()
 
 
 
@@ -49,6 +76,13 @@ fun ImportTripPage(
         horizontalAlignment = Alignment.CenterHorizontally ,
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
+
+        ActionButtonHeader(
+            actionIcon = com.zzz.core.R.drawable.arrow_back,
+            onAction = navUp,
+            title = null
+        )
+        VerticalSpace(40.dp)
 
         Image(
             painter = painterResource(
@@ -70,10 +104,10 @@ fun ImportTripPage(
 
                 withStyle(
                     style = SpanStyle(
-                        fontWeight = FontWeight.Medium
+                        fontWeight = FontWeight.Bold
                     )
                 ){
-                    append("app version")
+                    append("App Version")
                 }
                 append(", or the import function may not work.")
 
@@ -81,17 +115,19 @@ fun ImportTripPage(
             textAlign = TextAlign.Center
         )
 
-
+        VerticalSpace()
         if(state.primaryButtonVisible){
-            Button(
+            IconTextButton(
+                text = "Import Trip",
+                icon = R.drawable.map,
                 onClick = {
                     tripJsonUri?.let {
-                        shareViewModel.exportTripJsonFromUri(it)
+                        onAction(ShareAction.ExportTripJsonFromUri(it))
                     }
-                }
-            ) {
-                Text("Import Trip")
-            }
+                },
+                background = MaterialTheme.colorScheme.surfaceContainer.copy(0.5f),
+                onBackground = MaterialTheme.colorScheme.onBackground
+            )
         }
 
 
@@ -104,7 +140,17 @@ fun ImportTripPage(
         }
         Text(
             state.progressMsg,
-            fontSize = 13.sp
+            fontSize = 13.sp,
+            textAlign = TextAlign.Center,
+            fontWeight = FontWeight.Bold
+        )
+        VerticalSpace()
+
+        WanderaTextButton(
+            text = "How do I import a Trip in Wandera?",
+            onClick = {
+                navToSettings()
+            }
         )
     }
 }

@@ -27,6 +27,10 @@ internal class TripSourceImpl(
         return tripDao.getTripById(tripId)
     }
 
+    override suspend fun getTripNameById(tripId: Long): String? {
+        return tripDao.getTripNameById(tripId)
+    }
+
     override suspend fun addTrip(trip: Trip) :Long{
         return tripDao.insertTrip(trip)
     }

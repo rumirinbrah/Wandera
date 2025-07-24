@@ -152,7 +152,7 @@ fun DrawScope.drawFrameCorners(
 fun DrawScope.drawTicketCutout(
     centerX : Float,
     color: Color = Color.Black,
-    cutoutSize : Dp = 10.dp
+    cutoutSize : Dp = 7.dp
 ){
     val cutoutSizePx = cutoutSize.toPx()
     val path = Path().apply {

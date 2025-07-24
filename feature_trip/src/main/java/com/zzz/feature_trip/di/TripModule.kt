@@ -63,8 +63,8 @@ val createModule = module {
             tripSource = get() ,
             daySource = get() ,
             todoSource = get() ,
+            noteSource = get(),
+            context = androidContext()
         )
     }
 }
-
-class ExpenseSheetScope

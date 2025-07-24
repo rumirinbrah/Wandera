@@ -5,6 +5,9 @@ import com.zzz.data.trip.model.Day
 import com.zzz.data.trip.model.TodoLocation
 import com.zzz.data.trip.model.Trip
 
+/**
+ * For TRIP
+ */
 internal fun Trip.toExportableTrip() : ExportableTrip{
     return ExportableTrip(
         tripName = tripName,
@@ -23,6 +26,9 @@ internal fun ExportableTrip.toTripEntity() : Trip{
 }
 
 
+/**
+ * For DAY
+ */
 internal fun Day.toExportableDay() : ExportableDay{
     return ExportableDay(
         locationName = locationName,
@@ -38,14 +44,18 @@ internal fun ExportableDay.toDayEntity() : Day{
 }
 
 
+/**
+ * For TODO_LOCATION
+ */
 internal fun TodoLocation.toExportableTodoLocation() : ExportableTodos{
     return ExportableTodos(
         title,
         isTodo
     )
 }
-internal fun ExportableTodos.toTodoLocationEntity() : TodoLocation{
+internal fun ExportableTodos.toTodoLocationEntity(dayId : Long) : TodoLocation{
     return TodoLocation(
+        dayId = dayId,
         title = title,
         isTodo = isTodo
     )

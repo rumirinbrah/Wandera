@@ -12,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.zzz.data.trip.model.TodoLocation
 import com.zzz.feature_trip.R
 
@@ -46,7 +47,7 @@ fun TodoLocationItem(
                 ) ,
                 contentDescription = todo.title
             )
-            Text(todo.title)
+            Text(todo.title , fontSize = 18.sp)
         }
         if(!isViewOnly){
             IconButton(

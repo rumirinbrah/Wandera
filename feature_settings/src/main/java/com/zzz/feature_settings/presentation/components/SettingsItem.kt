@@ -68,10 +68,10 @@ internal fun SettingsItem(
     titleFontWeight: FontWeight = FontWeight.Medium ,
     subTitleFontSize: TextUnit = 13.sp ,
     containerShape : Shape = RectangleShape ,
-    containerColor: Color = MaterialTheme.colorScheme.surfaceContainer ,
+    containerColor: Color = MaterialTheme.colorScheme.surface ,
     contentColor : Color = MaterialTheme.colorScheme.onSurfaceVariant ,
     shadowColor : Color = MaterialTheme.colorScheme.onBackground ,
-    shadowAlpha : Float = 0.2f ,
+    shadowAlpha : Float = 0.05f ,
     shadowOffsetY : Float = 5f
 ) {
 
@@ -91,7 +91,7 @@ internal fun SettingsItem(
                 enabled = clickEnabled ,
                 onClick = onClick
             )
-            .padding(vertical = 4.dp , horizontal = 8.dp),
+            .padding(vertical = 8.dp , horizontal = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ){

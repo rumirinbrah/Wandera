@@ -1,5 +1,6 @@
 package com.zzz.wandera.presentation.nav
 
+import android.net.Uri
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.LaunchedEffect
@@ -24,8 +25,9 @@ import com.zzz.feature_trip.home.presentation.HomeViewModel
 import com.zzz.feature_trip.overview.presentation.viewmodel.OverviewActions
 import com.zzz.feature_trip.overview.presentation.viewmodel.OverviewViewModel
 import com.zzz.feature_trip.overview.presentation.TripOverviewRoot
-import com.zzz.feature_trip.share.presentation.ExportTripPage
-import com.zzz.feature_trip.share.presentation.ImportTripPage
+import com.zzz.feature_trip.share.presentation.ExportTripRoot
+import com.zzz.feature_trip.share.presentation.ImportTripRoot
+
 import com.zzz.feature_trip.update.presentation.UpdateRoot
 import com.zzz.feature_trip.update.presentation.viewmodel.UpdateTripViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -33,9 +35,11 @@ import org.koin.androidx.compose.koinViewModel
 fun NavGraphBuilder.homeNavGraph(
     navController : NavHostController,
     wanderaToastState: WanderaToastState,
+    tripJsonUri: Uri? = null,
     navBarVisible : (Boolean)->Unit,
     innerPadding : PaddingValues = PaddingValues(0.dp)
 ){
+
     navigation<Screen.HomeGraph>(
         startDestination = Screen.HomeGraph.HomeScreen
     ){
@@ -222,15 +226,32 @@ fun NavGraphBuilder.homeNavGraph(
         composable<Screen.HomeGraph.ExportTripScreen> {
             val route = it.toRoute<Screen.HomeGraph.ExportTripScreen>()
 
-            ExportTripPage(
+            ExportTripRoot(
                 tripId = route.tripId,
-                modifier = Modifier.padding(innerPadding)
+                modifier = Modifier.padding(innerPadding),
+                navToSettings = {
+                    navController.navigate(Screen.SettingsScreen)
+                },
+                navUp = {
+                    navController.navigateUp()
+                }
             )
 
         }
         composable<Screen.HomeGraph.ImportTripScreen> {
-            ImportTripPage(
-                modifier = Modifier.padding(innerPadding)
+            LaunchedEffect(Unit) {
+                println("hide navbar")
+                navBarVisible(false)
+            }
+            ImportTripRoot(
+                tripJsonUri = tripJsonUri,
+                modifier = Modifier.padding(innerPadding),
+                navToSettings = {
+                    navController.navigate(Screen.SettingsScreen)
+                },
+                navUp = {
+                    navController.navigateUp()
+                }
             )
         }
     }

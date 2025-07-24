@@ -281,7 +281,7 @@ internal class PickerViewModel(
         endReached = false
         _state.update {
             ImagePickerState(
-                selectedImage = it.selectedImage
+                //selectedImage = it.selectedImage
             )
         }
     }

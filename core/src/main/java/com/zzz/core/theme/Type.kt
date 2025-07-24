@@ -2,9 +2,11 @@ package com.zzz.core.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import com.zzz.core.R
 
 // Set of Material typography styles to start with
 val Typography = Typography(
@@ -31,4 +33,36 @@ val Typography = Typography(
         letterSpacing = 0.5.sp
     )
     */
+)
+val Deca = FontFamily(
+    Font(R.font.lexend_deca_black),
+    Font(R.font.lexend_deca_extrabold),
+    Font(R.font.lexend_deca_bold),
+    Font(R.font.lexend_deca_medium),
+    Font(R.font.lexend_deca_regular),
+    Font(R.font.lexend_deca_light),
+    Font(R.font.lexend_deca_extra_light),
+)
+val wanderaTypography = Typography(
+    bodyLarge = TextStyle(
+        fontFamily = Deca,//FontFamily.Default ,
+        fontWeight = FontWeight.Normal ,
+        fontSize = 20.sp ,
+        lineHeight = 24.sp ,
+        letterSpacing = 0.2.sp
+    ),
+    bodyMedium = TextStyle(
+        fontFamily = Deca,//FontFamily.Default ,
+        fontWeight = FontWeight.Light ,
+        fontSize = 17.sp ,
+        lineHeight = 24.sp ,
+        letterSpacing = 0.5.sp,
+    ),
+    bodySmall = TextStyle(
+        fontFamily = Deca,//FontFamily.Default ,
+        fontWeight = FontWeight.Normal ,
+        fontSize = 13.sp ,
+        lineHeight = 16.sp ,
+        //letterSpacing = 0.5.sp
+    ),
 )

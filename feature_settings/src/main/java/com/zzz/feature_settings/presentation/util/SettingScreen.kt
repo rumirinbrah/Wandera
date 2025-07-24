@@ -14,4 +14,7 @@ internal sealed class SettingScreen {
     @Serializable
     data object ChecklistBoxSettings : SettingScreen()
 
+    @Serializable
+    data object ImportInstructionsPage : SettingScreen()
+
 }

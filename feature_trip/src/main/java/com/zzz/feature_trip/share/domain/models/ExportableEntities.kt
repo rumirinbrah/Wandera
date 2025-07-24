@@ -3,7 +3,7 @@ package com.zzz.feature_trip.share.domain.models
 import kotlinx.serialization.Serializable
 
 /**
- * Entity used while sharing a Trip
+ * Actual entity used while sharing a Trip. All the exportable entities are mapped without their IDs
  */
 @Serializable
 data class ExportableTripWithDays(
@@ -11,6 +11,9 @@ data class ExportableTripWithDays(
     val days : List<ExportableDayWithTodos>
 )
 
+/**
+ * wrapper for Trip entity
+ */
 @Serializable
 data class ExportableTrip(
     val tripName : String,

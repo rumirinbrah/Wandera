@@ -2,6 +2,7 @@ package com.zzz.feature_trip.share.data.repo
 
 import com.zzz.core.domain.result.Result
 import com.zzz.data.trip.source.TripSource
+import com.zzz.feature_trip.share.data.repo.util.ShareUtils
 import com.zzz.feature_trip.share.domain.result.ExportProgress
 import com.zzz.feature_trip.share.domain.models.ExportableTripWithDays
 import com.zzz.feature_trip.share.domain.models.toExportableDayWithTodos
@@ -27,17 +28,18 @@ class TripExportManager(
         }
 
     /**
-     * ADD ENSURE ACTIVES!
+     * Fetches Trip details from the DB, maps it to Exportable Entities and encodes the data into a Json string.
+     * @param tripId Trip ID
+     * @return A Flow of Result of progress or error. The progress returns the encoded json when successful
      */
     override suspend fun exportTripToJson(tripId: Long): Flow<Result<ExportProgress , ExportError>> {
         return flow {
-            //withContext(Dispatchers.IO) {
                 try {
                     val tripWithDays = tripSource.getTripWithDaysAndTodosById(tripId)
                     val trip = tripWithDays.trip
                     emit(
                         Result.Success(
-                            ExportProgress(progressMsg = "Preparing Trip...")
+                            ExportProgress(progressMsg = ShareUtils.STAGE_1)
                         )
                     )
 
@@ -47,28 +49,27 @@ class TripExportManager(
                     val daysWithTodos = tripWithDays.daysWithTodos
                     emit(
                         Result.Success(
-                            ExportProgress(progressMsg = "Fetching your itinerary...")
+                            ExportProgress(progressMsg = ShareUtils.STAGE_2)
                         )
                     )
 
-
                     delay(1000)
-                    val days = daysWithTodos
                     emit(
                         Result.Success(
-                            ExportProgress(progressMsg = "Handling TODOs...")
+                            ExportProgress(progressMsg =  ShareUtils.STAGE_3)
                         )
                     )
 
 
                     delay(1000)
-                    val mappedDays = days.map {
+                    //mapping the data to exportable entities
+                    val mappedDays = daysWithTodos.map {
                         it.toExportableDayWithTodos()
                     }
                     val mappedTrip = trip.toExportableTrip()
                     emit(
                         Result.Success(
-                            ExportProgress(progressMsg = "Almost there...")
+                            ExportProgress(progressMsg =  ShareUtils.STAGE_4)
                         )
                     )
 
@@ -82,7 +83,7 @@ class TripExportManager(
                     emit(
                         Result.Success(
                             ExportProgress(
-                                progressMsg = "Good to go!",
+                                progressMsg =  ShareUtils.SUCCESS,
                                 done = true,
                                 exportedTrip = encodedJson
                             )
@@ -96,14 +97,10 @@ class TripExportManager(
                     e.printStackTrace()
                     emit(
                         Result.Error(
-                            ExportError.Error("An unknown error occurred sharing the trip!")
+                            ExportError.Error(ShareUtils.ERROR_UNKNOWN)
                         )
                     )
                 }
-
-
-            //}
-
         }.flowOn(Dispatchers.IO)
 
     }

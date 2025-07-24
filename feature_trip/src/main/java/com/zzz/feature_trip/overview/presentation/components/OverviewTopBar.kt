@@ -70,7 +70,7 @@ internal fun OverviewTopBar(
             .fillMaxWidth()
             .clip(MaterialTheme.shapes.large) ,
         verticalAlignment = Alignment.CenterVertically ,
-        horizontalArrangement = Arrangement.SpaceBetween
+        horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         CircularIconButton(
             modifier = Modifier
@@ -95,10 +95,11 @@ internal fun OverviewTopBar(
             textAlign = TextAlign.Center
         )
 
+
         CircularIconButton(
             modifier = Modifier
                 .padding(4.dp) ,
-            icon = com.zzz.core.R.drawable.download_done ,
+            icon = com.zzz.core.R.drawable.delete ,
             contentDescription = "Go back" ,
             background = Color.DarkGray.copy(0.4f) ,
             onBackground = Color.White ,
@@ -106,6 +107,8 @@ internal fun OverviewTopBar(
 
             }
         )
+
+
 
     }
 }

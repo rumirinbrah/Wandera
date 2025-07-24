@@ -10,6 +10,7 @@ import com.zzz.core.domain.result.Result
 import com.zzz.core.domain.result.map
 import com.zzz.core.platform.files.WanderaFileManager
 import com.zzz.core.platform.files.util.FileManagerError
+import com.zzz.data.note.source.ExpenseNoteSource
 import com.zzz.data.trip.source.DaySource
 import com.zzz.data.trip.source.TodoSource
 import com.zzz.data.trip.source.TripSource
@@ -17,11 +18,10 @@ import com.zzz.feature_trip.share.data.repo.TripExportManager
 import com.zzz.feature_trip.share.data.repo.TripImportManager
 import com.zzz.feature_trip.share.domain.models.ShareEvents
 import com.zzz.feature_trip.share.domain.result.ExportError
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
@@ -31,6 +31,7 @@ class ShareTripViewModel(
     private val tripSource: TripSource,
     private val daySource: DaySource,
     private val todoSource: TodoSource,
+    private val noteSource : ExpenseNoteSource,
     private val context: Context
 ) : ViewModel() {
 
@@ -47,6 +48,25 @@ class ShareTripViewModel(
 
 
 
+    internal fun onAction(action: ShareAction){
+        when(action){
+            is ShareAction.ExportTrip -> {
+                exportTrip(action.tripId)
+            }
+
+            is ShareAction.ExportTripJsonFromUri -> {
+                exportTripJsonFromUri(action.jsonUri)
+            }
+        }
+    }
+
+    // --- EXPORT ---
+    /**
+     * Fetches Trip details and the itinerary from DB. Once successfully fetched, uses ExportManager and converts data to JSON.
+     * Once ready, calls convertEncodedTripJsonToFileUri()
+     * @param tripId Id of the trip
+     * @author zyzz
+     */
     fun exportTrip(tripId: Long) {
         if(_state.value.inProgress){
             return
@@ -57,24 +77,33 @@ class ShareTripViewModel(
             }
 
             _state.update {
-                it.copy(inProgress = true)
+                it.copy(
+                    inProgress = true,
+                    primaryButtonVisible = false
+                )
             }
-            exportManager = TripExportManager(tripSource)
+            val tripName = tripSource.getTripNameById(tripId)
 
+
+            exportManager = TripExportManager(tripSource)
 
             exportManager.exportTripToJson(tripId)
                 .onCompletion {
-                    _state.update {
-                        it.copy(inProgress = false)
-                    }
+//                    _state.update {
+//                        it.copy(inProgress = false)
+//                    }
                     log {
                         "exportTripToJson flow complete"
                     }
                 }
                 .collect { result ->
+                    ensureActive()
+
                     when (result) {
+
                         is Result.Error -> {
                             when(val error = result.error){
+
                                 is ExportError.Error ->{
                                     _state.update {
                                         it.copy(
@@ -98,7 +127,10 @@ class ShareTripViewModel(
                                 )
                             }
                             result.data.exportedTrip?.let{
-                                handleEncodedJson(it)
+                                convertEncodedTripJsonToFileUri(
+                                    encodedJson = it ,
+                                    tripName = tripName ?: "Untitled"
+                                )
                             }
                         }
                     }
@@ -106,10 +138,15 @@ class ShareTripViewModel(
         }
     }
 
-    private fun handleEncodedJson(encodedJson : String){
+    /**
+     * Converts the encoded JSON to a FileUri using Wandera FileManager. Returns the URI when done.
+     * @param encodedJson Trip encoded to JSON
+     * @param tripName Name of the Trip
+     */
+    private fun convertEncodedTripJsonToFileUri(encodedJson : String , tripName: String){
         viewModelScope.launch {
             log {
-                "handleEncodedJson : Handling encoded JSON..."
+                "convertEncodedTripJsonToFileUri : Handling encoded JSON..."
             }
             _state.update {
                 it.copy(
@@ -121,11 +158,18 @@ class ShareTripViewModel(
             val result = fileManager.writeJsonToFile(
                 context,
                 json = encodedJson,
-                tripName = "JAPAAAAAN_HARDCODE"
+                tripName = tripName
             )
+            ensureActive()
+
             when(result){
+
                 is Result.Error -> {
+                    log {
+                        "convertEncodedTripJsonToFileUri : Error"
+                    }
                     when(val error =result.error){
+
                         is FileManagerError.WriteError -> {
                             _state.update {
                                 it.copy(
@@ -138,6 +182,9 @@ class ShareTripViewModel(
 
                 }
                 is Result.Success -> {
+                    log {
+                        "convertEncodedTripJsonToFileUri : Success"
+                    }
                     _state.update {
                         it.copy(
                             inProgress = false,
@@ -145,7 +192,7 @@ class ShareTripViewModel(
                         )
                     }
                     result.data.fileUri?.let {
-                        shareJsonEncodedTrip(it, "JAPAAAAAN_HARDCODE")
+                        sendUriShareIntentToUI(it, tripName)
                     }
                 }
             }
@@ -154,16 +201,54 @@ class ShareTripViewModel(
         }
     }
 
+    /**
+     * Creates an intent for Exported Trip Uri and sends an event to the UI.
+     * @param fileUri Uri of encoded trip
+     * @param tripName Trip name
+     */
+    private suspend fun sendUriShareIntentToUI(fileUri : Uri , tripName : String){
+        log {
+            "shareJsonEncodedTrip : Creating intent"
+        }
+        val shareIntent = Intent(Intent.ACTION_SEND).apply {
+            type = "application/json"
+
+            putExtra(Intent.EXTRA_STREAM , fileUri)
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+
+            //--- Subject For Email ---
+            putExtra(Intent.EXTRA_SUBJECT,"Hey, here's my trip to $tripName")
+            putExtra(Intent.EXTRA_TEXT, "Here's a detailed itinerary for $tripName, open it with Wandera to save it!")
+        }
+        val chooserIntent = Intent.createChooser(shareIntent,"Share Trip via...")
+        log {
+            "shareJsonEncodedTrip : Created intent"
+        }
+//        context.startActivity(chooserIntent)
+        _events.send(ShareEvents.IntentGenerated(chooserIntent))
+        log {
+            "shareJsonEncodedTrip : Shared intent to UI!"
+        }
+    }
+
+
+    // --- IMPORT ---
+    /**
+     * When JSON is received from other apps, this function converts it back to a string using Wandera FileManager.
+     * @param jsonUri Uri of the json file
+     */
     fun exportTripJsonFromUri(jsonUri : Uri){
         log {
             "exportTripJsonFromUri : Exporting json from URI"
         }
         viewModelScope.launch {
             _state.update {
-                it.copy(inProgress = true)
+                it.copy(inProgress = true , primaryButtonVisible = false)
             }
             val fileManager = WanderaFileManager()
             val result = fileManager.readTripJsonFromUri(context,jsonUri)
+
+            ensureActive()
             when(result){
                 is Result.Error -> {
                     _state.update {
@@ -180,6 +265,7 @@ class ShareTripViewModel(
                     log {
                         "exportTripJsonFromUri : Success..."
                     }
+                    // Json str ready, import into DB
                     result.map {jsonString->
                         jsonString?.let {
                             importTrip(jsonString)
@@ -189,7 +275,12 @@ class ShareTripViewModel(
             }
         }
     }
-    fun importTrip(encodedTripJson : String){
+
+    /**
+     * For importing a Trip into the DB. Uses the string decoded from JSON file.
+     * @param encodedTripJson Json file rep the Trip
+     */
+    private fun importTrip(encodedTripJson : String){
 //        if(_state.value.inProgress){
 //            return
 //        }
@@ -201,7 +292,7 @@ class ShareTripViewModel(
             _state.update {
                 it.copy(inProgress = true)
             }
-            importManager = TripImportManager(tripSource, daySource, todoSource)
+            importManager = TripImportManager(tripSource, daySource, todoSource , noteSource)
 
             importManager.importTripFromJson(encodedTripJson)
                 .onCompletion {
@@ -216,6 +307,8 @@ class ShareTripViewModel(
                     }
                 }
                 .collect{result->
+                    ensureActive()
+
                     when (result) {
                         is Result.Error -> {
                             when(val error = result.error){
@@ -223,7 +316,8 @@ class ShareTripViewModel(
                                     _state.update {
                                         it.copy(
                                             progressMsg = error.errorMsg ,
-                                            encodedTrip = null
+                                            encodedTrip = null,
+                                            inProgress = false,
                                         )
                                     }
                                 }
@@ -247,30 +341,7 @@ class ShareTripViewModel(
         }
 
     }
-    private suspend fun shareJsonEncodedTrip(fileUri : Uri, tripName : String){
-        log {
-            "shareJsonEncodedTrip : Creating intent"
-        }
-        val shareIntent = Intent(Intent.ACTION_SEND).apply {
-            type = "application/json"
 
-            putExtra(Intent.EXTRA_STREAM , fileUri)
-            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-
-            //--- subject ---
-            putExtra(Intent.EXTRA_SUBJECT,"Hey, here's my trip to $tripName")
-            putExtra(Intent.EXTRA_TEXT, "Here's a detailed itinerary for $tripName, open it with Wandera to save it!")
-        }
-        val chooserIntent = Intent.createChooser(shareIntent,"Share Trip via...")
-        log {
-            "shareJsonEncodedTrip : Created intent"
-        }
-//        context.startActivity(chooserIntent)
-        _events.send(ShareEvents.IntentGenerated(chooserIntent))
-        log {
-            "shareJsonEncodedTrip : Shared intent to UI!"
-        }
-    }
 
     private fun log(msg : ()->String){
         if(loggingEnabled){
@@ -278,5 +349,11 @@ class ShareTripViewModel(
         }
     }
 
+    override fun onCleared() {
+        super.onCleared()
+        log {
+            "Clearing vm..."
+        }
+    }
 
 }

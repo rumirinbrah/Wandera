@@ -7,15 +7,6 @@ import kotlinx.coroutines.flow.Flow
 
 interface TripSource {
 
-    //GET
-    fun getTrips() : Flow<List<TripWithDaysAndTodos>>
-    fun getTripsWithUserDocs() : Flow<List<TripWithDays>>
-
-    suspend fun getTripById(tripId : Long) : Trip
-
-    //get
-    suspend fun getTripWithDaysAndTodosById(id: Long) : TripWithDaysAndTodos
-
     //add
     suspend fun addTrip(trip: Trip) : Long
 
@@ -24,5 +15,13 @@ interface TripSource {
 
     //delete
     suspend fun deleteTripById(id : Long) : Int
+
+    //---GET---
+
+    fun getTrips() : Flow<List<TripWithDaysAndTodos>>
+    fun getTripsWithUserDocs() : Flow<List<TripWithDays>>
+    suspend fun getTripWithDaysAndTodosById(id: Long) : TripWithDaysAndTodos
+    suspend fun getTripById(tripId : Long) : Trip
+    suspend fun getTripNameById(tripId: Long) : String?
 
 }

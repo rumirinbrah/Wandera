@@ -20,6 +20,7 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -150,13 +151,20 @@ fun WanderaImagePicker(
             )
         }
     }
+    DisposableEffect(Unit) {
+        onDispose {
+            pickerViewModel.clearViewModel()
+
+        }
+    }
     //callback
     LaunchedEffect(state.selectedImage) {
         state.selectedImage?.let {
             onImagePicked(it)
-            delay(500)
-            pickerViewModel.clearViewModel()
-            launcherState.dismiss()
+            //delay(500)
+            //pickerViewModel.clearViewModel()
+            //launcherState.dismiss()
+            //sheetState.dismiss()
         }
     }
 
@@ -242,7 +250,8 @@ fun WanderaImagePicker(
                             //HIDE SHEET
                             if (targetState == SheetState.CLOSED) {
                                 launcherState.dismiss()
-                                pickerViewModel.clearViewModel()
+                                //sheetState.dismiss()
+                                //pickerViewModel.clearViewModel()
                             }
 
                         }

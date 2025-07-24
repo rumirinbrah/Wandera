@@ -1,9 +1,12 @@
 package com.zzz.feature_trip.share.data.repo
 
 import com.zzz.core.domain.result.Result
+import com.zzz.data.note.model.ExpenseNote
+import com.zzz.data.note.source.ExpenseNoteSource
 import com.zzz.data.trip.source.DaySource
 import com.zzz.data.trip.source.TodoSource
 import com.zzz.data.trip.source.TripSource
+import com.zzz.feature_trip.share.data.repo.util.ShareUtils
 import com.zzz.feature_trip.share.domain.models.ExportableTripWithDays
 import com.zzz.feature_trip.share.domain.models.toDayEntity
 import com.zzz.feature_trip.share.domain.models.toTodoLocationEntity
@@ -16,13 +19,15 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import kotlin.coroutines.cancellation.CancellationException
 
 class TripImportManager(
     private val tripSource: TripSource,
     private val daySource: DaySource,
-    private val todoSource : TodoSource
+    private val todoSource : TodoSource,
+    private val noteSource: ExpenseNoteSource
 ) :TripImportSource{
 
     override val json: Json
@@ -31,11 +36,15 @@ class TripImportManager(
             encodeDefaults = true
         }
 
+    /**
+     * Converts the encoded json to DB entities and inserts them!
+     * @return A Flow of Result of progress or error. The ImportProgress returns inProgress false when done
+     */
     override suspend fun importTripFromJson(encodedTripJson: String): Flow<Result<ImportProgress , ExportError>> {
         return flow {
             try {
                 emit(
-                    Result.Success(ImportProgress(progressMsg = "Importing Trip..."))
+                    Result.Success(ImportProgress(progressMsg = ShareUtils.STAGE_1))
                 )
 
                 delay(1000)
@@ -45,7 +54,7 @@ class TripImportManager(
                 )
                 val exportableDayWithTodos = exportableTrip.days
                 emit(
-                    Result.Success(ImportProgress(progressMsg = "Preparing data..."))
+                    Result.Success(ImportProgress(progressMsg = ShareUtils.STAGE_2))
                 )
 
                 delay(1000)
@@ -54,8 +63,9 @@ class TripImportManager(
                     val trip = exportableTrip.trip.toTripEntity()
                     tripSource.addTrip(trip)
                 }
+                noteSource.addNote(ExpenseNote(tripId = tripId))
                 emit(
-                    Result.Success(ImportProgress(progressMsg = "Adding itinerary..."))
+                    Result.Success(ImportProgress(progressMsg = ShareUtils.STAGE_3))
                 )
 
                 delay(1000)
@@ -68,22 +78,38 @@ class TripImportManager(
 
                     // --- ADD TODOS ----
                     it.todos.onEach { exportableTodo->
-                        val todo = exportableTodo.toTodoLocationEntity().copy(dayId = dayId)
+                        val todo = exportableTodo.toTodoLocationEntity(dayId)
                         todoSource.addTodo(todo)
                     }
                 }
+                val tripName = tripSource.getTripNameById(tripId) ?:"Unknown"
                 emit(
-                    Result.Success(ImportProgress(progressMsg = "Trip saved!" , inProgress = false))
+                    Result.Success(ImportProgress(progressMsg = "$tripName ${ShareUtils.SAVED}" , inProgress = false))
                 )
 
 
-            }catch (e: CancellationException) {
-                throw e
-            } catch (e: Exception) {
+            }catch (e: SerializationException) {
                 e.printStackTrace()
                 emit(
                     Result.Error(
-                        ExportError.Error("An unknown error occurred importing the Trip!")
+                        ExportError.Error(ShareUtils.SERIALIZATION_EXCEPTION)
+                    )
+                )
+            }catch (e: IllegalArgumentException) {
+                e.printStackTrace()
+                emit(
+                    Result.Error(
+                        ExportError.Error(ShareUtils.ILLEGAL_ARGS)
+                    )
+                )
+
+            }catch (e: CancellationException) {
+                throw e
+            }  catch (e: Exception) {
+                e.printStackTrace()
+                emit(
+                    Result.Error(
+                        ExportError.Error(ShareUtils.ERROR_UNKNOWN)
                     )
                 )
 
