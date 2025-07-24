@@ -26,7 +26,7 @@ import androidx.compose.ui.unit.sp
 fun ActionButtonHeader(
     @DrawableRes actionIcon: Int ,
     actionDescription: String? = null ,
-    title : String ,
+    title : String? ,
     fontSize : TextUnit = 20.sp,
     fontWeight : FontWeight = FontWeight.Bold,
     textColor : Color = MaterialTheme.colorScheme.onBackground.copy(0.8f),
@@ -49,14 +49,16 @@ fun ActionButtonHeader(
                 modifier = Modifier.size(30.dp)
             )
         }
-        Text(
-            title ,
-            modifier = Modifier,
-            fontSize = fontSize,
-            fontWeight = fontWeight,
-            color = textColor,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
-        )
+        title?.let {
+            Text(
+                title ,
+                modifier = Modifier,
+                fontSize = fontSize,
+                fontWeight = fontWeight,
+                color = textColor,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
     }
 }

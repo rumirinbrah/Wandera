@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.zzz.core.presentation.buttons.CircularIconButton
+import com.zzz.core.presentation.buttons.ElevatedTextButton
 import com.zzz.core.presentation.buttons.NormalButton
 import com.zzz.core.presentation.components.ImageComponent
 import com.zzz.core.presentation.components.VerticalSpace
@@ -150,10 +151,10 @@ private fun AddDayPage(
                         onClick = {
                             backHandlerDialog = true
                         } ,
-                        contentDescription = "cancel" ,
-                        background = MaterialTheme.colorScheme.surfaceContainer ,
-                        onBackground = MaterialTheme.colorScheme.onSurfaceVariant ,
-                        verticalPadding = 4.dp ,
+                        contentDescription = "canel day creation" ,
+                        verticalPadding = 4.dp,
+                        background = Color.Gray.copy(0.1f),
+                        onBackground = MaterialTheme.colorScheme.onBackground
                     )
                     NormalButton(
                         title = "Save" ,
@@ -257,7 +258,7 @@ private fun AddDayPage(
                     onClick = {
                         onAction(CreateAction.DayActions.OnDialogVisibilityChange(true))
                     } ,
-                    iconSize = 30.dp
+                    iconSize = 30.dp,
                 )
 
             }

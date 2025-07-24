@@ -31,6 +31,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.zzz.core.presentation.components.CheckboxCircular
+import com.zzz.core.presentation.modifiers.customShadow
 import com.zzz.core.presentation.modifiers.drawStrikethroughLine
 import com.zzz.core.presentation.modifiers.trapeziumShape
 import com.zzz.core.theme.successGreen
@@ -96,7 +97,7 @@ fun ChecklistItem(
                     onCheck(item.id , it)
                 },
                 onBackground = successGreen,
-                background = MaterialTheme.colorScheme.surface
+                background = MaterialTheme.colorScheme.surface,
             )
             Text(
                 item.title,

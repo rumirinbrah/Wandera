@@ -19,7 +19,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 
 /**
  * @author zyzz
@@ -65,6 +67,9 @@ fun ElevatedTextButton(
     onClick: () -> Unit ,
     enabled : Boolean = true,
     contentDescription : String? = null,
+    fontSize : TextUnit = 16.sp,
+    verticalPadding : Dp = 8.dp,
+    horizontalPadding : Dp = 16.dp,
     modifier: Modifier = Modifier ,
 ) {
     Box (
@@ -81,8 +86,11 @@ fun ElevatedTextButton(
                 enabled = enabled,
                 onClick = onClick
             )
-            .padding(vertical = 8.dp , horizontal = 16.dp) ,
+            .padding(vertical = verticalPadding , horizontal = horizontalPadding) ,
     ){
-        Text(text, color = MaterialTheme.colorScheme.onBackground)
+        Text(
+            text, color = MaterialTheme.colorScheme.onBackground,
+            fontSize =  fontSize
+        )
     }
 }

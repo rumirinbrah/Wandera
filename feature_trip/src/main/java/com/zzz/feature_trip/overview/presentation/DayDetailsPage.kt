@@ -10,11 +10,15 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -23,11 +27,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.drawOutline
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -35,7 +46,9 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.zzz.core.presentation.buttons.CircularIconButton
 import com.zzz.core.presentation.components.ImageComponentWithDefaultBackground
+import com.zzz.core.presentation.components.ImageComponentWithDefaultImage
 import com.zzz.core.presentation.components.VerticalSpace
+import com.zzz.core.presentation.headers.DateText
 import com.zzz.core.presentation.modifiers.baldyShape
 import com.zzz.core.theme.WanderaTheme
 import com.zzz.data.trip.DayWithTodos
@@ -74,6 +87,11 @@ private fun DayDetailsPage(
     val onBackground = MaterialTheme.colorScheme.onBackground
 
     val density = LocalDensity.current
+    val localConfig = LocalConfiguration.current
+    val screenHeight = remember {
+        localConfig.screenHeightDp.dp
+    }
+    val columnScrollState = rememberScrollState()
 
     val day = remember {
         dayWithTodos?.day
@@ -99,6 +117,8 @@ private fun DayDetailsPage(
             .background(
                 background
             )
+
+        .verticalScroll(columnScrollState)
     ) {
         if (day == null) {
             Text(
@@ -107,23 +127,26 @@ private fun DayDetailsPage(
                 color = MaterialTheme.colorScheme.onBackground.copy(0.7f)
             )
         } else {
-            Box {
+            Box(
+                Modifier.height(screenHeight/2)
+            ) {
 
                 //image, title, nav button
-                ImageComponentWithDefaultBackground(
+                ImageComponentWithDefaultImage(
                     title = day.locationName ,
                     imageUri = day.image ,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .fillMaxHeight(0.45f)
+                        .fillMaxHeight()
                 )
                 Box(
-                    Modifier.fillMaxWidth()
+                    Modifier
+                        .fillMaxWidth()
                         .height(40.dp)
                         .drawBehind {
                             drawRect(
                                 brush = Brush.verticalGradient(
-                                    listOf(background.copy(0.5f), Color.Transparent)
+                                    listOf(background.copy(0.5f) , Color.Transparent)
                                 )
                             )
                         }
@@ -132,7 +155,7 @@ private fun DayDetailsPage(
                 CircularIconButton(
                     modifier = Modifier
                         .statusBarsPadding()
-                        .padding(4.dp)
+                        .padding(16.dp)
                         .align(Alignment.TopStart) ,
                     icon = com.zzz.core.R.drawable.arrow_back ,
                     contentDescription = "Go back" ,
@@ -145,44 +168,58 @@ private fun DayDetailsPage(
                 DayTitleCard(
                     day.locationName ,
                     modifier = Modifier.align(Alignment.CenterStart)
+                        .padding(start = 16.dp)
                 )
             }
 
             Box(
                 Modifier.offset(y = (-40).dp)
-            ){
+            ) {
                 Column(
                     Modifier
                         .fillMaxSize()
                         .drawBehind {
-                            val outerBox = baldyShape().createOutline(size, layoutDirection, density)
-                            val innerBox = baldyShape(30.dp).createOutline(size, layoutDirection, density)
+                            val outerBox =
+                                baldyShape().createOutline(size , layoutDirection , density)
+                            val innerBox =
+                                baldyShape(30.dp).createOutline(size , layoutDirection , density)
 
                             drawOutline(
                                 outerBox ,
-                                onBackground,
+                                onBackground ,
                                 alpha = 0.4f
                             )
-                            drawOutline(innerBox, background)
+                            drawOutline(innerBox , background)
                         }
                         .padding(horizontal = 16.dp) ,
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Spacer(Modifier.fillMaxHeight(0.1f))
+//                    Spacer(Modifier.fillMaxHeight(0.1f))
+                    VerticalSpace(60.dp)
 
                     LazyColumn(
-                        Modifier.fillMaxWidth() ,
+                        Modifier
+                            .fillMaxWidth()
+                            .heightIn(max = 400.dp) ,
                         verticalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
                         item {
                             Text(
                                 "TODOs" ,
-                                fontSize = 18.sp ,
+                                fontSize = 20.sp ,
                                 fontWeight = FontWeight.Bold ,
                             )
+
+                            if (todos.isNullOrEmpty()) {
+                                Text(
+                                    "Edit your trips and add some!" ,
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                            }
+
                         }
                         items(
-                            todos!! ,
+                            todos ?: emptyList() ,
                             key = { it.id }
                         ) { todo ->
                             TodoLocationItem(
@@ -197,12 +234,20 @@ private fun DayDetailsPage(
                             VerticalSpace()
                             Text(
                                 "Places to visit" ,
-                                fontSize = 18.sp ,
+                                fontSize = 20.sp ,
                                 fontWeight = FontWeight.Bold ,
                             )
+                            if (locations.isNullOrEmpty()) {
+                                Text(
+                                    "Looks like you haven't added anything" ,
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                            }
+
+
                         }
                         items(
-                            locations!! ,
+                            locations ?: emptyList() ,
                             key = { it.id }
                         ) { todo ->
                             TodoLocationItem(
@@ -213,10 +258,19 @@ private fun DayDetailsPage(
                                 isViewOnly = true
                             )
                         }
+                        item {
+                            VerticalSpace()
+                        }
                     }
+
+                    DateText(
+                        Modifier.align(Alignment.CenterHorizontally)
+                    )
+                    VerticalSpace()
+
+
                 }
             }
-
 
 
         }
@@ -281,12 +335,13 @@ private fun DayDetailsPageRevamp(
                         .fillMaxHeight(0.45f)
                 )
                 Box(
-                    Modifier.fillMaxWidth()
+                    Modifier
+                        .fillMaxWidth()
                         .height(40.dp)
                         .drawBehind {
                             drawRect(
                                 brush = Brush.verticalGradient(
-                                    listOf(background.copy(0.5f), Color.Transparent)
+                                    listOf(background.copy(0.5f) , Color.Transparent)
                                 )
                             )
                         }
@@ -313,20 +368,22 @@ private fun DayDetailsPageRevamp(
 
             Box(
                 Modifier.offset(y = (-40).dp)
-            ){
+            ) {
                 Column(
                     Modifier
                         .fillMaxSize()
                         .drawBehind {
-                            val outerBox = baldyShape().createOutline(size, layoutDirection, density)
-                            val innerBox = baldyShape(30.dp).createOutline(size, layoutDirection, density)
+                            val outerBox =
+                                baldyShape().createOutline(size , layoutDirection , density)
+                            val innerBox =
+                                baldyShape(30.dp).createOutline(size , layoutDirection , density)
 
                             drawOutline(
                                 outerBox ,
-                                onBackground,
+                                onBackground ,
                                 alpha = 0.4f
                             )
-                            drawOutline(innerBox, background)
+                            drawOutline(innerBox , background)
                         }
                         .padding(horizontal = 16.dp) ,
                     verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -379,7 +436,6 @@ private fun DayDetailsPageRevamp(
                     }
                 }
             }
-
 
 
         }

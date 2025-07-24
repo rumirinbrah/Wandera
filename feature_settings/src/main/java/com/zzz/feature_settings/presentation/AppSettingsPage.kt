@@ -13,6 +13,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -30,6 +31,7 @@ import com.zzz.feature_settings.presentation.components.SettingsItem
 import com.zzz.feature_settings.presentation.components.SettingsSection
 import com.zzz.feature_settings.presentation.layout.ChecklistBoxSettingsPage
 import com.zzz.feature_settings.presentation.layout.HomeLayoutSettingsPage
+import com.zzz.feature_settings.presentation.share.ImportInstructionsPage
 import com.zzz.feature_settings.presentation.util.SettingScreen
 import com.zzz.feature_settings.presentation.viewmodel.SettingsViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -57,12 +59,9 @@ fun AppSettingsRoot(
                 modifier = Modifier ,
                 navUp = navUp,
                 navToThemeSettings = navToThemeSettings,
-                navToHomeLayoutSettings = {
-                    navController.navigate(SettingScreen.HomeLayoutSettings)
-                } ,
-                navToChecklistSettings = {
-                    navController.navigate(SettingScreen.ChecklistBoxSettings)
-                } ,
+                onNav = {route->
+                    navController.navigate(route)
+                }
             )
         }
         composable<SettingScreen.HomeLayoutSettings> {
@@ -81,6 +80,14 @@ fun AppSettingsRoot(
                 }
             )
         }
+        composable<SettingScreen.ImportInstructionsPage> {
+            ImportInstructionsPage(
+                modifier = Modifier,
+                navUp = {
+                    navController.navigateUp()
+                }
+            )
+        }
     }
 
 
@@ -90,17 +97,19 @@ fun AppSettingsRoot(
 internal fun AppSettingsPage(
     navUp: () -> Unit,
     navToThemeSettings: () -> Unit ,
-    navToHomeLayoutSettings: () -> Unit ,
-    navToChecklistSettings: () -> Unit ,
+    onNav : (SettingScreen)->Unit,
     modifier: Modifier = Modifier
 ) {
 
     val scrollState = rememberScrollState()
 
+
     Box(
         modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
+            .background(
+            MaterialTheme.colorScheme.background
+            )
     ) {
         Column(
             Modifier
@@ -119,6 +128,20 @@ internal fun AppSettingsPage(
             )
             VerticalSpace()
 
+            SettingsSection(
+                sectionTitle = "Share Trips"
+            ) {
+                SettingsItem(
+                    icon = com.zzz.core.R.drawable.share ,
+                    title = "Importing trips in Wandera" ,
+                    subTitle = "How in the world do I even add the trips shared with me?",
+                    contentColor = MaterialTheme.colorScheme.onBackground ,
+                    onClick = {
+                        onNav(SettingScreen.ImportInstructionsPage)
+                    },
+                    iconTint = Color(0xFFFA7070)
+                )
+            }
             //layout
             SettingsSection(
                 sectionTitle = "Customize Layout"
@@ -130,23 +153,23 @@ internal fun AppSettingsPage(
                         icon = com.zzz.core.R.drawable.list_layout ,
                         title = "Home layout settings" ,
                         subTitle = "Change the way items appear on your home screen!" ,
-                        containerColor = MaterialTheme.colorScheme.surfaceContainer ,
                         contentColor = MaterialTheme.colorScheme.onBackground ,
-                        shadowOffsetY = 5f ,
-                        shadowAlpha = 0.2f ,
+                        //shadowOffsetY = 5f ,
+                        //shadowAlpha = 0.2f ,
                         onClick = {
-                            navToHomeLayoutSettings()
+//                            navToHomeLayoutSettings()
+                            onNav(SettingScreen.HomeLayoutSettings)
                         }
                     )
                     SettingsItem(
                         icon = com.zzz.core.R.drawable.download_done ,
-                        iconTint = successGreen ,
+                        iconTint = Color(0xFF58E85E) ,
                         title = "Checklist container settings" ,
                         subTitle = "Change shape of the checklist containers." ,
-                        containerColor = MaterialTheme.colorScheme.surfaceContainer ,
                         contentColor = MaterialTheme.colorScheme.onBackground ,
                         onClick = {
-                            navToChecklistSettings()
+//                            navToChecklistSettings()
+                            onNav(SettingScreen.ChecklistBoxSettings)
                         }
                     )
                 }
@@ -159,10 +182,9 @@ internal fun AppSettingsPage(
             ) {
                 SettingsItem(
                     icon = com.zzz.core.R.drawable.moon_icon ,
-                    iconTint = Color(0xFFA94BB9) ,
+                    iconTint = Color(0xFFB23095) ,
                     title = "Theme" ,
                     subTitle = "Dark theme, Light theme, its up to you!" ,
-                    containerColor = MaterialTheme.colorScheme.surfaceContainer ,
                     contentColor = MaterialTheme.colorScheme.onBackground ,
                     onClick = {
                         navToThemeSettings()
@@ -171,36 +193,44 @@ internal fun AppSettingsPage(
             }
 
             SettingsSection(
-                sectionTitle = "Feedback"
+                sectionTitle = "Other"
             ) {
-                SettingsItem(
-                    icon = R.drawable.round_feedback_24 ,
-                    iconTint = Color(0xFFB04E4E) ,
-                    title = "Have any suggestions?" ,
-                    subTitle = "Would love to hear from you, be it feature requests or bugs." ,
-                    containerColor = MaterialTheme.colorScheme.surfaceContainer ,
-                    contentColor = MaterialTheme.colorScheme.onBackground ,
-                    onClick = {
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    SettingsItem(
+                        icon = R.drawable.round_feedback_24 ,
+                        iconTint = Color(0xFFB04E4E) ,
+                        title = "Have any suggestions?" ,
+                        subTitle = "Would love to hear from you, be it feature requests or bugs." ,
+                        contentColor = MaterialTheme.colorScheme.onBackground ,
+                        onClick = {
 
-                    }
-                )
+                        }
+                    )
+
+                    SettingsItem(
+                        icon = R.drawable.star ,
+                        iconTint = Color(0xFFF3E04D) ,
+                        title = "Rate us on PlayStore" ,
+                        subTitle = "It'll only take a few minutes, y'know?" ,
+                        contentColor = MaterialTheme.colorScheme.onBackground ,
+                        onClick = {
+
+                        }
+                    )
+                }
+
+
             }
 
-            SettingsSection(
-                sectionTitle = "Enjoying the app?"
-            ) {
-                SettingsItem(
-                    icon = R.drawable.star ,
-                    iconTint = Color(0xFFD9C843) ,
-                    title = "Rate us on PlayStore" ,
-                    subTitle = "It'll only take a few minutes, y'know?" ,
-                    containerColor = MaterialTheme.colorScheme.surfaceContainer ,
-                    contentColor = MaterialTheme.colorScheme.onBackground ,
-                    onClick = {
 
-                    }
-                )
-            }
+
+//            SettingsSection(
+//                sectionTitle = "Enjoying the app?"
+//            ) {
+//
+//            }
 
         }
     }
