@@ -127,7 +127,7 @@ fun ExpensePage(
             LazyColumn(
                 Modifier
                     .fillMaxWidth()
-                    .heightIn(max = 400.dp) ,
+                    .heightIn(max = 500.dp) ,
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 /*

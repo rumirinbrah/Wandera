@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.zzz.core.presentation.events.UIEvents
 import com.zzz.core.util.toLocalDate
 import com.zzz.core.util.toLocalDateTime
+import com.zzz.data.common.SettingsPreferences
 import com.zzz.data.note.source.ChecklistSource
 import com.zzz.data.note.source.ExpenseNoteSource
 import com.zzz.data.trip.DayWithTodos
@@ -52,6 +53,7 @@ class OverviewViewModel(
 ) : ViewModel() {
 
     private val layoutPref = ItineraryLayoutPref(context)
+    private val settingsPref = SettingsPreferences(context)
     private var sessionOnGoing = false
 
     private val _overviewState = MutableStateFlow(OverviewState())
@@ -74,7 +76,8 @@ class OverviewViewModel(
         Log.d("overviewVm" , "Init....")
         _overviewState.update {
             it.copy(
-                itineraryPagerLayout = layoutPref.isLayoutPager()
+                itineraryPagerLayout = layoutPref.isLayoutPager(),
+                trapeziumChecklist = settingsPref.isChecklistBoxTrapezium()
             )
         }
     }
@@ -440,7 +443,9 @@ class OverviewViewModel(
                 it.cancel()
             }
             _overviewState.update {
-                OverviewState()
+                OverviewState(
+                    trapeziumChecklist = it.trapeziumChecklist
+                )
             }
             sessionOnGoing = false
         }

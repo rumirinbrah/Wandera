@@ -79,6 +79,10 @@ fun AppSettingsRoot(
         composable<SettingScreen.ChecklistBoxSettings> {
             ChecklistBoxSettingsPage(
                 modifier = Modifier,
+                state = state,
+                onAction = {action->
+                    settingsViewModel.onAction(action)
+                },
                 navUp = {
                     navController.navigateUp()
                 }

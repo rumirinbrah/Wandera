@@ -215,8 +215,8 @@ fun WanderaBottomSheet(
                 BottomSheetHandle(
                     Modifier.align(Alignment.CenterHorizontally),
                     verticalPadding = 10.dp
-
                 )
+                VerticalSpace(5.dp)
                 content()
             }
         }

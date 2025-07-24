@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.PageSize
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -39,7 +38,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.max
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.zzz.core.presentation.buttons.IconTextButton
@@ -59,7 +57,7 @@ import com.zzz.core.theme.redToastSweep
 import com.zzz.data.trip.model.Day
 import com.zzz.feature_trip.overview.presentation.components.BookLikeTextField
 import com.zzz.feature_trip.overview.presentation.components.ChecklistHeader
-import com.zzz.feature_trip.overview.presentation.components.ChecklistItem
+import com.zzz.feature_trip.overview.presentation.components.ChecklistItemRoot
 import com.zzz.feature_trip.overview.presentation.components.ItineraryLayoutOptions
 import com.zzz.feature_trip.overview.presentation.components.ItineraryList
 import com.zzz.feature_trip.overview.presentation.components.ItineraryPager
@@ -76,7 +74,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
-import kotlin.math.exp
 
 @Composable
 fun TripOverviewRoot(
@@ -85,8 +82,8 @@ fun TripOverviewRoot(
     wanderaToastState: WanderaToastState ,
     navigateToDayDetails: () -> Unit ,
     navToEditTrip: (tripId: Long) -> Unit ,
-    shareTrip : (tripId: Long) -> Unit ,
-    markTripAsDone : ()->Unit = {},
+    shareTrip: (tripId: Long) -> Unit ,
+    markTripAsDone: () -> Unit = {} ,
     navigateUp: () -> Unit ,
 ) {
     val state by overviewViewModel.overviewState.collectAsStateWithLifecycle()
@@ -104,8 +101,8 @@ fun TripOverviewRoot(
         } ,
         navigateToDayDetails = navigateToDayDetails ,
         navToEditTrip = navToEditTrip ,
-        shareTrip = shareTrip,
-        markTripAsDone = markTripAsDone,
+        shareTrip = shareTrip ,
+        markTripAsDone = markTripAsDone ,
         navigateUp = navigateUp
     )
 }
@@ -128,8 +125,8 @@ private fun TripOverviewPage(
     onAction: (OverviewActions) -> Unit ,
     navigateToDayDetails: () -> Unit ,
     navToEditTrip: (tripId: Long) -> Unit ,
-    shareTrip : (tripId : Long)->Unit = {},
-    markTripAsDone : ()->Unit = {},
+    shareTrip: (tripId: Long) -> Unit = {} ,
+    markTripAsDone: () -> Unit = {} ,
     navigateUp: () -> Unit ,
 ) {
 
@@ -177,16 +174,18 @@ private fun TripOverviewPage(
 
 
     BackHandler {
-        when{
-            !state.fabCollapsed ->{
+        when {
+            !state.fabCollapsed -> {
                 onAction(OverviewActions.OnFabCollapse(true))
             }
-            wanderaSheetState.visible ->{
+
+            wanderaSheetState.visible -> {
                 scope.launch {
                     wanderaSheetState.animateTo(SheetState.CLOSED)
                 }
             }
-            else->{
+
+            else -> {
                 onAction(OverviewActions.CleanUpResources)
                 navigateUp()
             }
@@ -213,7 +212,7 @@ private fun TripOverviewPage(
             Column(
                 Modifier
                     .fillMaxSize()
-                    .verticalScroll(columnScrollState)
+                    .verticalScroll(columnScrollState, enabled = !wanderaSheetState.visible)
                     .padding(16.dp) ,
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
@@ -304,51 +303,70 @@ private fun TripOverviewPage(
                 VerticalSpace(10.dp)
                 Column {
 
-                            ChecklistHeader(
-                                collapsed = state.checklistCollapsed ,
-                                onCollapse = {
-                                    onAction(OverviewActions.OnChecklistCollapse)
-                                }
+                    ChecklistHeader(
+                        collapsed = state.checklistCollapsed ,
+                        onCollapse = {
+                            onAction(OverviewActions.OnChecklistCollapse)
+                        }
+                    )
+                    VerticalSpace(8.dp)
+
+                    AnimatedVisibility(!state.checklistCollapsed) {
+                        if (state.checklist.isEmpty()) {
+                            Text(
+                                "Seems like you haven't created a checklist..." ,
+                                color = MaterialTheme.colorScheme.onBackground.copy(0.7f)
                             )
-                            VerticalSpace(8.dp)
 
-                            AnimatedVisibility(!state.checklistCollapsed) {
-                                if(state.checklist.isEmpty()){
-                                    Text(
-                                        "Seems like you haven't created a checklist...",
-                                        color = MaterialTheme.colorScheme.onBackground.copy(0.7f)
-                                    )
+                        }
 
-                                }
-
-                                LazyColumn(
-                                    Modifier
-                                        .fillMaxWidth()
-                                        .heightIn(max = 500.dp) ,
-                                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                                ) {
-                                    items(
-                                        items = state.checklist ,
-                                        key = { it.id }
-                                    ) { item ->
-                                        ChecklistItem(
-                                            item = item ,
-                                            onCheck = { itemId , checked ->
-                                                onAction(
-                                                    OverviewActions.CheckChecklistItem(
-                                                        itemId ,
-                                                        checked
-                                                    )
-                                                )
-                                            } ,
-                                            onDelete = { itemId ->
-                                                onAction(OverviewActions.DeleteChecklistItem(itemId))
-                                            } ,
-                                            modifier = Modifier.animateItem()
+                        LazyColumn(
+                            Modifier
+                                .fillMaxWidth()
+                                .heightIn(max = 500.dp) ,
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            items(
+                                items = state.checklist ,
+                                key = { it.id }
+                            ) { item ->
+                                ChecklistItemRoot(
+                                    item = item ,
+                                    onCheck = { itemId , checked ->
+                                        onAction(
+                                            OverviewActions.CheckChecklistItem(
+                                                itemId ,
+                                                checked
+                                            )
                                         )
-                                    }
-                                }
+                                    } ,
+                                    onDelete = { itemId ->
+                                        onAction(OverviewActions.DeleteChecklistItem(itemId))
+                                    } ,
+                                    modifier = Modifier.animateItem() ,
+                                    trapeziumChecklist = state.trapeziumChecklist
+                                )
+                                /*
+                                RectangleChecklistItem(
+                                    item = item ,
+                                    onCheck = { itemId , checked ->
+                                        onAction(
+                                            OverviewActions.CheckChecklistItem(
+                                                itemId ,
+                                                checked
+                                            )
+                                        )
+                                    } ,
+                                    onDelete = { itemId ->
+                                        onAction(OverviewActions.DeleteChecklistItem(itemId))
+                                    } ,
+                                    modifier = Modifier.animateItem()
+                                )
+
+                                 */
                             }
+                        }
+                    }
 
 
                 }
@@ -367,13 +385,13 @@ private fun TripOverviewPage(
 
                 //--- Note ; Expense PAGER ---
                 HorizontalPager(
-                    state = notesExpensePagerState,
-                    verticalAlignment = Alignment.Top,
+                    state = notesExpensePagerState ,
+                    verticalAlignment = Alignment.Top ,
                     modifier = Modifier
-                        .animateContentSize(),
-                ) {page->
-                    when(page){
-                        0->{
+                        .animateContentSize() ,
+                ) { page ->
+                    when (page) {
+                        0 -> {
                             KeyboardAware {
                                 BookLikeTextField(
                                     modifier = Modifier
@@ -391,17 +409,18 @@ private fun TripOverviewPage(
                                 )
                             }
                         }
-                        1->{
+
+                        1 -> {
                             ExpensePage(
-                                totalExpense = state.totalExpense,
-                                expenses = state.expenses,
-                                groupedExpenses = state.groupedExpenses,
+                                totalExpense = state.totalExpense ,
+                                expenses = state.expenses ,
+                                groupedExpenses = state.groupedExpenses ,
                                 launchAddExpenseSheet = {
                                     scope.launch {
                                         wanderaSheetState.show()
                                     }
-                                },
-                                onExpenseItemClick = {itemId: Long ->
+                                } ,
+                                onExpenseItemClick = { itemId: Long ->
                                     onAction(OverviewActions.SelectExpenseItem(itemId))
                                     scope.launch {
                                         wanderaSheetState.show()
@@ -495,18 +514,18 @@ private fun TripOverviewPage(
             } ,
             onMarkAsDone = {
                 markTripAsDone()
-            },
+            } ,
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(end = 16.dp , bottom = 8.dp) ,
 
-        )
-        when{
-            wanderaSheetState.visible->{
+            )
+        when {
+            wanderaSheetState.visible -> {
                 AddExpenseSheet(
-                    tripId = state.trip?.id,
-                    itemId = state.selectedExpenseId,
-                    sheetState = wanderaSheetState,
+                    tripId = state.trip?.id ,
+                    itemId = state.selectedExpenseId ,
+                    sheetState = wanderaSheetState ,
                     onClosed = {
                         onAction(OverviewActions.SelectExpenseItem(null))
                     }

@@ -18,6 +18,7 @@ internal data class OverviewState(
     val docs : List<UserDocument> = emptyList(),
     val checklist : List<ChecklistEntity> = emptyList(),
     val checklistCollapsed : Boolean = false,
+    val trapeziumChecklist : Boolean = true,
     val expenseNote : String = "",
     val expenseNoteId : Long? = null,
     val expenses : List<ExpenseEntityUI> = emptyList(),

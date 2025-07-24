@@ -60,7 +60,7 @@ import com.zzz.feature_trip.home.util.drawVerticalBarcode
 import com.zzz.feature_trip.home.util.getDateDifference
 
 @Composable
-fun TripItemRoot(
+internal fun TripItemRoot(
     tripWithDays: TripWithDays ,
     onClick: (tripId: Long) -> Unit ,
     ticketLikeContainer : Boolean = true,
@@ -85,7 +85,7 @@ fun TripItemRoot(
 }
 
 @Composable
-fun TripItem(
+internal fun TripItem(
     tripWithDays: TripWithDays ,
     onClick: (tripId: Long) -> Unit ,
     modifier: Modifier = Modifier ,
@@ -160,7 +160,7 @@ fun TripItem(
 }
 
 @Composable
-fun TicketLikeTripItem(
+internal fun TicketLikeTripItem(
     tripWithDays: TripWithDays ,
     onClick: (tripId: Long) -> Unit ,
     modifier: Modifier = Modifier ,
@@ -356,7 +356,7 @@ fun TicketLikeTripItem(
  * Uses  custom barcode drawn into an ImageBitmap
  */
 @Composable
-fun VerticalBarCode(
+internal fun VerticalBarCode(
     width: Dp = 15.dp ,
     height: Dp = 60.dp ,
     color: Color = Color.Black ,
@@ -385,7 +385,7 @@ fun VerticalBarCode(
 }
 
 @Composable
-fun TicketDecorations(
+internal fun TicketDecorations(
     size: Size ,
     endPadding: Dp ,
     cutoutColor : Color = MaterialTheme.colorScheme.background ,
@@ -424,7 +424,7 @@ fun TicketDecorations(
  * For PREV
  */
 @Composable
-fun TicketLikeTripItem(
+private fun TicketLikeTripItem(
     //tripWithDays: TripWithDays ,
     onClick: (tripId: Long) -> Unit ,
     modifier: Modifier = Modifier ,

@@ -2,6 +2,7 @@ package com.zzz.feature_trip.overview.presentation.components
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -31,17 +32,53 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.zzz.core.presentation.components.CheckboxCircular
-import com.zzz.core.presentation.modifiers.customShadow
 import com.zzz.core.presentation.modifiers.drawStrikethroughLine
 import com.zzz.core.presentation.modifiers.trapeziumShape
 import com.zzz.core.theme.successGreen
 import com.zzz.data.note.model.ChecklistEntity
 
+@Composable
+internal fun ChecklistItemRoot(
+    item : ChecklistEntity ,
+    onCheck : (itemId : Long , checked : Boolean)->Unit ,
+    onDelete : (itemId : Long)->Unit ,
+    modifier: Modifier = Modifier ,
+    background : Color = MaterialTheme.colorScheme.surfaceContainer ,
+    onBackground : Color = MaterialTheme.colorScheme.onSurfaceVariant ,
+    strikeThroughColor: Color = MaterialTheme.colorScheme.onBackground ,
+    trapeziumChecklist : Boolean = true
+) {
+    when{
+        trapeziumChecklist ->{
+            TrapeziumChecklistItem(
+                item = item ,
+                onCheck = onCheck ,
+                onDelete = onDelete ,
+                modifier = modifier,
+                background = background,
+                onBackground = onBackground,
+                strikeThroughColor = strikeThroughColor
+            )
+        }
+        else->{
+            RectangleChecklistItem(
+                item = item ,
+                onCheck = onCheck ,
+                onDelete = onDelete ,
+                modifier = modifier,
+                background = background,
+                onBackground = onBackground,
+                strikeThroughColor = strikeThroughColor
+            )
+        }
+    }
+}
+
 /**
  * Represents a checklist entity item in a lazy col
  */
 @Composable
-fun ChecklistItem(
+fun TrapeziumChecklistItem(
     item : ChecklistEntity ,
     onCheck : (itemId : Long , checked : Boolean)->Unit ,
     onDelete : (itemId : Long)->Unit ,
@@ -79,10 +116,10 @@ fun ChecklistItem(
         modifier
             .fillMaxWidth()
             .drawBehind {
-                val trapeziumBox = trapeziumShape(8).createOutline(size, layoutDirection, density)
+                val trapeziumBox = trapeziumShape(8).createOutline(size , layoutDirection , density)
                 drawOutline(trapeziumBox , background)
             }
-            .padding(vertical = 16.dp, horizontal = 12.dp),
+            .padding(vertical = 16.dp , horizontal = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
@@ -110,9 +147,9 @@ fun ChecklistItem(
                 modifier = Modifier
                     .drawBehind {
                         drawStrikethroughLine(
-                            strikeThroughColor,
-                            progress = lineProgress.value,
-                            alpha = 0.6f,
+                            strikeThroughColor ,
+                            progress = lineProgress.value ,
+                            alpha = 0.6f ,
                             strokeWidth = 8f
                         )
                     }
@@ -120,7 +157,102 @@ fun ChecklistItem(
             )
         }
         Box(
-            Modifier.clip(CircleShape)
+            Modifier
+                .clip(CircleShape)
+                .clickable {
+                    onDelete(item.id)
+                }
+        ){
+            Icon(
+                imageVector = Icons.Default.Close,
+                contentDescription = "delete checklist item ${item.title} ?",
+                tint = onBackground,
+                modifier = Modifier.size(20.dp)
+            )
+        }
+    }
+}
+
+@Composable
+fun RectangleChecklistItem(
+    item : ChecklistEntity ,
+    onCheck : (itemId : Long , checked : Boolean)->Unit ,
+    onDelete : (itemId : Long)->Unit ,
+    modifier: Modifier = Modifier ,
+    background : Color = MaterialTheme.colorScheme.surfaceContainer ,
+    onBackground : Color = MaterialTheme.colorScheme.onSurfaceVariant ,
+    strikeThroughColor: Color = MaterialTheme.colorScheme.onBackground
+) {
+    val density = LocalDensity.current
+    val lineProgress = remember {
+        Animatable(
+            if(item.isChecked)
+                1f
+            else
+                0f
+        )
+    }
+
+
+    LaunchedEffect(item.isChecked) {
+        if(item.isChecked){
+            lineProgress.animateTo(
+                1f,
+                tween(500)
+            )
+        }else{
+            lineProgress.animateTo(
+                0f,
+                tween(500)
+            )
+        }
+    }
+
+    Row(
+        modifier
+            .clip(MaterialTheme.shapes.large)
+            .fillMaxWidth()
+            .background(background)
+            .padding(vertical = 12.dp , horizontal = 12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Row (
+            modifier= Modifier.weight(1f),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ){
+            CheckboxCircular(
+                checked = item.isChecked ,
+                onCheck = {
+                    onCheck(item.id , it)
+                },
+                onBackground = successGreen,
+                background = MaterialTheme.colorScheme.surface,
+            )
+            Text(
+                item.title,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                style = TextStyle(
+                    fontSize = 15.sp,
+                    color = onBackground
+                ),
+                modifier = Modifier
+                    .drawBehind {
+                        drawStrikethroughLine(
+                            strikeThroughColor ,
+                            progress = lineProgress.value ,
+                            alpha = 0.6f ,
+                            strokeWidth = 8f
+                        )
+                    }
+                    .padding(horizontal = 5.dp)
+            )
+        }
+        Box(
+            Modifier
+                .clip(CircleShape)
                 .clickable {
                     onDelete(item.id)
                 }
@@ -139,7 +271,7 @@ fun ChecklistItem(
 @Composable
 private fun ChecklistItemPrev() {
     MaterialTheme {
-        ChecklistItem(
+        TrapeziumChecklistItem(
             item = ChecklistEntity(title = "checklist", isChecked = true) ,
             onCheck = {_,_->} ,
             onDelete = {}
