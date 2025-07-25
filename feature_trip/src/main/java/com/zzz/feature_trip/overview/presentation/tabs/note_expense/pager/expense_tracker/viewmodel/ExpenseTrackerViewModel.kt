@@ -18,9 +18,14 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+/**
+ * Handles user input while creating Expense, CRUD
+ */
 class ExpenseTrackerViewModel(
     private val dataSource : ExpenseSource
 ) : ViewModel() {
+
+    private var loggingEnabled = true
 
     private val _state = MutableStateFlow(AddExpenseState())
     val state = _state
@@ -37,7 +42,6 @@ class ExpenseTrackerViewModel(
     private val _events = Channel<UIEvents>()
     val events = _events.receiveAsFlow()
 
-    private var loggingEnabled = true
 
     fun onAction(action: ExpenseActions){
         when(action){
@@ -73,6 +77,7 @@ class ExpenseTrackerViewModel(
         }
     }
 
+    //------ UI ------
     private fun onTitleChange(value : String){
         viewModelScope.launch {
             _state.update {
@@ -111,6 +116,9 @@ class ExpenseTrackerViewModel(
         }
     }
 
+    /**
+     * Fetch details about the selected expense to update, delete
+     */
     private fun fetchExpenseData(expenseId : Long){
         viewModelScope.launch {
             log {
@@ -155,6 +163,9 @@ class ExpenseTrackerViewModel(
         }
     }
 
+    /**
+     * Cleanup
+     */
     private fun resetState(){
         log {
             "RESET STATE"
@@ -198,10 +209,14 @@ class ExpenseTrackerViewModel(
 
             } catch (e: NumberFormatException) {
                 e.printStackTrace()
-                _events.trySend(UIEvents.Error("Failed to save expense!"))
+                _events.trySend(UIEvents.Error("Please enter valid input!"))
                 log {
                     "Error formatting number!"
                 }
+
+            }catch (e : Exception){
+                e.printStackTrace()
+                _events.trySend(UIEvents.Error("Failed to save expense!"))
 
             }
 
@@ -226,7 +241,12 @@ class ExpenseTrackerViewModel(
                 "Updating..."
             }
             val values = _state.value
-            val itemId = values.expenseId ?: return@launch
+            val itemId = values.expenseId ?: kotlin.run {
+                log {
+                    "Update : Expense ID not found!!"
+                }
+                return@launch
+            }
 
             try {
                 _state.update {
@@ -255,24 +275,39 @@ class ExpenseTrackerViewModel(
                 _state.update {
                     it.copy(saving = false)
                 }
-                _events.trySend(UIEvents.Error("Failed to save expense!"))
+                _events.trySend(UIEvents.Error("Please enter valid input!"))
                 log {
                     "Error formatting number!"
                 }
+            }catch (e : Exception){
+                e.printStackTrace()
+                _state.update {
+                    it.copy(saving = false)
+                }
+                _events.trySend(UIEvents.Error("Failed to save expense!"))
             }
         }
     }
     private fun deleteExpense(){
         val itemId = _state.value.expenseId ?: return
         viewModelScope.launch {
-            _state.update {
-                it.copy(loading = true)
+            try {
+                _state.update {
+                    it.copy(loading = true)
+                }
+                dataSource.deleteExpense(itemId)
+                _state.update {
+                    it.copy(loading = false)
+                }
+                _events.send(UIEvents.Success)
+            } catch (e : Exception) {
+                _state.update {
+                    it.copy(loading = false)
+                }
+                e.printStackTrace()
+                _events.send(UIEvents.Error("Failed to delete expense!"))
             }
-            dataSource.deleteExpense(itemId)
-            _state.update {
-                it.copy(loading = false)
-            }
-            _events.send(UIEvents.Success)
+
         }
     }
 

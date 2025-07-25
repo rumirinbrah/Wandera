@@ -122,11 +122,14 @@ internal fun TripItem(
             horizontalArrangement = Arrangement.SpaceBetween ,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Column {
+            Column(
+                Modifier.weight(1f)
+                    .padding(end = 8.dp)
+            ) {
                 Text(
                     trip.tripName ,
                     fontSize = 18.sp ,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
                 )
                 Text(
                     duration ,

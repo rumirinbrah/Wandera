@@ -425,7 +425,8 @@ private fun TripOverviewPage(
                                     scope.launch {
                                         wanderaSheetState.show()
                                     }
-                                }
+                                },
+                                interactionsEnabled = !wanderaSheetState.visible
                             )
                         }
                     }

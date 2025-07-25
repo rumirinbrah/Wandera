@@ -56,7 +56,6 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.zzz.core.presentation.buttons.CircularIconButton
 import com.zzz.core.presentation.buttons.NormalButton
-import com.zzz.core.presentation.components.BottomSheetHandle
 import com.zzz.core.presentation.components.SheetState
 import com.zzz.core.presentation.components.VerticalSpace
 import com.zzz.core.presentation.components.WanderaBottomSheet
@@ -76,6 +75,15 @@ import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import java.time.LocalDate
 
+/**
+ * Contains all the user expenses, sub total, add new expense button
+ * @param expenses All the expenses for trip
+ * @param groupedExpenses Expenses grouped by date
+ * @param onExpenseItemClick Launch sheet to fetch expense details
+ * @param launchAddExpenseSheet Launch bottom sheet
+ * @param interactionsEnabled To control UI interactions
+ * @author zyzz
+ */
 @Composable
 fun ExpensePage(
     expenses: List<ExpenseEntityUI> ,
@@ -83,10 +91,9 @@ fun ExpensePage(
     totalExpense: Int? = null ,
     onExpenseItemClick :(itemId : Long) ->Unit,
     launchAddExpenseSheet: () -> Unit ,
+    interactionsEnabled : Boolean = true,
     modifier: Modifier = Modifier
 ) {
-
-    val scope = rememberCoroutineScope()
 
     Box(
         Modifier.fillMaxSize()
@@ -110,7 +117,7 @@ fun ExpensePage(
                     background = MaterialTheme.colorScheme.surfaceContainer ,
                     onBackground = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                Text("Add new")
+                Text("Add new" , fontWeight = FontWeight.Medium)
             }
             VerticalSpace(5.dp)
 
@@ -153,7 +160,8 @@ fun ExpensePage(
                         ExpenseEntityItem(
                             item ,
                             onClick = onExpenseItemClick,
-                            modifier = Modifier.animateItem()
+                            modifier = Modifier.animateItem(),
+                            clickEnabled = interactionsEnabled
                         )
                     }
                 }
@@ -166,6 +174,14 @@ fun ExpensePage(
 
 }
 
+/**
+ * Bottom sheet for adding, updating expenses.
+ * @param tripId To be used while saving an expense
+ * @param itemId To fetch expense details
+ * @param sheetState To control bottom sheet
+ * @param onClosed Callback when sheet is closed
+ * @author zyzz
+ */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 internal fun AddExpenseSheet(
@@ -244,7 +260,7 @@ internal fun AddExpenseSheet(
                 onValueChange = {
                     expenseViewModel.onAction(ExpenseActions.OnAmountChange(it))
                 } ,
-                placeholder = "Amount" ,
+                placeholder = "Amount/money spent" ,
                 background = MaterialTheme.colorScheme.surfaceContainer ,
                 onBackground = MaterialTheme.colorScheme.onSurfaceVariant ,
                 keyboardType = KeyboardType.Number ,
@@ -373,6 +389,9 @@ internal fun AddExpenseSheet(
     }
 }
 
+/**
+ * An item to represent the Type of expense (Flight, food, etc)
+ */
 @Composable
 private fun ExpenseTypeFlowRowItem(
     item: ExpenseType ,
@@ -419,8 +438,11 @@ private fun ExpenseTypeFlowRowItem(
     }
 }
 
+/**
+ * Represents an expense in LazyColumn
+ */
 @Composable
-fun ExpenseEntityItem(
+internal fun ExpenseEntityItem(
     item: ExpenseEntityUI ,
     onClick: (itemId: Long) -> Unit = {},
     modifier: Modifier = Modifier ,

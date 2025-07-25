@@ -49,9 +49,6 @@ import com.zzz.core.presentation.dialogs.DialogWithTextField
 import com.zzz.core.presentation.dialogs.LoadingDialog
 import com.zzz.core.presentation.events.ObserveAsEvents
 import com.zzz.core.presentation.events.UIEvents
-import com.zzz.core.presentation.image_picker.WanderaImagePicker
-import com.zzz.core.presentation.image_picker.rememberWanderaImagePicker
-import com.zzz.core.presentation.modifiers.customShadow
 import com.zzz.core.presentation.snackbar.WanderaSnackbar
 import com.zzz.core.presentation.snackbar.showWanderaSnackbar
 import com.zzz.core.presentation.text_field.RoundedTextField
@@ -192,7 +189,7 @@ private fun CreateTripPage(
             }
 
 
-            //title
+            //---- TITLE ----
             VerticalSpace()
             Text(
                 "Title" ,
@@ -276,16 +273,7 @@ private fun CreateTripPage(
                     },
                     modifier = Modifier
                 )
-                /*
-                IconTextButton(
-                    icon = com.zzz.core.R.drawable.add ,
-                    text = "Add Day" ,
-                    onClick = {
-                        onNavToAddDay(tripState.tripId)
-                    }
-                )
 
-                 */
             }
             AnimatedVisibility(days.isEmpty()) {
                 IndicatorCard(
@@ -293,11 +281,17 @@ private fun CreateTripPage(
                     image = com.zzz.core.R.drawable.itinerary_illustration
                 )
             }
-            Column(
-                Modifier.fillMaxWidth() ,
+            LazyColumn(
+                Modifier.fillMaxWidth()
+                    .heightIn(max = 400.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                days.onEach { day ->
+                items(
+                    items = days,
+                    key = {
+                        it.id
+                    }
+                ){day->
                     ItineraryItem(
                         day ,
                         onClick = { id ->
@@ -309,7 +303,6 @@ private fun CreateTripPage(
                         }
                     )
                 }
-
             }
 
             //docs
@@ -322,7 +315,7 @@ private fun CreateTripPage(
             )
             if (docs.isEmpty()) {
                 IndicatorCard(
-                    "Added documents will appear here",
+                    "Your documents will be listed here",
                     image = R.drawable.upload_files_undraw
                 )
             }
@@ -357,6 +350,12 @@ private fun CreateTripPage(
                     onAction(CreateAction.TripActions.ShowAddChecklistDialog(true))
                 }
             )
+            AnimatedVisibility(tripState.checklist.isEmpty()) {
+                IndicatorCard(
+                    "Your checklist will be here",
+                    image = R.drawable.checklist_undraw
+                )
+            }
             LazyColumn(
                 Modifier
                     .fillMaxWidth()
