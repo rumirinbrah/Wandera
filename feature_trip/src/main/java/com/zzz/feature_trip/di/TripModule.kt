@@ -65,7 +65,7 @@ val createModule = module {
             todoSource = get()
         )
     }
-    viewModel() {
+    viewModel {
         ExpenseTrackerViewModel(
             dataSource = get()
         )

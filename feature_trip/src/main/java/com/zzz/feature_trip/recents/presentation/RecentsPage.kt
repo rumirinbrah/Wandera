@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -22,7 +21,6 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.zzz.core.presentation.components.DotsLoadingAnimation
 import com.zzz.core.presentation.components.VerticalSpace
-import com.zzz.feature_trip.home.presentation.components.TripItemRoot
 import com.zzz.feature_trip.recents.presentation.components.EmptyIndicator
 import com.zzz.feature_trip.recents.presentation.components.RecentTripItem
 import com.zzz.feature_trip.recents.presentation.viewmodel.RecentTripsState

@@ -24,7 +24,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -42,16 +41,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.zzz.core.presentation.buttons.IconTextButton
 import com.zzz.core.presentation.components.DotsLoadingAnimation
 import com.zzz.core.presentation.components.KeyboardAware
-import com.zzz.core.presentation.components.SheetState
 import com.zzz.core.presentation.components.VerticalSpace
-import com.zzz.core.presentation.components.rememberWanderaSheetState
 import com.zzz.core.presentation.dialogs.ConfirmActionDialog
 import com.zzz.core.presentation.events.ObserveAsEvents
 import com.zzz.core.presentation.headers.DateHeader
 import com.zzz.core.presentation.modifiers.customShadow
-import com.zzz.core.presentation.toast.WanderaToast
-import com.zzz.core.presentation.toast.WanderaToastState
-import com.zzz.core.theme.redToastSweep
 import com.zzz.data.trip.model.Day
 import com.zzz.feature_trip.overview.presentation.components.BookLikeTextField
 import com.zzz.feature_trip.overview.presentation.components.ChecklistHeader
@@ -61,16 +55,13 @@ import com.zzz.feature_trip.overview.presentation.components.ItineraryList
 import com.zzz.feature_trip.overview.presentation.components.ItineraryPager
 import com.zzz.feature_trip.overview.presentation.components.MarkedAsDoneAnimation
 import com.zzz.feature_trip.overview.presentation.components.OverviewDocumentCard
-import com.zzz.feature_trip.overview.presentation.components.OverviewPageFab
 import com.zzz.feature_trip.overview.presentation.components.OverviewTopBar
 import com.zzz.feature_trip.overview.presentation.tabs.note_expense.NoteExpenseTabRow
-import com.zzz.feature_trip.overview.presentation.tabs.note_expense.pager.expense_tracker.AddExpenseSheet
 import com.zzz.feature_trip.overview.presentation.tabs.note_expense.pager.expense_tracker.ExpensePage
 import com.zzz.feature_trip.overview.presentation.viewmodel.OverviewActions
 import com.zzz.feature_trip.overview.presentation.viewmodel.OverviewEvents
 import com.zzz.feature_trip.overview.presentation.viewmodel.OverviewState
 import com.zzz.feature_trip.overview.presentation.viewmodel.OverviewViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
@@ -209,7 +200,7 @@ private fun RecentTripOverviewPage(
                 ) { pagerLayout ->
                     if (pagerLayout) {
                         ItineraryPager(
-                            pagerState = pagerState ,
+                            //pagerState = pagerState ,
                             days = days ,
                             onDayClick = {
                                 //onAction(OverviewActions.UpdateSelectedDay(it))

@@ -135,9 +135,6 @@ private fun TripOverviewPage(
 
     val columnScrollState = rememberScrollState()
 
-    val pagerState = rememberPagerState() {
-        days.size
-    }
     val notesExpensePagerState = rememberPagerState { 2 }
 
     val wanderaSheetState = rememberWanderaSheetState(
@@ -255,7 +252,6 @@ private fun TripOverviewPage(
                 ) { pagerLayout ->
                     if (pagerLayout) {
                         ItineraryPager(
-                            pagerState = pagerState ,
                             days = days ,
                             onDayClick = {
                                 //onAction(OverviewActions.UpdateSelectedDay(it,false))
