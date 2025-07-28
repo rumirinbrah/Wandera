@@ -52,7 +52,6 @@ val createModule = module {
         OverviewViewModel(
             tripSource = get() ,
             daySource = get() ,
-            todoSource = get() ,
             docSource = get() ,
             notesSource = get() ,
             checklistSource = get() ,

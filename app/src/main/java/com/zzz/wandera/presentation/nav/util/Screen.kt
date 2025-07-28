@@ -48,7 +48,7 @@ sealed class Screen {
         @Serializable
         data class RecentOverviewScreen(val tripId :Long) : Screen()
         @Serializable
-        data object DayDetailsScreen
+        data class DayDetailsScreen(val dayId : Long)
     }
 
 

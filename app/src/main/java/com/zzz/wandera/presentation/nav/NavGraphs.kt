@@ -187,7 +187,7 @@ fun NavGraphBuilder.homeNavGraph(
                 navigateUp = {
                     navController.navigateUp()
                 } ,
-                dayId = route.dayId
+                dayId = route.dayId,
             )
         }
 
@@ -304,8 +304,8 @@ fun NavGraphBuilder.recentsNavGraph(
             RecentOverviewRoot(
                 modifier = Modifier.padding(innerPadding),
                 overviewViewModel = overviewViewModel,
-                navigateToDayDetails = {
-                    navController.navigate(Screen.RecentsGraph.DayDetailsScreen)
+                navigateToDayDetails = {dayId->
+                    navController.navigate(Screen.RecentsGraph.DayDetailsScreen(dayId))
                 } ,
                 shareTrip = {
 
@@ -318,25 +318,22 @@ fun NavGraphBuilder.recentsNavGraph(
         }
 
         composable<Screen.RecentsGraph.DayDetailsScreen> {backStack->
+            val route = backStack.toRoute<Screen.RecentsGraph.DayDetailsScreen>()
 
             LaunchedEffect(Unit) {
                 navBarVisible(false)
             }
 
-            val parentEntry = remember(backStack) {
-                navController.getBackStackEntry(Screen.RecentsGraph)
-            }
-            val overviewViewModel = koinViewModel<OverviewViewModel>(viewModelStoreOwner = parentEntry)
-            /*
             DayDetailsRoot(
                 //Modifier.padding(innerPadding),
                 navigateUp = {
                     navController.navigateUp()
                 } ,
-                dayDetailsViewModel = overviewViewModel
+                dayId = route.dayId,
+                viewOnly = true
             )
 
-             */
+
         }
     }
 }

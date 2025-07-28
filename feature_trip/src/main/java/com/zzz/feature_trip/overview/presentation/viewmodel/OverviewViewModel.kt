@@ -4,17 +4,14 @@ import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.zzz.core.presentation.events.UIEvents
 import com.zzz.core.util.toLocalDate
 import com.zzz.data.common.SettingsPreferences
 import com.zzz.data.note.source.ChecklistSource
 import com.zzz.data.note.source.ExpenseNoteSource
-import com.zzz.data.trip.DayWithTodos
 import com.zzz.data.trip.model.Day
 import com.zzz.data.trip.model.ExpenseEntity
 import com.zzz.data.trip.source.DaySource
 import com.zzz.data.trip.source.ExpenseSource
-import com.zzz.data.trip.source.TodoSource
 import com.zzz.data.trip.source.TripSource
 import com.zzz.data.trip.source.UserDocSource
 import com.zzz.feature_trip.overview.data.local.ItineraryLayoutPref
@@ -30,18 +27,15 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.onCompletion
-import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import kotlin.coroutines.cancellation.CancellationException
 
 class OverviewViewModel(
     private val tripSource: TripSource ,
     private val daySource: DaySource ,
-    private val todoSource: TodoSource ,
     private val docSource: UserDocSource ,
     private val notesSource: ExpenseNoteSource ,
     private val checklistSource: ChecklistSource,
@@ -89,12 +83,6 @@ class OverviewViewModel(
             is OverviewActions.UpdateDayStatus -> {
                 updateDayStatus(action.dayId , action.done)
             }
-
-            // ------ TODOs ------
-            is OverviewActions.MarkTodoAsDone ->{
-                markTodoAsDone(action.itemId,action.done)
-            }
-
 
             // ------ LAYOUT ------
             OverviewActions.ChangeItineraryLayout -> {
@@ -250,16 +238,6 @@ class OverviewViewModel(
         }
     }
 
-    //-------- TODOs ---------
-    private fun markTodoAsDone(itemId : Long , done : Boolean){
-        viewModelScope.launch {
-            try {
-                todoSource.markAsDone(itemId,done)
-            } catch (e : Exception) {
-                e.printStackTrace()
-            }
-        }
-    }
 
     //-------- LAYOUT ---------
     private fun changeItineraryLayout() {

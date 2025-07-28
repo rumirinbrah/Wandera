@@ -51,8 +51,7 @@ import com.zzz.feature_trip.create.presentation.components.TodoLocationItem
 import com.zzz.feature_trip.day_details.viewmodel.DayDetailAction
 import com.zzz.feature_trip.day_details.viewmodel.DayDetailsViewModel
 import com.zzz.feature_trip.overview.presentation.components.DayTitleCard
-import com.zzz.feature_trip.overview.presentation.components.day_details.DayDetailsTodoItem
-import com.zzz.feature_trip.overview.presentation.viewmodel.OverviewActions
+import com.zzz.feature_trip.day_details.components.DayDetailsTodoItem
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -81,7 +80,8 @@ fun DayDetailsRoot(
         },
         onAction = {action->
             dayDetailsViewModel.onAction(action)
-        }
+        },
+        viewOnly = viewOnly
     )
 }
 
@@ -227,7 +227,7 @@ private fun DayDetailsPage(
 
                         }
                         items(
-                            todos ?: emptyList() ,
+                            todos ,
                             key = { it.id }
                         ) { todo ->
                             DayDetailsTodoItem(

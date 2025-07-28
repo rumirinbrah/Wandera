@@ -10,9 +10,6 @@ sealed class OverviewActions {
      //---- DAY ----
     data class UpdateDayStatus(val dayId : Long, val done : Boolean) : OverviewActions()
 
-    //---- TODO_LOCATION ----
-    data class MarkTodoAsDone(val itemId : Long , val done : Boolean) : OverviewActions()
-
 
     //---- layout ----
     data object ChangeItineraryLayout : OverviewActions()
