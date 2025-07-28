@@ -1,4 +1,4 @@
-package com.zzz.feature_trip.overview.presentation
+package com.zzz.feature_trip.day_details
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -22,23 +21,17 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.drawOutline
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -52,27 +45,42 @@ import com.zzz.core.presentation.headers.DateText
 import com.zzz.core.presentation.modifiers.baldyShape
 import com.zzz.core.theme.WanderaTheme
 import com.zzz.data.trip.DayWithTodos
+import com.zzz.data.trip.model.Day
+import com.zzz.data.trip.model.TodoLocation
 import com.zzz.feature_trip.create.presentation.components.TodoLocationItem
+import com.zzz.feature_trip.day_details.viewmodel.DayDetailAction
+import com.zzz.feature_trip.day_details.viewmodel.DayDetailsViewModel
 import com.zzz.feature_trip.overview.presentation.components.DayTitleCard
+import com.zzz.feature_trip.overview.presentation.components.day_details.DayDetailsTodoItem
 import com.zzz.feature_trip.overview.presentation.viewmodel.OverviewActions
-import com.zzz.feature_trip.overview.presentation.viewmodel.OverviewViewModel
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun DayDetailsRoot(
     modifier: Modifier = Modifier ,
+    dayId : Long,
     navigateUp: () -> Unit ,
-    overviewViewModel: OverviewViewModel = koinViewModel()
+    dayDetailsViewModel: DayDetailsViewModel = koinViewModel() ,
+    viewOnly : Boolean = false ,
 ) {
-    val state by overviewViewModel.overviewState.collectAsStateWithLifecycle()
+    val state by dayDetailsViewModel.state.collectAsStateWithLifecycle()
 
+
+    LaunchedEffect(Unit) {
+        dayDetailsViewModel.onAction(
+            DayDetailAction.FetchDayDetails(dayId , !viewOnly)
+        )
+    }
 
     DayDetailsPage(
         modifier ,
-        state.selectedDay ,
+        day = state.day ,
+        todoLocations = state.todos,
         navigateUp = {
-            overviewViewModel.onAction(OverviewActions.ClearSelectedDay)
             navigateUp()
+        },
+        onAction = {action->
+            dayDetailsViewModel.onAction(action)
         }
     )
 }
@@ -80,8 +88,11 @@ fun DayDetailsRoot(
 @Composable
 private fun DayDetailsPage(
     modifier: Modifier = Modifier ,
-    dayWithTodos: DayWithTodos? ,
-    navigateUp: () -> Unit
+    day: Day? ,
+    todoLocations : List<TodoLocation> = emptyList() ,
+    navigateUp: () -> Unit ,
+    onAction : (DayDetailAction)->Unit ,
+    viewOnly : Boolean = false ,
 ) {
     val background = MaterialTheme.colorScheme.background
     val onBackground = MaterialTheme.colorScheme.onBackground
@@ -93,16 +104,13 @@ private fun DayDetailsPage(
     }
     val columnScrollState = rememberScrollState()
 
-    val day = remember {
-        dayWithTodos?.day
-    }
-    val todos = remember {
-        dayWithTodos?.todosAndLocations?.filter {
+    val todos = remember(todoLocations) {
+        todoLocations.filter {
             it.isTodo
         }
     }
-    val locations = remember {
-        dayWithTodos?.todosAndLocations?.filter {
+    val locations = remember(todoLocations) {
+        todoLocations.filter {
             !it.isTodo
         }
     }
@@ -210,7 +218,7 @@ private fun DayDetailsPage(
                                 fontWeight = FontWeight.Bold ,
                             )
 
-                            if (todos.isNullOrEmpty()) {
+                            if (todos.isEmpty()) {
                                 Text(
                                     "Edit your trips and add some!" ,
                                     style = MaterialTheme.typography.bodyMedium
@@ -222,13 +230,15 @@ private fun DayDetailsPage(
                             todos ?: emptyList() ,
                             key = { it.id }
                         ) { todo ->
-                            TodoLocationItem(
-                                todo ,
-                                modifier = Modifier ,
-                                onDeleteTodo = {
-                                } ,
-                                isViewOnly = true
+                            DayDetailsTodoItem(
+                                todo = todo,
+                                onCheck = { id,done->
+                                    onAction(DayDetailAction.MarkTodoAsDone(id,done))
+                                },
+                                modifier = Modifier.animateItem(),
+                                isViewOnly = viewOnly
                             )
+
                         }
                         item {
                             VerticalSpace()
@@ -237,7 +247,7 @@ private fun DayDetailsPage(
                                 fontSize = 20.sp ,
                                 fontWeight = FontWeight.Bold ,
                             )
-                            if (locations.isNullOrEmpty()) {
+                            if (locations.isEmpty()) {
                                 Text(
                                     "Looks like you haven't added anything" ,
                                     style = MaterialTheme.typography.bodyMedium
@@ -247,15 +257,16 @@ private fun DayDetailsPage(
 
                         }
                         items(
-                            locations ?: emptyList() ,
+                            locations ,
                             key = { it.id }
                         ) { todo ->
-                            TodoLocationItem(
-                                todo ,
-                                modifier = Modifier ,
-                                onDeleteTodo = {
-                                } ,
-                                isViewOnly = true
+                            DayDetailsTodoItem(
+                                todo = todo,
+                                onCheck = { id,done->
+                                    onAction(DayDetailAction.MarkTodoAsDone(id,done))
+                                },
+                                modifier = Modifier.animateItem(),
+                                isViewOnly = viewOnly
                             )
                         }
                         item {

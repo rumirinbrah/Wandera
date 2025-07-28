@@ -20,6 +20,9 @@ internal abstract class TodoDao {
     @Update
     abstract suspend fun updateTodo(todo: TodoLocation)
 
+    @Query("update todo_location_table set isDone = :done where id = :id")
+    abstract suspend fun markAsDone(id : Long , done : Boolean)
+
     //delete
     @Query("delete from todo_location_table where id = :id")
     abstract suspend fun deleteTodo(id : Long)

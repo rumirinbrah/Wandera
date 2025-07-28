@@ -19,6 +19,7 @@ internal fun ItineraryList(
     days : List<Day> ,
     onClick :(Day)->Unit,
     markDayStatus: (isDone: Boolean , dayId: Long) -> Unit,
+    viewOnly : Boolean = false,
     modifier: Modifier = Modifier
 ) {
 
@@ -56,7 +57,8 @@ internal fun ItineraryList(
                     onClick(it)
                 },
                 markDayStatus = markDayStatus,
-                modifier = Modifier.animateItem()
+                modifier = Modifier.animateItem(),
+                viewOnly = viewOnly
             )
         }
         items(
@@ -69,7 +71,8 @@ internal fun ItineraryList(
                     onClick(it)
                 },
                 markDayStatus = markDayStatus,
-                modifier = Modifier.animateItem()
+                modifier = Modifier.animateItem(),
+                viewOnly = viewOnly
             )
         }
     }

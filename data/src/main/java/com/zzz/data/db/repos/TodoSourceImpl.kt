@@ -25,6 +25,10 @@ internal class TodoSourceImpl(
         todoDao.updateTodo(todoLocation)
     }
 
+    override suspend fun markAsDone(id: Long , done: Boolean) {
+        todoDao.markAsDone(id,done)
+    }
+
     override suspend fun deleteTodo(id: Long) {
         todoDao.deleteTodo(id)
     }

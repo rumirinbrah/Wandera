@@ -48,7 +48,6 @@ import com.zzz.core.presentation.components.VerticalSpace
 import com.zzz.core.presentation.components.rememberWanderaSheetState
 import com.zzz.core.presentation.dialogs.ConfirmActionDialog
 import com.zzz.core.presentation.events.ObserveAsEvents
-import com.zzz.core.presentation.events.UIEvents
 import com.zzz.core.presentation.headers.DateHeader
 import com.zzz.core.presentation.modifiers.customShadow
 import com.zzz.core.presentation.toast.WanderaToast
@@ -61,6 +60,7 @@ import com.zzz.feature_trip.overview.presentation.components.ChecklistItemRoot
 import com.zzz.feature_trip.overview.presentation.components.ItineraryLayoutOptions
 import com.zzz.feature_trip.overview.presentation.components.ItineraryList
 import com.zzz.feature_trip.overview.presentation.components.ItineraryPager
+import com.zzz.feature_trip.overview.presentation.components.MarkedAsDoneAnimation
 import com.zzz.feature_trip.overview.presentation.components.OverviewDocumentCard
 import com.zzz.feature_trip.overview.presentation.components.OverviewPageFab
 import com.zzz.feature_trip.overview.presentation.components.OverviewTopBar
@@ -68,6 +68,7 @@ import com.zzz.feature_trip.overview.presentation.tabs.note_expense.NoteExpenseT
 import com.zzz.feature_trip.overview.presentation.tabs.note_expense.pager.expense_tracker.AddExpenseSheet
 import com.zzz.feature_trip.overview.presentation.tabs.note_expense.pager.expense_tracker.ExpensePage
 import com.zzz.feature_trip.overview.presentation.viewmodel.OverviewActions
+import com.zzz.feature_trip.overview.presentation.viewmodel.OverviewEvents
 import com.zzz.feature_trip.overview.presentation.viewmodel.OverviewState
 import com.zzz.feature_trip.overview.presentation.viewmodel.OverviewViewModel
 import kotlinx.coroutines.delay
@@ -80,7 +81,7 @@ fun TripOverviewRoot(
     modifier: Modifier = Modifier ,
     overviewViewModel: OverviewViewModel = koinViewModel() ,
     wanderaToastState: WanderaToastState ,
-    navigateToDayDetails: () -> Unit ,
+    navigateToDayDetails: (dayId : Long) -> Unit ,
     navToEditTrip: (tripId: Long) -> Unit ,
     shareTrip: (tripId: Long) -> Unit ,
     markTripAsDone: () -> Unit = {} ,
@@ -119,11 +120,11 @@ fun TripOverviewRoot(
 private fun TripOverviewPage(
     modifier: Modifier = Modifier ,
     state: OverviewState ,
-    events: Flow<UIEvents> ,
+    events: Flow<OverviewEvents> ,
     days: List<Day> ,
     wanderaToastState: WanderaToastState ,
     onAction: (OverviewActions) -> Unit ,
-    navigateToDayDetails: () -> Unit ,
+    navigateToDayDetails: (dayId : Long) -> Unit ,
     navToEditTrip: (tripId: Long) -> Unit ,
     shareTrip: (tripId: Long) -> Unit = {} ,
     markTripAsDone: () -> Unit = {} ,
@@ -147,13 +148,17 @@ private fun TripOverviewPage(
 
     ObserveAsEvents(events) { event ->
         when (event) {
-            is UIEvents.Error -> {
+            is OverviewEvents.Error -> {
                 wanderaToastState.showToast(event.errorMsg , redToastSweep)
             }
 
-            is UIEvents.SuccessWithMsg -> {
+            is OverviewEvents.SuccessWithMsg -> {
                 //Toast.makeText(context , event.msg , Toast.LENGTH_SHORT).show()
                 wanderaToastState.showToast(event.msg)
+            }
+
+            OverviewEvents.NavigateUp ->{
+                navigateUp()
             }
 
             else -> {}
@@ -253,16 +258,16 @@ private fun TripOverviewPage(
                             pagerState = pagerState ,
                             days = days ,
                             onDayClick = {
-                                onAction(OverviewActions.UpdateSelectedDay(it))
-                                navigateToDayDetails()
+                                //onAction(OverviewActions.UpdateSelectedDay(it,false))
+                                navigateToDayDetails(it.id)
                             }
                         )
                     } else {
                         ItineraryList(
                             days ,
                             onClick = {
-                                onAction(OverviewActions.UpdateSelectedDay(it))
-                                navigateToDayDetails()
+                                //onAction(OverviewActions.UpdateSelectedDay(it,false))
+                                navigateToDayDetails(it.id)
                             } ,
                             markDayStatus = { isDone , dayId ->
                                 //println("new status for $dayId is $isDone")
@@ -392,22 +397,28 @@ private fun TripOverviewPage(
                 ) { page ->
                     when (page) {
                         0 -> {
-                            KeyboardAware {
-                                BookLikeTextField(
-                                    modifier = Modifier
-                                        .customShadow(
-                                            MaterialTheme.colorScheme.onBackground ,
-                                            borderRadius = 0.dp
-                                        ) ,
-                                    value = state.expenseNote ,
-                                    onValueChange = {
-                                        onAction(OverviewActions.OnExpenseNoteValueChange(it))
-                                    } ,
-                                    onSave = {
-                                        onAction(OverviewActions.UpdateExpenseNote)
-                                    }
-                                )
+                            Column(
+                                Modifier.padding(4.dp)
+                            ) {
+                                KeyboardAware {
+                                    BookLikeTextField(
+                                        modifier = Modifier
+                                            .customShadow(
+                                                MaterialTheme.colorScheme.onBackground ,
+                                                borderRadius = 0.dp
+                                            ) ,
+                                        value = state.expenseNote ,
+                                        onValueChange = {
+                                            onAction(OverviewActions.OnExpenseNoteValueChange(it))
+                                        } ,
+                                        onSave = {
+                                            onAction(OverviewActions.UpdateExpenseNote)
+                                        }
+                                    )
+                                }
+                                VerticalSpace(10.dp)
                             }
+
                         }
 
                         1 -> {
@@ -514,7 +525,7 @@ private fun TripOverviewPage(
                 }
             } ,
             onMarkAsDone = {
-                markTripAsDone()
+                onAction(OverviewActions.MarkTripAsDone)
             } ,
             modifier = Modifier
                 .align(Alignment.BottomEnd)
@@ -538,6 +549,17 @@ private fun TripOverviewPage(
             state = wanderaToastState ,
             modifier = Modifier.align(Alignment.BottomCenter)
         )
+        AnimatedVisibility(
+            state.playMarkAsDoneAnimation,
+            enter = fadeIn(),
+            exit = fadeOut()
+        ){
+            MarkedAsDoneAnimation(
+                onAnimationFinish = {
+                    navigateUp()
+                }
+            )
+        }
 
     }
 

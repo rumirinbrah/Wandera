@@ -13,13 +13,16 @@ interface TripSource {
     //update
     suspend fun updateTrip(trip: Trip)
 
+    suspend fun markTripAsDone(markAsDone : Boolean , tripId: Long)
+
     //delete
     suspend fun deleteTripById(id : Long) : Int
 
     //---GET---
 
     fun getTrips() : Flow<List<TripWithDaysAndTodos>>
-    fun getTripsWithUserDocs() : Flow<List<TripWithDays>>
+    fun getFinishedTripWithDays() : Flow<List<TripWithDays>>
+    fun getTripsWithDays() : Flow<List<TripWithDays>>
     suspend fun getTripWithDaysAndTodosById(id: Long) : TripWithDaysAndTodos
     suspend fun getTripById(tripId : Long) : Trip
     suspend fun getTripNameById(tripId: Long) : String?

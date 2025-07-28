@@ -59,6 +59,9 @@ import com.zzz.feature_trip.home.util.drawTicketDecorationIntoImage
 import com.zzz.feature_trip.home.util.drawVerticalBarcode
 import com.zzz.feature_trip.home.util.getDateDifference
 
+/**
+ * Resolves call for Ticket or Normal containers
+ */
 @Composable
 internal fun TripItemRoot(
     tripWithDays: TripWithDays ,
@@ -84,6 +87,9 @@ internal fun TripItemRoot(
     }
 }
 
+/**
+ * Normal container with rounded Box
+ */
 @Composable
 internal fun TripItem(
     tripWithDays: TripWithDays ,
@@ -162,6 +168,9 @@ internal fun TripItem(
     }
 }
 
+/**
+ * Flashy ticket container
+ */
 @Composable
 internal fun TicketLikeTripItem(
     tripWithDays: TripWithDays ,
@@ -387,6 +396,9 @@ internal fun VerticalBarCode(
     }
 }
 
+/**
+ * Draws ticket cutout and dash
+ */
 @Composable
 internal fun TicketDecorations(
     size: Size ,

@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import com.zzz.core.presentation.modifiers.customShadow
 import com.zzz.wandera.presentation.nav.util.Screen
 import com.zzz.core.presentation.theme_change.ChangeThemePage
@@ -33,6 +34,9 @@ import com.zzz.core.presentation.toast.rememberWanderaToastState
 import com.zzz.feature_settings.presentation.AppSettingsRoot
 import com.zzz.feature_translate.presentation.TranslateRoot
 import com.zzz.feature_translate.presentation.viewmodel.TranslationViewModel
+import com.zzz.feature_trip.overview.presentation.viewmodel.OverviewActions
+import com.zzz.feature_trip.overview.presentation.viewmodel.OverviewViewModel
+import com.zzz.feature_trip.recents.presentation.RecentOverviewRoot
 import com.zzz.feature_trip.recents.presentation.RecentsRoot
 import com.zzz.wandera.presentation.nav.util.BottomNavBar
 import com.zzz.wandera.ui.ThemeState
@@ -95,12 +99,15 @@ fun Navigation(
                     innerPadding = innerPadding
                 )
 
-                //RECENTS
-                composable<Screen.RecentsScreen> {
-                    RecentsRoot(
-                        Modifier.padding(innerPadding)
-                    )
-                }
+                //recents
+                recentsNavGraph(
+                    navController = navController,
+                    navBarVisible = {
+                        navBarVisible = it
+                    },
+                    innerPadding = innerPadding
+                )
+
                 //TRANSLATE
                 composable<Screen.TranslateScreen> { backStack ->
 

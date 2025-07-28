@@ -21,6 +21,9 @@ internal abstract class TripDao {
     @Update
     abstract suspend fun updateTrip(trip: Trip)
 
+    @Query("update trip_table set isDone =:markAsDone where id = :tripId")
+    abstract suspend fun markTripAsDone(markAsDone : Boolean , tripId : Long)
+
     //delete
     @Query("DELETE from trip_table where id = :id")
     abstract suspend fun deleteTripById(id :Long) : Int
@@ -45,5 +48,10 @@ internal abstract class TripDao {
     @Transaction
     @Query("select * from trip_table order by dateCreated DESC")
     abstract fun getTripsWithDays() : Flow<List<TripWithDays>>
+
+    //GET DONE
+    @Transaction
+    @Query("select * from trip_table where isDone = 1 order by dateCreated DESC")
+    abstract fun getFinishedTripsWithDays() : Flow<List<TripWithDays>>
 
 }

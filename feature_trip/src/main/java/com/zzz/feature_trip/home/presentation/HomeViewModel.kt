@@ -11,7 +11,6 @@ import com.zzz.data.trip.source.TripSource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
@@ -64,7 +63,7 @@ class HomeViewModel(
                 it.copy(loading = true)
             }
 
-            tripSource.getTripsWithUserDocs()
+            tripSource.getTripsWithDays()
                 .onStart {
                     _state.update {
                         it.copy(loading = false)

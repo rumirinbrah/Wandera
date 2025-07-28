@@ -30,6 +30,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -62,8 +63,8 @@ class OverviewViewModel(
         _days.value
     )
 
-    private val _events = Channel<UIEvents>()
-    val events = _events.receiveAsFlow()
+    private val _events = Channel<OverviewEvents>()
+    internal val events = _events.receiveAsFlow()
 
     private var collectDaysJob: Job? = null
     private var collectChecklistJob: Job? = null
@@ -84,21 +85,18 @@ class OverviewViewModel(
                 fetchTripData(action.tripId)
             }
 
-            is OverviewActions.NavigateToEditTrip -> {
-
-            }
-
             //------ day -----
-            is OverviewActions.UpdateSelectedDay -> {
-                updateSelectedDay(action.day)
-            }
             is OverviewActions.UpdateDayStatus -> {
                 updateDayStatus(action.dayId , action.done)
             }
-            OverviewActions.ClearSelectedDay -> {
-                clearSelectedDay()
+
+            // ------ TODOs ------
+            is OverviewActions.MarkTodoAsDone ->{
+                markTodoAsDone(action.itemId,action.done)
             }
 
+
+            // ------ LAYOUT ------
             OverviewActions.ChangeItineraryLayout -> {
                 changeItineraryLayout()
             }
@@ -129,10 +127,14 @@ class OverviewViewModel(
                 onChecklistCollapse()
             }
 
+
             is OverviewActions.OnFabCollapse->{
                 onFabCollapse(action.collapsed)
             }
 
+            OverviewActions.MarkTripAsDone ->{
+                markTripAsDone()
+            }
             //dELETE
             OverviewActions.DeleteTrip -> {
                 deleteTrip()
@@ -199,7 +201,7 @@ class OverviewViewModel(
 
         viewModelScope.launch {
             notesSource.updateNote(noteId , text)
-            _events.send(UIEvents.SuccessWithMsg("Note saved!"))
+            _events.send(OverviewEvents.SuccessWithMsg("Note saved!"))
         }
     }
     private fun onNoteValueChange(value: String) {
@@ -240,44 +242,6 @@ class OverviewViewModel(
     }
 
     //-------- DAY ---------
-    //update selected day
-    private fun updateSelectedDay(day: Day) {
-        viewModelScope.launch {
-
-            _overviewState.update {
-                it.copy(
-                    loading = true
-                )
-            }
-            withContext(Dispatchers.IO) {
-                val todos = todoSource.getTodosByDayIdOnce(day.id)
-                val dayWithTodos = DayWithTodos(
-                    day = day ,
-                    todosAndLocations = todos
-                )
-                withContext(Dispatchers.Main) {
-                    _overviewState.update {
-                        it.copy(
-                            loading = false ,
-                            selectedDay = dayWithTodos
-                        )
-                    }
-                }
-            }
-
-
-        }
-    }
-    //clear selected day
-    private fun clearSelectedDay() {
-        viewModelScope.launch {
-            delay(500)
-            _overviewState.update {
-                it.copy(selectedDay = null)
-            }
-        }
-    }
-
     private fun updateDayStatus(dayId: Long , isDone: Boolean) {
         viewModelScope.launch {
             Log.d("overviewVM" , "updateDayStatus: Marking $dayId as $isDone")
@@ -286,7 +250,18 @@ class OverviewViewModel(
         }
     }
 
-    //layout
+    //-------- TODOs ---------
+    private fun markTodoAsDone(itemId : Long , done : Boolean){
+        viewModelScope.launch {
+            try {
+                todoSource.markAsDone(itemId,done)
+            } catch (e : Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    //-------- LAYOUT ---------
     private fun changeItineraryLayout() {
         viewModelScope.launch {
             _overviewState.update {
@@ -350,6 +325,7 @@ class OverviewViewModel(
                 }
         }
     }
+
     private fun collectChecklistFlow(tripId: Long){
         collectChecklistJob = viewModelScope.launch {
             checklistSource.getChecklistItems(tripId)
@@ -423,6 +399,19 @@ class OverviewViewModel(
                 it.copy(totalExpense = total)
             }
         }
+    }
+
+    private fun markTripAsDone(){
+        //ADD EVENTS!
+        val tripId = _overviewState.value.trip?.id ?: return
+        viewModelScope.launch {
+            _overviewState.update {
+                it.copy(playMarkAsDoneAnimation = true)
+            }
+            tripSource.markTripAsDone(true,tripId)
+
+        }
+
     }
 
     //clean up

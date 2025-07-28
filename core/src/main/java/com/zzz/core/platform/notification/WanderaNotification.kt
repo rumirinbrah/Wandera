@@ -17,13 +17,14 @@ class WanderaNotification (
     private var notificationManager  = context.getSystemService<NotificationManager>()
     private val loggingEnabled : Boolean = true
 
+    // -------- DOWNLOAD --------
     fun sendDownloadNotification(modelName : String){
 
         log {
             "Sending download notification for $modelName"
         }
         val builder = NotificationCompat
-            .Builder(context , NotificationUtil.CHANNEL_ID)
+            .Builder(context , NotificationUtil.SILENT_CHANNEL_ID)
             .setSmallIcon(R.drawable.download)
             .setContentTitle("Download in progress")
             .setContentText("Downloading $modelName translation model...")
@@ -40,7 +41,7 @@ class WanderaNotification (
             "Sending downloaded notification for $modelName"
         }
         val builder = NotificationCompat
-            .Builder(context , NotificationUtil.CHANNEL_ID)
+            .Builder(context , NotificationUtil.SILENT_CHANNEL_ID)
             .setSmallIcon(R.drawable.download)
             .setContentTitle("Wandera")
             .setContentText("$modelName translation model has been downloaded!")
@@ -55,11 +56,33 @@ class WanderaNotification (
         }
         notificationManager?.cancel(NotificationUtil.NOTIFICATION_ID)
     }
+
+
+    fun sendTripReminder(tripName : String){
+        val builder = getSoundNotificationBuilder()
+            .setContentTitle("Trip to $tripName starts tomorrow")
+            .setContentText("Might wanna see your checklist before you leave")
+            .build()
+        notificationManager?.notify(Random.nextInt(),builder)
+    }
+
     fun cancelAll(){
         log {
             "Cancelling ALL"
         }
         notificationManager?.cancelAll()
+    }
+
+    private fun getSilentNotificationBuilder() : NotificationCompat.Builder{
+        return NotificationCompat
+            .Builder(context , NotificationUtil.SILENT_CHANNEL_ID)
+            .setSmallIcon(R.drawable.ic_launcher_foreground)
+    }
+
+    private fun getSoundNotificationBuilder() : NotificationCompat.Builder{
+        return NotificationCompat
+            .Builder(context , NotificationUtil.SOUND_CHANNEL_ID)
+            .setSmallIcon(R.drawable.ic_launcher_foreground)
     }
 
     private fun log(msg : ()->String){

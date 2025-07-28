@@ -15,8 +15,12 @@ internal class TripSourceImpl(
         return tripDao.getTrips()
     }
 
-    override fun getTripsWithUserDocs(): Flow<List<TripWithDays>> {
+    override fun getTripsWithDays(): Flow<List<TripWithDays>> {
         return tripDao.getTripsWithDays()
+    }
+
+    override fun getFinishedTripWithDays(): Flow<List<TripWithDays>> {
+        return tripDao.getFinishedTripsWithDays()
     }
 
     override suspend fun getTripWithDaysAndTodosById(id: Long): TripWithDaysAndTodos {
@@ -37,6 +41,10 @@ internal class TripSourceImpl(
 
     override suspend fun updateTrip(trip: Trip) {
         tripDao.updateTrip(trip)
+    }
+
+    override suspend fun markTripAsDone(markAsDone: Boolean , tripId: Long) {
+        tripDao.markTripAsDone(markAsDone,tripId)
     }
 
     override suspend fun deleteTripById(id: Long) : Int {

@@ -11,7 +11,6 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -23,7 +22,6 @@ import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -172,8 +170,7 @@ internal fun BookLikeTextField(
     value: String ,
     onValueChange: (String) -> Unit ,
     onSave: () -> Unit ,
-    background: Color = MaterialTheme.colorScheme.surfaceContainer ,
-    onBackground: Color = MaterialTheme.colorScheme.onSurface ,
+    interactionsEnabled : Boolean = true
 ) {
     val context = LocalContext.current
     val bgColor = remember { Color(0xFFFFF3A2) }
@@ -233,9 +230,8 @@ internal fun BookLikeTextField(
                 capitalization = KeyboardCapitalization.Sentences,
                 imeAction = ImeAction.Default
             ),
-            keyboardActions = KeyboardActions(
-
-            )
+            keyboardActions = KeyboardActions(),
+            enabled = interactionsEnabled
         )
         if(value.isBlank()){
             Text(
@@ -268,48 +264,49 @@ internal fun BookLikeTextField(
 
         //action buttons
 
-        Row(
-            verticalAlignment = Alignment.CenterVertically ,
-            horizontalArrangement = Arrangement.spacedBy(12.dp) ,
-            modifier = Modifier.align(Alignment.BottomEnd)
-        ) {
-            Box(
-                Modifier
-                    .clip(CircleShape)
-                    .background(Color.White.copy(0.8f))
-                    .clickable(
-                        onClick = onSave,
-                        interactionSource = remember { MutableInteractionSource() },
-                        indication = ripple
+        if(interactionsEnabled){
+            Row(
+                verticalAlignment = Alignment.CenterVertically ,
+                horizontalArrangement = Arrangement.spacedBy(12.dp) ,
+                modifier = Modifier.align(Alignment.BottomEnd)
+            ) {
+                Box(
+                    Modifier
+                        .clip(CircleShape)
+                        .background(Color.White.copy(0.8f))
+                        .clickable(
+                            onClick = onSave,
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = ripple
+                        )
+                        .padding(4.dp)
+                ) {
+                    Icon(
+                        painter = painterResource(com.zzz.core.R.drawable.save) ,
+                        contentDescription = "Save expense note" ,
+                        modifier = Modifier.size(25.dp) ,
+                        tint = Color.Black
                     )
-                    .padding(4.dp)
-            ) {
-                Icon(
-                    painter = painterResource(com.zzz.core.R.drawable.save) ,
-                    contentDescription = "Save expense note" ,
-                    modifier = Modifier.size(25.dp) ,
-                    tint = Color.Black
-                )
-            }
-            Box(
-                Modifier
-                    .clip(CircleShape)
-                    .background(Color.White.copy(0.8f))
-                    .clickable {
-                        context.shareText(value)
-                    }
-                    .padding(4.dp)
-            ) {
-                Icon(
-                    painter = painterResource(com.zzz.core.R.drawable.send) ,
-                    contentDescription = "Share expense note" ,
-                    modifier = Modifier.size(25.dp) ,
-                    tint = Color.Black
-                )
-            }
+                }
+                Box(
+                    Modifier
+                        .clip(CircleShape)
+                        .background(Color.White.copy(0.8f))
+                        .clickable {
+                            context.shareText(value)
+                        }
+                        .padding(4.dp)
+                ) {
+                    Icon(
+                        painter = painterResource(com.zzz.core.R.drawable.send) ,
+                        contentDescription = "Share expense note" ,
+                        modifier = Modifier.size(25.dp) ,
+                        tint = Color.Black
+                    )
+                }
 
+            }
         }
-
 
     }
 

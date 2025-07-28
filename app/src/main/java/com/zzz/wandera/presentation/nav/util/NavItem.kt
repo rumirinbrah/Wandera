@@ -18,7 +18,7 @@ internal val bottomItems = listOf(
     NavItem(
         R.drawable.alarm_nav,
         "Recents",
-        Screen.RecentsScreen
+        Screen.RecentsGraph
     ) ,
     NavItem(
         R.drawable.translate_nav,

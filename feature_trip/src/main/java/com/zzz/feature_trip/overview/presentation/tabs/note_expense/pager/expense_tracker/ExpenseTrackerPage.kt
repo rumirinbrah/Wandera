@@ -92,6 +92,7 @@ fun ExpensePage(
     onExpenseItemClick :(itemId : Long) ->Unit,
     launchAddExpenseSheet: () -> Unit ,
     interactionsEnabled : Boolean = true,
+    viewOnly : Boolean = false,
     modifier: Modifier = Modifier
 ) {
 
@@ -102,23 +103,26 @@ fun ExpensePage(
             modifier.fillMaxWidth() ,
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            //header
-            Row(
-                verticalAlignment = Alignment.CenterVertically ,
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                CircularIconButton(
-                    icon = com.zzz.core.R.drawable.add ,
-                    contentDescription = "add new expense" ,
-                    onClick = {
-                        launchAddExpenseSheet()
-                    } ,
-                    buttonSize = 40.dp ,
-                    background = MaterialTheme.colorScheme.surfaceContainer ,
-                    onBackground = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Text("Add new" , fontWeight = FontWeight.Medium)
+            if(!viewOnly){
+                //header
+                Row(
+                    verticalAlignment = Alignment.CenterVertically ,
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    CircularIconButton(
+                        icon = com.zzz.core.R.drawable.add ,
+                        contentDescription = "add new expense" ,
+                        onClick = {
+                            launchAddExpenseSheet()
+                        } ,
+                        buttonSize = 40.dp ,
+                        background = MaterialTheme.colorScheme.surfaceContainer ,
+                        onBackground = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Text("Add new" , fontWeight = FontWeight.Medium)
+                }
             }
+
             VerticalSpace(5.dp)
 
 

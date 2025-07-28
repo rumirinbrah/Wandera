@@ -38,6 +38,7 @@ fun OverviewDayItem(
     day: Day ,
     onClick: (Day) -> Unit ,
     markDayStatus: (isDone: Boolean , dayId: Long) -> Unit ,
+    viewOnly : Boolean = false,
     modifier: Modifier = Modifier
 ) {
 
@@ -90,21 +91,24 @@ fun OverviewDayItem(
 
 
         )
-        CircularIconButton(
-            icon = if (day.isDone) {
-                com.zzz.core.R.drawable.arrow_undo
-            } else {
-                com.zzz.core.R.drawable.todo_tick
-            } ,
-            contentDescription = "Mark ${day.locationName} as done" ,
-            onClick = {
-                Log.d("done" , "OverviewDayItem: Marking ${day.locationName} as done")
+        if(!viewOnly){
+            CircularIconButton(
+                icon = if (day.isDone) {
+                    com.zzz.core.R.drawable.arrow_undo
+                } else {
+                    com.zzz.core.R.drawable.todo_tick
+                } ,
+                contentDescription = "Mark ${day.locationName} as done" ,
+                onClick = {
+                    Log.d("done" , "OverviewDayItem: Marking ${day.locationName} as done")
 
-                markDayStatus(!day.isDone , day.id)
-            } ,
-            background = Color.Gray.copy(0.5f) ,
-            onBackground = Color.White ,
-            buttonSize = 40.dp
-        )
+                    markDayStatus(!day.isDone , day.id)
+                } ,
+                background = Color.Gray.copy(0.5f) ,
+                onBackground = Color.White ,
+                buttonSize = 40.dp
+            )
+        }
+
     }
 }

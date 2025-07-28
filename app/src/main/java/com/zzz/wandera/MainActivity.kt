@@ -16,6 +16,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.zzz.core.theme.WanderaTheme
+import com.zzz.feature_trip.overview.presentation.components.MarkedAsDoneAnimation
 import com.zzz.feature_trip.share.presentation.ImportTripRoot
 import com.zzz.wandera.presentation.nav.Navigation
 import com.zzz.wandera.ui.ThemeViewModel
@@ -23,7 +24,6 @@ import org.koin.androidx.compose.koinViewModel
 
 
 class MainActivity : ComponentActivity() {
-    @OptIn(ExperimentalFoundationApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -50,7 +50,7 @@ class MainActivity : ComponentActivity() {
 ////                            .padding(innerPadding)
 //                        ,
 //                    ){
-//                        ImportTripRoot()
+//                        MarkedAsDoneAnimation(onAnimationFinish = {})
 //                    }
 //                }
                 Navigation(

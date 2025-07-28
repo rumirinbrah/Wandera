@@ -18,6 +18,7 @@ interface TodoSource {
 
     //update
     suspend fun updateTodo(todoLocation: TodoLocation)
+    suspend fun markAsDone(id : Long , done : Boolean)
 
     //delete
     suspend fun deleteTodo(id : Long)

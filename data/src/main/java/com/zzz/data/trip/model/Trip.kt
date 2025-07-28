@@ -14,5 +14,6 @@ data class Trip(
     val tripName : String,
     val startDate : Long,
     val endDate : Long,
-    val dateCreated : Long = System.currentTimeMillis()
+    val dateCreated : Long = System.currentTimeMillis(),
+    val isDone : Boolean = false
 )

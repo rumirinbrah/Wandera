@@ -34,7 +34,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.zzz.core.presentation.buttons.CircularIconButton
-import com.zzz.core.presentation.buttons.ElevatedTextButton
 import com.zzz.core.presentation.buttons.NormalButton
 import com.zzz.core.presentation.components.ImageComponent
 import com.zzz.core.presentation.components.VerticalSpace
@@ -138,6 +137,7 @@ private fun AddDayPage(
                 .padding(16.dp) ,
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
+            //---- HEADER ----
             if (!dayState.isUpdating) {
 
                 //new
@@ -151,7 +151,7 @@ private fun AddDayPage(
                         onClick = {
                             backHandlerDialog = true
                         } ,
-                        contentDescription = "canel day creation" ,
+                        contentDescription = "cancel day creation" ,
                         verticalPadding = 4.dp,
                         background = Color.Gray.copy(0.1f),
                         onBackground = MaterialTheme.colorScheme.onBackground
@@ -204,7 +204,7 @@ private fun AddDayPage(
                 if (dayState.isUpdating) {
                     dayState.dayTitle
                 } else {
-                    "NEW itinerary item"
+                    "New Itinerary Item"
                 } ,
                 fontSize = 18.sp ,
                 fontWeight = FontWeight.Bold ,

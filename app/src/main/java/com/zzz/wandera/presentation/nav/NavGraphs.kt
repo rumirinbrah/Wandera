@@ -19,12 +19,16 @@ import com.zzz.feature_trip.create.presentation.CreateRoot
 import com.zzz.feature_trip.create.presentation.viewmodel.CreateViewModel
 import com.zzz.feature_trip.create.presentation.viewmodel.CreateAction
 import com.zzz.feature_trip.create.presentation.viewmodel.DayViewModel
-import com.zzz.feature_trip.overview.presentation.DayDetailsRoot
+import com.zzz.feature_trip.day_details.DayDetailsRoot
+import com.zzz.feature_trip.day_details.viewmodel.DayDetailsViewModel
 import com.zzz.feature_trip.home.presentation.HomeRoot
 import com.zzz.feature_trip.home.presentation.HomeViewModel
 import com.zzz.feature_trip.overview.presentation.viewmodel.OverviewActions
 import com.zzz.feature_trip.overview.presentation.viewmodel.OverviewViewModel
 import com.zzz.feature_trip.overview.presentation.TripOverviewRoot
+import com.zzz.feature_trip.recents.presentation.RecentOverviewRoot
+import com.zzz.feature_trip.recents.presentation.RecentsRoot
+import com.zzz.feature_trip.recents.presentation.viewmodel.RecentsViewModel
 import com.zzz.feature_trip.share.presentation.ExportTripRoot
 import com.zzz.feature_trip.share.presentation.ImportTripRoot
 
@@ -169,20 +173,21 @@ fun NavGraphBuilder.homeNavGraph(
         }
         //-------- DETAILS --------
         composable<Screen.HomeGraph.DayDetailsScreen> { backStack->
-            LaunchedEffect(Unit) {
-                navBarVisible(false)
-            }
-
+            /*
             val parentEntry = remember(backStack) {
                 navController.getBackStackEntry(Screen.HomeGraph)
             }
-            val overviewViewModel = koinViewModel<OverviewViewModel>(viewModelStoreOwner = parentEntry)
+             */
+            val route = backStack.toRoute<Screen.HomeGraph.DayDetailsScreen>()
+
+            LaunchedEffect(Unit) {
+                navBarVisible(false)
+            }
             DayDetailsRoot(
-                //Modifier.padding(innerPadding),
                 navigateUp = {
                     navController.navigateUp()
                 } ,
-                overviewViewModel = overviewViewModel
+                dayId = route.dayId
             )
         }
 
@@ -204,8 +209,8 @@ fun NavGraphBuilder.homeNavGraph(
                 Modifier.padding(innerPadding),
                 overviewViewModel = overviewViewModel,
                 wanderaToastState = wanderaToastState,
-                navigateToDayDetails = {
-                    navController.navigate(Screen.HomeGraph.DayDetailsScreen)
+                navigateToDayDetails = {dayId->
+                    navController.navigate(Screen.HomeGraph.DayDetailsScreen(dayId))
                 },
                 navToEditTrip = {tripId->
                     navController.navigate(Screen.HomeGraph.CreateTripScreen(tripId)){
@@ -257,3 +262,82 @@ fun NavGraphBuilder.homeNavGraph(
     }
 
 }
+
+fun NavGraphBuilder.recentsNavGraph(
+    navController : NavHostController,
+    navBarVisible : (Boolean)->Unit,
+    innerPadding : PaddingValues = PaddingValues(0.dp)
+){
+    navigation<Screen.RecentsGraph>(
+        startDestination = Screen.RecentsGraph.RecentsScreen
+    ) {
+        composable<Screen.RecentsGraph.RecentsScreen> {backStack->
+            val parentEntry = remember(backStack) {
+                navController.getBackStackEntry(Screen.RecentsGraph)
+            }
+            val recentsViewModel = koinViewModel<RecentsViewModel>(viewModelStoreOwner = parentEntry)
+
+            LaunchedEffect(Unit) {
+                navBarVisible(true)
+            }
+            RecentsRoot(
+                modifier = Modifier.padding(innerPadding) ,
+                recentsViewModel = recentsViewModel,
+                navToOverview = {tripId->
+                    navController.navigate(Screen.RecentsGraph.RecentOverviewScreen(tripId))
+                }
+            )
+        }
+
+        composable<Screen.RecentsGraph.RecentOverviewScreen> { backStack->
+            val parentEntry = remember(backStack) {
+                navController.getBackStackEntry(Screen.RecentsGraph)
+            }
+            val overviewViewModel = koinViewModel<OverviewViewModel>(viewModelStoreOwner = parentEntry)
+            val route = backStack.toRoute<Screen.HomeGraph.TripOverviewScreen>()
+
+            LaunchedEffect(Unit) {
+                navBarVisible(false)
+                overviewViewModel.onAction(OverviewActions.FetchTripData(route.tripId))
+            }
+
+            RecentOverviewRoot(
+                modifier = Modifier.padding(innerPadding),
+                overviewViewModel = overviewViewModel,
+                navigateToDayDetails = {
+                    navController.navigate(Screen.RecentsGraph.DayDetailsScreen)
+                } ,
+                shareTrip = {
+
+                } ,
+                navigateUp = {
+                    navController.navigateUp()
+                }
+            )
+
+        }
+
+        composable<Screen.RecentsGraph.DayDetailsScreen> {backStack->
+
+            LaunchedEffect(Unit) {
+                navBarVisible(false)
+            }
+
+            val parentEntry = remember(backStack) {
+                navController.getBackStackEntry(Screen.RecentsGraph)
+            }
+            val overviewViewModel = koinViewModel<OverviewViewModel>(viewModelStoreOwner = parentEntry)
+            /*
+            DayDetailsRoot(
+                //Modifier.padding(innerPadding),
+                navigateUp = {
+                    navController.navigateUp()
+                } ,
+                dayDetailsViewModel = overviewViewModel
+            )
+
+             */
+        }
+    }
+}
+

@@ -28,7 +28,7 @@ sealed class Screen {
         )
 
         @Serializable
-        data object DayDetailsScreen
+        data class DayDetailsScreen(val dayId: Long)
 
         @Serializable
         data class TripOverviewScreen(val tripId : Long)
@@ -42,7 +42,15 @@ sealed class Screen {
     }
 
     @Serializable
-    data object RecentsScreen : Screen()
+    data object RecentsGraph : Screen(){
+        @Serializable
+        data object RecentsScreen : Screen()
+        @Serializable
+        data class RecentOverviewScreen(val tripId :Long) : Screen()
+        @Serializable
+        data object DayDetailsScreen
+    }
+
 
     @Serializable
     data object TranslateScreen : Screen()

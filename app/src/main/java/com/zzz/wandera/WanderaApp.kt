@@ -18,7 +18,8 @@ import org.koin.core.context.startKoin
 class WanderaApp : Application() {
     override fun onCreate() {
         super.onCreate()
-        createWanderaNotificationChannel()
+        createSilentWanderaNotificationChannel()
+        createSoundWanderaNotificationChannel()
 
         startKoin {
             androidContext(this@WanderaApp)
@@ -34,9 +35,9 @@ class WanderaApp : Application() {
     }
 }
 
-private fun Context.createWanderaNotificationChannel(){
+private fun Context.createSilentWanderaNotificationChannel(){
     val channel = NotificationChannel(
-        NotificationUtil.CHANNEL_ID,
+        NotificationUtil.SILENT_CHANNEL_ID,
         NotificationUtil.CHANNEL_NAME,
         NotificationManager.IMPORTANCE_HIGH
     ).apply {
@@ -47,3 +48,18 @@ private fun Context.createWanderaNotificationChannel(){
     manager?.createNotificationChannel(channel)
 
 }
+
+private fun Context.createSoundWanderaNotificationChannel(){
+    val channel = NotificationChannel(
+        NotificationUtil.SOUND_CHANNEL_ID,
+        NotificationUtil.CHANNEL_NAME,
+        NotificationManager.IMPORTANCE_HIGH
+    ).apply {
+        enableVibration(true)
+        setShowBadge(true)
+    }
+    val manager = getSystemService<NotificationManager>()
+    manager?.createNotificationChannel(channel)
+
+}
+

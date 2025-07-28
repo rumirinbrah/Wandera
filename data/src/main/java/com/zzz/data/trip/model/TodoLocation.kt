@@ -30,5 +30,6 @@ data class TodoLocation(
     val id : Long =0,
     val title : String, 
     val isTodo : Boolean = true,
+    val isDone : Boolean = false,
     val dayId : Long =0
 )

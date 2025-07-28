@@ -46,7 +46,8 @@ internal fun ChecklistItemRoot(
     background : Color = MaterialTheme.colorScheme.surfaceContainer ,
     onBackground : Color = MaterialTheme.colorScheme.onSurfaceVariant ,
     strikeThroughColor: Color = MaterialTheme.colorScheme.onBackground ,
-    trapeziumChecklist : Boolean = true
+    trapeziumChecklist : Boolean = true,
+    interactionsEnabled : Boolean  = true
 ) {
     when{
         trapeziumChecklist ->{
@@ -54,6 +55,7 @@ internal fun ChecklistItemRoot(
                 item = item ,
                 onCheck = onCheck ,
                 onDelete = onDelete ,
+                enabled = interactionsEnabled,
                 modifier = modifier,
                 background = background,
                 onBackground = onBackground,
@@ -65,6 +67,7 @@ internal fun ChecklistItemRoot(
                 item = item ,
                 onCheck = onCheck ,
                 onDelete = onDelete ,
+                enabled = interactionsEnabled,
                 modifier = modifier,
                 background = background,
                 onBackground = onBackground,
@@ -82,6 +85,7 @@ fun TrapeziumChecklistItem(
     item : ChecklistEntity ,
     onCheck : (itemId : Long , checked : Boolean)->Unit ,
     onDelete : (itemId : Long)->Unit ,
+    enabled : Boolean = true,
     modifier: Modifier = Modifier ,
     background : Color = MaterialTheme.colorScheme.surfaceContainer ,
     onBackground : Color = MaterialTheme.colorScheme.onSurfaceVariant ,
@@ -131,7 +135,9 @@ fun TrapeziumChecklistItem(
             CheckboxCircular(
                 checked = item.isChecked ,
                 onCheck = {
-                    onCheck(item.id , it)
+                    if(enabled){
+                        onCheck(item.id , it)
+                    }
                 },
                 onBackground = successGreen,
                 background = MaterialTheme.colorScheme.surface,
@@ -159,7 +165,9 @@ fun TrapeziumChecklistItem(
         Box(
             Modifier
                 .clip(CircleShape)
-                .clickable {
+                .clickable(
+                    enabled = enabled
+                ) {
                     onDelete(item.id)
                 }
         ){
@@ -178,12 +186,12 @@ fun RectangleChecklistItem(
     item : ChecklistEntity ,
     onCheck : (itemId : Long , checked : Boolean)->Unit ,
     onDelete : (itemId : Long)->Unit ,
+    enabled : Boolean = true,
     modifier: Modifier = Modifier ,
     background : Color = MaterialTheme.colorScheme.surfaceContainer ,
     onBackground : Color = MaterialTheme.colorScheme.onSurfaceVariant ,
     strikeThroughColor: Color = MaterialTheme.colorScheme.onBackground
 ) {
-    val density = LocalDensity.current
     val lineProgress = remember {
         Animatable(
             if(item.isChecked)
@@ -225,7 +233,9 @@ fun RectangleChecklistItem(
             CheckboxCircular(
                 checked = item.isChecked ,
                 onCheck = {
-                    onCheck(item.id , it)
+                    if(enabled){
+                        onCheck(item.id , it)
+                    }
                 },
                 onBackground = successGreen,
                 background = MaterialTheme.colorScheme.surface,
@@ -253,7 +263,9 @@ fun RectangleChecklistItem(
         Box(
             Modifier
                 .clip(CircleShape)
-                .clickable {
+                .clickable(
+                    enabled = enabled
+                ) {
                     onDelete(item.id)
                 }
         ){

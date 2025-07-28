@@ -400,21 +400,39 @@ private fun CreateTripPage(
                             )
                         ) {
                             append(
-                                " I got you covered!\nGrab your offline translation model and impress " +
-                                        "the locals!( or at least...confuse them slightly less )"
+                                " I got you covered!\nGrab your offline translation model  from the "
+                            )
+                        }
+                        withStyle(
+                            SpanStyle(
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        ) {
+                            append(
+                                "Translate Page "
+                            )
+                        }
+                        withStyle(
+                            SpanStyle(
+                                fontSize = 14.sp
+                            )
+                        ) {
+                            append(
+                                " and impress the locals! ( or at least...confuse them slightly less )"
                             )
                         }
                     }
                 )
             }
             VerticalSpace(10.dp)
-            IconTextButton(
-                icon = com.zzz.core.R.drawable.arrow_45 ,
-                text = "Choose language" ,
-                onClick = {
-                } ,
-                modifier = Modifier.align(Alignment.CenterHorizontally)
-            )
+//            IconTextButton(
+//                icon = com.zzz.core.R.drawable.arrow_45 ,
+//                text = "Choose language" ,
+//                onClick = {
+//                } ,
+//                modifier = Modifier.align(Alignment.CenterHorizontally)
+//            )
 
             VerticalSpace()
             //save
