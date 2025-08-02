@@ -1,4 +1,4 @@
-package com.zzz.feature_trip.create.presentation.components
+package com.zzz.feature_trip.create.presentation.components.checklist
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -16,7 +16,7 @@ import com.zzz.core.presentation.buttons.ElevatedIconTextButton
 import com.zzz.core.presentation.modifiers.customShadow
 
 @Composable
-internal fun AddChecklistComponent(
+internal fun AddChecklistHeader(
     onAdd : ()->Unit,
     modifier: Modifier = Modifier
 ) {

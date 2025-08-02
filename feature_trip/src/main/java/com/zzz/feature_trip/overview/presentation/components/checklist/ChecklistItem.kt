@@ -1,4 +1,4 @@
-package com.zzz.feature_trip.overview.presentation.components
+package com.zzz.feature_trip.overview.presentation.components.checklist
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
