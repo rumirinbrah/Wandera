@@ -1,44 +1,43 @@
 package com.zzz.core.presentation.dialogs
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Shapes
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.zzz.core.presentation.components.VerticalSpace
-import com.zzz.core.theme.WanderaTheme
+import com.zzz.core.presentation.modifiers.generalDialogProperties
 
 /**
+ * A dialog for action confirmation. Has a positive and a negative button.
  * @author zyzz
  * @param title - Text in the dialog
- * @param actionText - Text for the button that will perform required action
+ * @param actionText - Text for the positive button that will perform required action
  */
 @Composable
 fun ConfirmActionDialog(
     title : String ,
+    fontSize : TextUnit = 18.sp,
+    fontWeight: FontWeight = FontWeight.Bold,
     actionText : String,
     onConfirm:()->Unit ,
     onCancel:()->Unit ,
     modifier: Modifier = Modifier
-)
-{
+) {
 
     Dialog(
         onDismissRequest = {
@@ -47,18 +46,15 @@ fun ConfirmActionDialog(
     ) {
         Column(
             modifier
-                .clip(MaterialTheme.shapes.large)
-                .fillMaxWidth()
-                .background(MaterialTheme.colorScheme.surface)
-                .padding(16.dp) ,
+                .generalDialogProperties(MaterialTheme.colorScheme.surface) ,
             horizontalAlignment = Alignment.CenterHorizontally ,
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             VerticalSpace(5.dp)
             Text(
                 title ,
-                fontWeight = FontWeight.Bold ,
-                fontSize = 18.sp,
+                fontWeight = fontWeight ,
+                fontSize = fontSize,
                 textAlign = TextAlign.Center
             )
             Row (
@@ -108,10 +104,7 @@ fun ConfirmActionDialog(
     ) {
         Column(
             modifier
-                .clip(MaterialTheme.shapes.large)
-                .fillMaxWidth()
-                .background(MaterialTheme.colorScheme.surface)
-                .padding(16.dp) ,
+                .generalDialogProperties(MaterialTheme.colorScheme.surface) ,
             horizontalAlignment = Alignment.CenterHorizontally ,
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
@@ -150,7 +143,7 @@ fun ConfirmActionDialog(
 @Preview
 @Composable
 private fun DeletePrev() {
-    WanderaTheme {
+    MaterialTheme {
         ConfirmActionDialog(
             title = "Are yo sure u wann delete?",
             actionText = "Discard",

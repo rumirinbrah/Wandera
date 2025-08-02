@@ -1,10 +1,8 @@
 package com.zzz.core.presentation.dialogs
 
-import androidx.compose.foundation.background
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -23,7 +21,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
@@ -39,6 +36,7 @@ import androidx.compose.ui.window.Dialog
 import com.zzz.core.domain.DailyTask
 import com.zzz.core.presentation.components.DualOptionSelector
 import com.zzz.core.presentation.components.VerticalSpace
+import com.zzz.core.presentation.modifiers.generalDialogProperties
 import com.zzz.core.theme.WanderaTheme
 import com.zzz.core.theme.successGreen
 
@@ -61,11 +59,11 @@ fun OptionSelectorDialog(
     var isTodo by remember { mutableStateOf(true) }
 
 
-    LaunchedEffect(keyboard) {
-        keyboard?.let {
-            println("MF visible")
-        }
+    LaunchedEffect(Unit) {
+        println("REQ FOCUS")
+        focusRequester.requestFocus()
     }
+
     Dialog(
         onDismissRequest = {
             onDismiss()
@@ -74,10 +72,7 @@ fun OptionSelectorDialog(
     ) {
         Column(
             modifier
-                .clip(MaterialTheme.shapes.large)
-                .fillMaxWidth()
-                .background(MaterialTheme.colorScheme.surface)
-                .padding(16.dp),
+                .generalDialogProperties(MaterialTheme.colorScheme.surface),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
@@ -90,9 +85,14 @@ fun OptionSelectorDialog(
                 placeholder = { Text(textFieldPlaceholder) },
                 keyboardActions = KeyboardActions(
                     onDone = {
-                        focusRequester.freeFocus()
-                        focusManager.clearFocus()
+                        println("DONE!")
+                        //focusRequester.freeFocus()
+                        //focusManager.clearFocus()
                         keyboard?.hide()
+                        keyboard?.let {
+                            println("MC KB")
+                            keyboard.hide()
+                        }
                     }
                 ),
                 keyboardOptions = KeyboardOptions(
