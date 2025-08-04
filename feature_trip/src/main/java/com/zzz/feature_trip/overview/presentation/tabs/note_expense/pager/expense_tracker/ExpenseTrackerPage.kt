@@ -2,6 +2,7 @@ package com.zzz.feature_trip.overview.presentation.tabs.note_expense.pager.expen
 
 import android.content.res.Configuration
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -17,6 +18,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -30,6 +32,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -41,7 +44,9 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
@@ -51,6 +56,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -89,10 +95,10 @@ fun ExpensePage(
     expenses: List<ExpenseEntityUI> ,
     groupedExpenses: Map<LocalDate , List<ExpenseEntityUI>> ,
     totalExpense: Int? = null ,
-    onExpenseItemClick :(itemId : Long) ->Unit,
+    onExpenseItemClick: (itemId: Long) -> Unit ,
     launchAddExpenseSheet: () -> Unit ,
-    interactionsEnabled : Boolean = true,
-    viewOnly : Boolean = false,
+    interactionsEnabled: Boolean = true ,
+    viewOnly: Boolean = false ,
     modifier: Modifier = Modifier
 ) {
 
@@ -103,7 +109,7 @@ fun ExpensePage(
             modifier.fillMaxWidth() ,
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            if(!viewOnly){
+            if (!viewOnly) {
                 //header
                 Row(
                     verticalAlignment = Alignment.CenterVertically ,
@@ -163,8 +169,8 @@ fun ExpensePage(
                     ) { item ->
                         ExpenseEntityItem(
                             item ,
-                            onClick = onExpenseItemClick,
-                            modifier = Modifier.animateItem(),
+                            onClick = onExpenseItemClick ,
+                            modifier = Modifier.animateItem() ,
                             clickEnabled = interactionsEnabled
                         )
                     }
@@ -186,13 +192,13 @@ fun ExpensePage(
  * @param onClosed Callback when sheet is closed
  * @author zyzz
  */
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 internal fun AddExpenseSheet(
     tripId: Long? = null ,
     itemId: Long? = null ,
     sheetState: WanderaSheetState ,
     onClosed: () -> Unit = {} ,
+    errorToast : (errorMsg : String)->Unit = {},
     modifier: Modifier = Modifier ,
     sheetBackground: Color = MaterialTheme.colorScheme.surface ,
     onSheetBackground: Color = MaterialTheme.colorScheme.onSurface.copy(0.8f) ,
@@ -206,16 +212,20 @@ internal fun AddExpenseSheet(
     val state by expenseViewModel.state.collectAsStateWithLifecycle()
     val events = expenseViewModel.events
 
+    //----------- CLEAN UP VM -----------
     DisposableEffect(Unit) {
         onDispose {
+            onClosed()
             expenseViewModel.onAction(ExpenseActions.Discard)
         }
     }
 
+    //----------- ONE TIME EVENTS -----------
     ObserveAsEvents(events) { event ->
         when (event) {
             is UIEvents.Error -> {
                 Toast.makeText(context , event.errorMsg , Toast.LENGTH_SHORT).show()
+                //errorToast(event.errorMsg)
             }
 
             UIEvents.Success -> {
@@ -240,17 +250,27 @@ internal fun AddExpenseSheet(
         }
     }
 
+    BackHandler {
+        //onClosed()
+        scope.launch {
+            sheetState.animateTo(SheetState.CLOSED)
+        }
+    }
+
+
     WanderaBottomSheet(
         sheetState ,
-        onSheetClosed = onClosed ,
+        //onSheetClosed = {} ,
+        dismissTopContainer = true,
         modifier = modifier
             .fillMaxSize()
             .background(sheetBackground)
-            .padding(16.dp)
+            //.padding(16.dp),
     ) {
         Column(
-            Modifier.fillMaxWidth()
-                .verticalScroll(rememberScrollState()),
+            Modifier
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState()) ,
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
 
@@ -274,7 +294,7 @@ internal fun AddExpenseSheet(
                     fontWeight = FontWeight.Bold
                 ) ,
                 singleLine = true ,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
             )
 
             //EXPENSE TYPE
@@ -285,6 +305,7 @@ internal fun AddExpenseSheet(
                 fontSize = 16.sp ,
                 color = onSheetBackground
             )
+            /*
             FlowRow(
                 horizontalArrangement = Arrangement.spacedBy(8.dp) ,
             ) {
@@ -298,6 +319,16 @@ internal fun AddExpenseSheet(
                     )
                 }
             }
+
+             */
+            ExpenseTypesFlowRow(
+                modifier = Modifier.fillMaxWidth(),
+                items = flowRowItems,
+                currentTypeShortTitle = state.expenseType ,
+                onClick = {shortTitle ->
+                    expenseViewModel.onAction(ExpenseActions.OnExpenseTypeChange(shortTitle))
+                }
+            )
 
             //titlew
             VerticalSpace(10.dp)
@@ -365,7 +396,7 @@ internal fun AddExpenseSheet(
                                 expenseViewModel.onAction(ExpenseActions.DeleteExpense)
                             }
                         } ,
-                        enabled = !state.loading,
+                        enabled = !state.loading ,
                         shape = MaterialTheme.shapes.small ,
                         background = MaterialTheme.colorScheme.surfaceContainer ,
                         onBackground = MaterialTheme.colorScheme.onBackground ,
@@ -389,6 +420,58 @@ internal fun AddExpenseSheet(
                     )
                 }
             }
+        }
+    }
+}
+
+/**
+ * Expense types flow row for the user to select the type of expense.
+ * This component dynamically calculates item width depending upon the max num of items in the flow row
+ * @param horizontalSpacing Spacing between items
+ * @param maxItemsEachRow Max num of items in a single row of flowRow
+ */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun ExpenseTypesFlowRow(
+    modifier: Modifier = Modifier ,
+    items: List<ExpenseType> ,
+    currentTypeShortTitle : String ,
+    onClick: (shortTitle : String) -> Unit ,
+    enabled: Boolean = true ,
+    horizontalSpacing: Dp = 8.dp ,
+    maxItemsEachRow: Int = 4 ,
+) {
+    val density = LocalDensity.current
+
+    val flowRowItemWidth = remember {
+        mutableStateOf(50.dp)
+    }
+
+    FlowRow(
+        modifier
+            .onGloballyPositioned {
+                val totalWidth = with(density) {
+                    it.size.width.toDp()
+                }
+                val extraSpace = horizontalSpacing * maxItemsEachRow
+                val itemWidthDp = (totalWidth - extraSpace) / maxItemsEachRow
+                flowRowItemWidth.value = itemWidthDp
+            },
+        horizontalArrangement = Arrangement.spacedBy(horizontalSpacing),
+        maxItemsInEachRow = maxItemsEachRow
+    ) {
+        items.onEach { type ->
+            ExpenseTypeFlowRowItem(
+                item = type ,
+                selected = type.shortTitle == currentTypeShortTitle ,
+                onClick = {
+                    //expenseViewModel.onAction(ExpenseActions.OnExpenseTypeChange(type.shortTitle))
+                    if(enabled){
+                        onClick(type.shortTitle)
+                    }
+                },
+                modifier = Modifier.width(flowRowItemWidth.value)
+            )
         }
     }
 }
@@ -420,9 +503,10 @@ private fun ExpenseTypeFlowRowItem(
             .clickable {
                 onClick()
             }
-            .widthIn(50.dp , 80.dp)
+            //.widthIn(50.dp , 80.dp)
             .aspectRatio(1f)
-            .padding(4.dp) ,
+            //.padding(4.dp)
+        ,
         horizontalAlignment = Alignment.CenterHorizontally ,
         verticalArrangement = Arrangement.Center
     ) {
@@ -443,12 +527,12 @@ private fun ExpenseTypeFlowRowItem(
 }
 
 /**
- * Represents an expense in LazyColumn
+ * Represents an expense in LazyColumn of Expenses Page
  */
 @Composable
 internal fun ExpenseEntityItem(
     item: ExpenseEntityUI ,
-    onClick: (itemId: Long) -> Unit = {},
+    onClick: (itemId: Long) -> Unit = {} ,
     modifier: Modifier = Modifier ,
     clickEnabled: Boolean = true ,
     background: Color = MaterialTheme.colorScheme.background ,
@@ -460,7 +544,7 @@ internal fun ExpenseEntityItem(
             .fillMaxWidth()
             .background(background)
             .clickable(
-                enabled = clickEnabled,
+                enabled = clickEnabled ,
                 onClick = {
                     onClick(item.id)
                 }

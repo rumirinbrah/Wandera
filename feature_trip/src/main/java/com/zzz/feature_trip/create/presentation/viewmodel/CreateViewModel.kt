@@ -14,7 +14,6 @@ import com.zzz.data.trip.model.TodoLocation
 import com.zzz.data.trip.model.Trip
 import com.zzz.data.trip.model.UserDocument
 import com.zzz.data.trip.source.DaySource
-import com.zzz.data.trip.source.TodoSource
 import com.zzz.data.trip.source.TripSource
 import com.zzz.data.trip.source.UserDocSource
 import kotlinx.coroutines.CancellationException
@@ -49,8 +48,6 @@ class CreateViewModel(
     private val _tripState = MutableStateFlow(TripState())
     internal val tripState = _tripState.asStateFlow()
 
-    private val _dayState = MutableStateFlow(DayState())
-    internal val dayState = _dayState.asStateFlow()
 
     private val _days = MutableStateFlow<List<Day>>(emptyList())
     val days = _days.stateIn(
@@ -115,9 +112,9 @@ class CreateViewModel(
                     is CreateAction.TripActions.OnDateSelect -> {
                         onDateSelect(action.start , action.end)
                     }
-                    //doc
+                    //---------DOC--------
                     is CreateAction.TripActions.OnDocumentUpload -> {
-                        uploadDocument(action.docUri , action.docName)
+                        addDocument(action.docUri , action.docName)
                     }
 
                     is CreateAction.TripActions.OnDocumentUpdate -> {
@@ -126,6 +123,9 @@ class CreateViewModel(
 
                     is CreateAction.TripActions.DeleteDocument -> {
                         deleteDocument(action.docId)
+                    }
+                    is CreateAction.TripActions.OnPhotoDocSelect->{
+                        onPhotoDocSelect(action.docUri)
                     }
 
                     //checklist
@@ -175,22 +175,6 @@ class CreateViewModel(
         }
     }
 
-    /*
-    if(sessionOngoing){
-            return
-        }
-        viewModelScope.launch {
-            sessionOngoing = true
-            val trip = tripSource.getTripById(tripId)
-            _state.update {
-                it.copy(
-                    tripId = tripId,
-                    tripTitle = trip.tripName,
-                    startDate =trip.startDate ,
-                    endDate = trip.endDate
-                )
-            }
-     */
 
     //=========== DAY ===========
     /**
@@ -390,7 +374,7 @@ class CreateViewModel(
     }
 
     //-------- DOC --------
-    private fun uploadDocument(docUri: Uri , docName: String) {
+    private fun addDocument(docUri: Uri , docName: String) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 val doc = UserDocument(
@@ -402,7 +386,12 @@ class CreateViewModel(
                 Log.d("CreateVM" , "uploadDocument: Added doc $docName $id")
 
             }
-
+            _tripState.update {
+                it.copy(
+                    selectedPhotoDoc = null,
+                    showRenameDocDialog = false
+                )
+            }
         }
     }
 
@@ -416,6 +405,16 @@ class CreateViewModel(
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 docSource.updateDocumentById(docId , newName)
+            }
+        }
+    }
+
+    private fun onPhotoDocSelect(uri : Uri?){
+        viewModelScope.launch {
+            _tripState.update {
+                it.copy(
+                    selectedPhotoDoc = uri
+                )
             }
         }
     }
@@ -559,9 +558,6 @@ class CreateViewModel(
         viewModelScope.launch {
             _tripState.update {
                 TripState()
-            }
-            _dayState.update {
-                DayState()
             }
             sessionData = SessionData()
         }

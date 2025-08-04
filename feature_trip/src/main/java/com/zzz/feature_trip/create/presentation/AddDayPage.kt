@@ -17,6 +17,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -25,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -89,6 +91,7 @@ private fun AddDayPage(
 ) {
     var backHandlerDialog by remember { mutableStateOf(false) }
     val context = LocalContext.current
+    val keyboard = LocalSoftwareKeyboardController.current
 
     val imagePicker = rememberWanderaImagePicker()
 
@@ -234,6 +237,7 @@ private fun AddDayPage(
             VerticalSpace(5.dp)
             UploadImageComponent(
                 launchPicker = {
+                    keyboard?.hide()
                     imagePicker.launch()
                 }
             )

@@ -1,6 +1,7 @@
 package com.zzz.feature_trip.create.presentation
 
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
@@ -40,15 +41,18 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.zzz.core.presentation.buttons.CircularIconButton
 import com.zzz.core.presentation.buttons.ElevatedIconTextButton
-import com.zzz.core.presentation.buttons.IconTextButton
 import com.zzz.core.presentation.buttons.NormalButton
+import com.zzz.core.presentation.components.SheetState
 import com.zzz.core.presentation.components.VerticalSpace
+import com.zzz.core.presentation.components.rememberWanderaSheetState
 import com.zzz.core.presentation.dialogs.ConfirmActionDialog
 import com.zzz.core.presentation.dialogs.DateRangePickerDialog
 import com.zzz.core.presentation.dialogs.DialogWithTextField
 import com.zzz.core.presentation.dialogs.LoadingDialog
 import com.zzz.core.presentation.events.ObserveAsEvents
 import com.zzz.core.presentation.events.UIEvents
+import com.zzz.core.presentation.image_picker.WanderaImagePicker
+import com.zzz.core.presentation.image_picker.rememberWanderaImagePicker
 import com.zzz.core.presentation.snackbar.WanderaSnackbar
 import com.zzz.core.presentation.snackbar.showWanderaSnackbar
 import com.zzz.core.presentation.text_field.RoundedTextField
@@ -56,12 +60,13 @@ import com.zzz.core.theme.WanderaTheme
 import com.zzz.data.trip.model.Day
 import com.zzz.data.trip.model.UserDocument
 import com.zzz.feature_trip.R
-import com.zzz.feature_trip.create.presentation.components.AddChecklistComponent
+import com.zzz.feature_trip.create.presentation.components.checklist.AddChecklistHeader
 import com.zzz.feature_trip.create.presentation.components.ChecklistItemViewOnly
 import com.zzz.feature_trip.create.presentation.components.DocumentCard
 import com.zzz.feature_trip.create.presentation.components.IndicatorCard
 import com.zzz.feature_trip.create.presentation.components.ItineraryItem
 import com.zzz.feature_trip.create.presentation.components.UploadDocumentComponent
+import com.zzz.feature_trip.create.presentation.components.checklist.AddChecklistSheet
 import com.zzz.feature_trip.create.presentation.viewmodel.CreateAction
 import com.zzz.feature_trip.create.presentation.viewmodel.CreateViewModel
 import com.zzz.feature_trip.create.presentation.viewmodel.TripState
@@ -115,6 +120,8 @@ private fun CreateTripPage(
     val scope = rememberCoroutineScope()
 
     val snackbarState = remember { SnackbarHostState() }
+    val checklistSheetState = rememberWanderaSheetState(SheetState.CLOSED)
+    val wanderaImagePicker = rememberWanderaImagePicker()
 
     var showDatePicker by remember { mutableStateOf(false) }
     var showConfirmDiscardDialog by remember { mutableStateOf(false) }
@@ -141,11 +148,23 @@ private fun CreateTripPage(
         }
     }
     BackHandler {
-        if (tripState.isUpdating) {
-            navigateUp()
-        } else {
-            showConfirmDiscardDialog = true
+        when {
+            checklistSheetState.visible -> {
+                scope.launch {
+                    checklistSheetState.dismiss()
+                }
+            }
+            //wanderaImagePicker.pickerVisible
+
+            tripState.isUpdating -> {
+                navigateUp()
+            }
+
+            else -> {
+                showConfirmDiscardDialog = true
+            }
         }
+
     }
 
     Box(modifier.fillMaxSize()) {
@@ -166,8 +185,8 @@ private fun CreateTripPage(
                         .align(Alignment.CenterStart) ,
                     icon = com.zzz.core.R.drawable.arrow_back ,
                     contentDescription = "Go back" ,
-                    background = Color.DarkGray.copy(0.3f) ,
-                    onBackground = Color.White ,
+                    background = MaterialTheme.colorScheme.surfaceContainer ,
+                    onBackground = MaterialTheme.colorScheme.onBackground ,
                     onClick = {
                         if (tripState.isUpdating) {
                             navigateUp()
@@ -270,28 +289,29 @@ private fun CreateTripPage(
                     text = "Add Day" ,
                     onClick = {
                         onNavToAddDay(tripState.tripId)
-                    },
+                    } ,
                     modifier = Modifier
                 )
 
             }
             AnimatedVisibility(days.isEmpty()) {
                 IndicatorCard(
-                    "Added itinerary will appear here",
+                    "Added itinerary will appear here" ,
                     image = com.zzz.core.R.drawable.itinerary_illustration
                 )
             }
             LazyColumn(
-                Modifier.fillMaxWidth()
-                    .heightIn(max = 400.dp),
+                Modifier
+                    .fillMaxWidth()
+                    .heightIn(max = 400.dp) ,
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(
-                    items = days,
+                    items = days ,
                     key = {
                         it.id
                     }
-                ){day->
+                ) { day ->
                     ItineraryItem(
                         day ,
                         onClick = { id ->
@@ -311,11 +331,18 @@ private fun CreateTripPage(
             UploadDocumentComponent(
                 onAddDoc = { uri , name ->
                     onAction(CreateAction.TripActions.OnDocumentUpload(uri , name))
+                } ,
+                launchImagePicker = {
+                    wanderaImagePicker.launch()
+                },
+                pickedImage = tripState.selectedPhotoDoc,
+                clearPickedImage = {
+                    onAction(CreateAction.TripActions.OnPhotoDocSelect(null))
                 }
             )
             if (docs.isEmpty()) {
                 IndicatorCard(
-                    "Your documents will be listed here",
+                    "Your documents will be listed here" ,
                     image = R.drawable.upload_files_undraw
                 )
             }
@@ -345,14 +372,15 @@ private fun CreateTripPage(
 
             //Checklist
             VerticalSpace(5.dp)
-            AddChecklistComponent(
+            AddChecklistHeader(
                 onAdd = {
-                    onAction(CreateAction.TripActions.ShowAddChecklistDialog(true))
+                    //onAction(CreateAction.TripActions.ShowAddChecklistDialog(true))
+                    checklistSheetState.show()
                 }
             )
             AnimatedVisibility(tripState.checklist.isEmpty()) {
                 IndicatorCard(
-                    "Your checklist will be here",
+                    "Your checklist will be here" ,
                     image = R.drawable.checklist_undraw
                 )
             }
@@ -405,7 +433,7 @@ private fun CreateTripPage(
                         }
                         withStyle(
                             SpanStyle(
-                                fontSize = 14.sp,
+                                fontSize = 14.sp ,
                                 fontWeight = FontWeight.Bold
                             )
                         ) {
@@ -426,13 +454,7 @@ private fun CreateTripPage(
                 )
             }
             VerticalSpace(10.dp)
-//            IconTextButton(
-//                icon = com.zzz.core.R.drawable.arrow_45 ,
-//                text = "Choose language" ,
-//                onClick = {
-//                } ,
-//                modifier = Modifier.align(Alignment.CenterHorizontally)
-//            )
+
 
             VerticalSpace()
             //save
@@ -443,7 +465,7 @@ private fun CreateTripPage(
                     //navigateUp()
                 } ,
                 background = MaterialTheme.colorScheme.onBackground ,
-                onBackground = MaterialTheme.colorScheme.background,
+                onBackground = MaterialTheme.colorScheme.background ,
                 modifier = Modifier.fillMaxWidth()
             )
 
@@ -467,6 +489,32 @@ private fun CreateTripPage(
                 )
             }
 
+
+            checklistSheetState.visible -> {
+                AddChecklistSheet(
+                    modifier = Modifier ,
+                    state = checklistSheetState ,
+                    onAdd = { title ->
+                        onAction(CreateAction.TripActions.AddChecklistEntity(title))
+                    } ,
+                    onDelete = { id ->
+                        onAction(CreateAction.TripActions.DeleteChecklistEntity(id))
+                    } ,
+                    checklist = tripState.checklist ,
+                )
+            }
+
+            wanderaImagePicker.pickerVisible -> {
+                WanderaImagePicker(
+                    launcherState = wanderaImagePicker ,
+                    onImagePicked = { uri ->
+                        onAction(CreateAction.TripActions.OnPhotoDocSelect(uri))
+                        wanderaImagePicker.dismiss()
+                    }
+                )
+            }
+
+
             showConfirmDiscardDialog -> {
                 ConfirmActionDialog(
                     title = "Are you sure you want to go back? All created data will be lost" ,
@@ -482,6 +530,20 @@ private fun CreateTripPage(
                 )
             }
         }
+        /*
+        AddChecklistSheet(
+            modifier = Modifier ,
+            state = checklistSheetState ,
+            onAdd = { title ->
+                onAction(CreateAction.TripActions.AddChecklistEntity(title))
+            } ,
+            onDelete = { id ->
+                onAction(CreateAction.TripActions.DeleteChecklistEntity(id))
+            } ,
+            checklist = tripState.checklist
+        )
+
+         */
 
         SnackbarHost(
             hostState = snackbarState ,

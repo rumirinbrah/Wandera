@@ -50,6 +50,9 @@ import com.zzz.feature_trip.day_details.viewmodel.DayDetailsViewModel
 import com.zzz.feature_trip.overview.presentation.components.DayTitleCard
 import org.koin.androidx.compose.koinViewModel
 
+/**
+ * @param viewOnly Used to hide action buttons when needed
+ */
 @Composable
 fun DayDetailsRoot(
     modifier: Modifier = Modifier ,

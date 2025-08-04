@@ -2,6 +2,7 @@ package com.zzz.feature_trip.overview.presentation.components
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
@@ -10,6 +11,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -18,6 +20,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -31,9 +35,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
@@ -45,7 +51,10 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.zzz.core.presentation.components.KeyboardAware
+import com.zzz.core.presentation.components.VerticalSpace
 import com.zzz.core.presentation.components.WanderaShapes
+import com.zzz.core.presentation.modifiers.customShadow
 import com.zzz.core.presentation.text_field.RoundedTextField
 import com.zzz.core.theme.WanderaTheme
 import com.zzz.core.util.shareText
@@ -170,6 +179,7 @@ internal fun BookLikeTextField(
     value: String ,
     onValueChange: (String) -> Unit ,
     onSave: () -> Unit ,
+    //componentHeight : Dp = 50.dp,
     interactionsEnabled : Boolean = true
 ) {
     val context = LocalContext.current
@@ -177,6 +187,9 @@ internal fun BookLikeTextField(
     val lineHeight = remember { 20.sp }
     val ripple = rememberRipple(color = Color.DarkGray)
 
+//    val containerHeight = animateDpAsState(
+//        targetValue = componentHeight
+//    )
 
 
     Box(
@@ -275,8 +288,8 @@ internal fun BookLikeTextField(
                         .clip(CircleShape)
                         .background(Color.White.copy(0.8f))
                         .clickable(
-                            onClick = onSave,
-                            interactionSource = remember { MutableInteractionSource() },
+                            onClick = onSave ,
+                            interactionSource = remember { MutableInteractionSource() } ,
                             indication = ripple
                         )
                         .padding(4.dp)
@@ -308,8 +321,70 @@ internal fun BookLikeTextField(
             }
         }
 
+
     }
 
+}
+
+/**
+ *
+ */
+@Composable
+internal fun ExpandableBookLikeTextField(
+    modifier: Modifier = Modifier ,
+    value: String ,
+    onValueChange: (String) -> Unit ,
+    onSave: () -> Unit ,
+    interactionsEnabled : Boolean = true
+) {
+    val density = LocalDensity.current
+
+    var collapsed by remember { mutableStateOf(true) }
+    val rotation = animateFloatAsState(
+        targetValue = if(collapsed) 0f else 180f,
+        animationSpec = tween(500)
+    )
+
+
+
+    Column(
+        modifier.fillMaxWidth()
+    ) {
+        KeyboardAware {
+            BookLikeTextField(
+                modifier = Modifier
+
+                    .customShadow(
+                        MaterialTheme.colorScheme.onBackground ,
+                        borderRadius = 0.dp
+                    ) ,
+                value = value ,
+                onValueChange = {
+                    onValueChange(it)
+                } ,
+                onSave = {
+                    onSave()
+                },
+                interactionsEnabled = interactionsEnabled
+            )
+        }
+        VerticalSpace(10.dp)
+        Box(
+            Modifier.clip(CircleShape)
+                .clickable {
+                    collapsed = !collapsed
+                }
+                .align(Alignment.CenterHorizontally)
+        ){
+            Icon(
+                imageVector = Icons.Default.ArrowDropDown,
+                tint = MaterialTheme.colorScheme.onBackground,
+                contentDescription = "expand/collapse notes",
+                modifier = Modifier.rotate(rotation.value)
+            )
+        }
+
+    }
 }
 
 @Preview

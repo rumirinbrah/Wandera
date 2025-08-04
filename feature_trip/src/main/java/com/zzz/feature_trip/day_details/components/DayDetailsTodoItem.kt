@@ -17,6 +17,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.zzz.core.presentation.components.CheckboxCircular
+import com.zzz.core.presentation.modifiers.conditionalCustomShadow
 import com.zzz.core.presentation.modifiers.customShadow
 import com.zzz.core.theme.successGreen
 import com.zzz.data.trip.model.TodoLocation
@@ -82,11 +83,17 @@ fun DayDetailsTodoItem(
                 },
                 onBackground = successGreen ,
                 background = MaterialTheme.colorScheme.surfaceContainer,
-                modifier = Modifier.customShadow(
-                    shadowRadius = 5f,
-                    color = MaterialTheme.colorScheme.onBackground,
-                    alpha = 0.1f
-                )
+                modifier = Modifier
+                    .conditionalCustomShadow(
+                        shadowRadius = 5f,
+                        color = MaterialTheme.colorScheme.onBackground,
+                        alpha = 0.1f
+                    )
+//                    .customShadow(
+//                    shadowRadius = 5f,
+//                    color = MaterialTheme.colorScheme.onBackground,
+//                    alpha = 0.1f
+//                )
             )
 
         }
