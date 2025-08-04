@@ -12,7 +12,7 @@ internal data class UpdateTripState(
     val endDate : Long? = null ,
     val dayTitle : String = "" ,
     val image : Uri? = null ,
-    val addTodoDialogVisible : Boolean = false,
+    val selectedPhotoDoc : Uri? = null,
     val days : List<Day> = emptyList() ,
     val todos : List<TodoLocation> = emptyList() ,
     val userDocs : List<UserDocument> = emptyList() ,

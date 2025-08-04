@@ -20,43 +20,37 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ExperimentalComposeApi
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.coerceAtMost
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.unit.toSize
 import com.zzz.core.presentation.components.VerticalSpace
 import com.zzz.data.trip.TripWithDays
 import com.zzz.feature_trip.R
 import com.zzz.feature_trip.home.presentation.components.DateComponent
 import com.zzz.feature_trip.home.presentation.components.OverlappedImagesRow
-import com.zzz.feature_trip.home.presentation.components.TicketDecorations
-import com.zzz.feature_trip.home.presentation.components.VerticalBarCode
-import com.zzz.feature_trip.home.util.getDateDifference
+import com.zzz.feature_trip.home.presentation.components.VerticalBarCodeSvg
 
 /**
  * Flashy ticket container
  */
+@OptIn(ExperimentalComposeApi::class)
 @Composable
 internal fun RecentTripItem(
     tripWithDays: TripWithDays ,
@@ -68,12 +62,12 @@ internal fun RecentTripItem(
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed = interactionSource.collectIsPressedAsState()
 
-    val innerRowContainerHeight = remember { mutableStateOf(60.dp) }
-
-    val arrowRotation = animateFloatAsState(
+    val arrowTranslation = animateFloatAsState(
         targetValue = if(isPressed.value) 30f else 0f,
         animationSpec = tween(500)
     )
+
+    val innerRowContainerHeight = remember { mutableStateOf(60.dp) }
 
     val dayImages = remember(tripWithDays.days) {
         tripWithDays.days.map {
@@ -133,12 +127,10 @@ internal fun RecentTripItem(
             ) {
 
             //--- BARCODE ---
-            VerticalBarCode(
-                height = innerRowContainerHeight.value ,
+
+            VerticalBarCodeSvg(
                 modifier = Modifier
                     .align(Alignment.CenterVertically)
-                    .padding(8.dp) ,
-                color = containerOnBackground
             )
 
             Column(
@@ -228,7 +220,7 @@ internal fun RecentTripItem(
                     .padding(16.dp)
                     .graphicsLayer {
 //                        rotationZ = -arrowRotation.value
-                        translationX = arrowRotation.value
+                        translationX = arrowTranslation.value
                     }
             ) {
                 Icon(
@@ -248,10 +240,14 @@ internal fun RecentTripItem(
 
 }
 
+/**
+ * Simple ticket stamp for finished trips
+ */
 @Composable
 private fun TicketStamp(
     stampColor : Color = Color(0xEB293BA1) ,
     stampTextColor : Color = Color(0xF2212D75) ,
+    background : Color = Color(0xFFEFEFEF),
     modifier: Modifier = Modifier
 ) {
     val containerSize = remember { mutableStateOf(50.dp) }
@@ -259,10 +255,10 @@ private fun TicketStamp(
 
     Box(
         modifier.clip(CircleShape)
+            .background(background)
             .padding(4.dp)
             .size(containerSize.value)
             .drawWithContent {
-                println("Drawing again...")
                 drawContent()
                 drawCircle(
                     stampColor,

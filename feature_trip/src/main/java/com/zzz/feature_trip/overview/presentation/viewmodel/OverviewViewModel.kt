@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.zzz.core.util.toLocalDate
 import com.zzz.data.common.SettingsPreferences
+import com.zzz.data.note.model.ChecklistEntity
 import com.zzz.data.note.source.ChecklistSource
 import com.zzz.data.note.source.ExpenseNoteSource
 import com.zzz.data.trip.model.Day
@@ -105,6 +106,11 @@ class OverviewViewModel(
             }
 
             //------ Cheklist -----
+            OverviewActions.OnDocsListCollapse->{
+                onDocsListCollapse()
+            }
+
+            //------ Cheklist -----
             is OverviewActions.CheckChecklistItem->{
                 checkChecklistItem(action.itemId,action.checked)
             }
@@ -120,8 +126,11 @@ class OverviewViewModel(
                 onFabCollapse(action.collapsed)
             }
 
-            OverviewActions.MarkTripAsDone ->{
-                markTripAsDone()
+            is OverviewActions.PlayMarkAsDoneAnimation->{
+                playMarkAsDoneAnimation(action.playAnimation)
+            }
+            is OverviewActions.MarkTripAsDone ->{
+                markTripAsDone(action.done)
             }
             //dELETE
             OverviewActions.DeleteTrip -> {
@@ -210,6 +219,17 @@ class OverviewViewModel(
         }
     }
 
+    //-------- DOCS ---------
+    private fun onDocsListCollapse(){
+        viewModelScope.launch {
+            _overviewState.update {
+                it.copy(
+                    docsListCollapsed = !it.docsListCollapsed
+                )
+            }
+        }
+    }
+
     //-------- Checklist ---------
     private fun checkChecklistItem(itemId : Long , checked : Boolean){
         viewModelScope.launch {
@@ -225,6 +245,21 @@ class OverviewViewModel(
         viewModelScope.launch {
             _overviewState.update {
                 it.copy(checklistCollapsed = !it.checklistCollapsed)
+            }
+        }
+    }
+    private fun updateChecklistProgress(list: List<ChecklistEntity>){
+        if(list.isEmpty()){
+            return
+        }
+        viewModelScope.launch {
+            val done = list.count {
+                it.isChecked
+            }
+            val progress = (done*1f) / list.size
+
+            _overviewState.update {
+                it.copy(checklistProgress = progress.coerceIn(0f,1f))
             }
         }
     }
@@ -326,6 +361,7 @@ class OverviewViewModel(
                     _overviewState.update {
                         it.copy(checklist = list)
                     }
+                    updateChecklistProgress(list)
                 }
         }
     }
@@ -379,7 +415,14 @@ class OverviewViewModel(
         }
     }
 
-    private fun markTripAsDone(){
+    private fun playMarkAsDoneAnimation(play : Boolean){
+        viewModelScope.launch {
+            _overviewState.update {
+                it.copy(playMarkAsDoneAnimation = play)
+            }
+        }
+    }
+    private fun markTripAsDone(done : Boolean ){
         //ADD EVENTS!
         val tripId = _overviewState.value.trip?.id ?: return
         viewModelScope.launch {

@@ -48,12 +48,12 @@ import com.zzz.core.presentation.headers.DateHeader
 import com.zzz.core.presentation.modifiers.customShadow
 import com.zzz.data.trip.model.Day
 import com.zzz.feature_trip.overview.presentation.components.BookLikeTextField
-import com.zzz.feature_trip.overview.presentation.components.ChecklistHeader
-import com.zzz.feature_trip.overview.presentation.components.ChecklistItemRoot
+import com.zzz.feature_trip.overview.presentation.components.checklist.ChecklistHeader
+import com.zzz.feature_trip.overview.presentation.components.checklist.ChecklistItemRoot
 import com.zzz.feature_trip.overview.presentation.components.ItineraryLayoutOptions
 import com.zzz.feature_trip.overview.presentation.components.ItineraryList
 import com.zzz.feature_trip.overview.presentation.components.ItineraryPager
-import com.zzz.feature_trip.overview.presentation.components.MarkedAsDoneAnimation
+import com.zzz.feature_trip.overview.presentation.components.MarkedAsDoneRoot
 import com.zzz.feature_trip.overview.presentation.components.OverviewDocumentCard
 import com.zzz.feature_trip.overview.presentation.components.OverviewTopBar
 import com.zzz.feature_trip.overview.presentation.tabs.note_expense.NoteExpenseTabRow
@@ -430,7 +430,7 @@ private fun RecentTripOverviewPage(
             enter = fadeIn() ,
             exit = fadeOut()
         ){
-            MarkedAsDoneAnimation(
+            MarkedAsDoneRoot(
                 onAnimationFinish = {
                     navigateUp()
                 }

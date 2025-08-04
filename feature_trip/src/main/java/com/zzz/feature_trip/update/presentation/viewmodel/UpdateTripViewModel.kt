@@ -70,6 +70,9 @@ class UpdateTripViewModel(
                     is CreateAction.TripActions.OnDocumentUpload -> {
                         uploadDocument(action.docUri,action.docName)
                     }
+                    is CreateAction.TripActions.OnPhotoDocSelect->{
+                        onPhotoDocSelect(action.docUri)
+                    }
                     is CreateAction.TripActions.OnDocumentUpdate->{
                         updateDocument(action.docId,action.newName)
                     }
@@ -168,6 +171,15 @@ class UpdateTripViewModel(
 
             }
 
+        }
+    }
+    private fun onPhotoDocSelect(uri : Uri?){
+        viewModelScope.launch {
+            _state.update {
+                it.copy(
+                    selectedPhotoDoc = uri
+                )
+            }
         }
     }
     private fun deleteDocument(docId : Long){

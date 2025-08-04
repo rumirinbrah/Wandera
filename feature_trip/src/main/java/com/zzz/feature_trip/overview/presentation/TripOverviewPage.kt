@@ -13,16 +13,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -42,7 +38,6 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.zzz.core.presentation.buttons.IconTextButton
 import com.zzz.core.presentation.components.DotsLoadingAnimation
-import com.zzz.core.presentation.components.KeyboardAware
 import com.zzz.core.presentation.components.SheetState
 import com.zzz.core.presentation.components.VerticalSpace
 import com.zzz.core.presentation.components.rememberWanderaSheetState
@@ -54,16 +49,15 @@ import com.zzz.core.presentation.toast.WanderaToast
 import com.zzz.core.presentation.toast.WanderaToastState
 import com.zzz.core.theme.redToastSweep
 import com.zzz.data.trip.model.Day
-import com.zzz.feature_trip.overview.presentation.components.BookLikeTextField
-import com.zzz.feature_trip.overview.presentation.components.ChecklistHeader
-import com.zzz.feature_trip.overview.presentation.components.ChecklistItemRoot
+import com.zzz.feature_trip.overview.presentation.components.ExpandableBookLikeTextField
 import com.zzz.feature_trip.overview.presentation.components.ItineraryLayoutOptions
 import com.zzz.feature_trip.overview.presentation.components.ItineraryList
 import com.zzz.feature_trip.overview.presentation.components.ItineraryPager
-import com.zzz.feature_trip.overview.presentation.components.MarkedAsDoneAnimation
-import com.zzz.feature_trip.overview.presentation.components.OverviewDocumentCard
+import com.zzz.feature_trip.overview.presentation.components.MarkedAsDoneRoot
 import com.zzz.feature_trip.overview.presentation.components.OverviewPageFab
 import com.zzz.feature_trip.overview.presentation.components.OverviewTopBar
+import com.zzz.feature_trip.overview.presentation.components.UserDocsList
+import com.zzz.feature_trip.overview.presentation.components.checklist.ChecklistSection
 import com.zzz.feature_trip.overview.presentation.tabs.note_expense.NoteExpenseTabRow
 import com.zzz.feature_trip.overview.presentation.tabs.note_expense.pager.expense_tracker.AddExpenseSheet
 import com.zzz.feature_trip.overview.presentation.tabs.note_expense.pager.expense_tracker.ExpensePage
@@ -84,12 +78,12 @@ fun TripOverviewRoot(
     navigateToDayDetails: (dayId : Long) -> Unit ,
     navToEditTrip: (tripId: Long) -> Unit ,
     shareTrip: (tripId: Long) -> Unit ,
-    markTripAsDone: () -> Unit = {} ,
     navigateUp: () -> Unit ,
 ) {
     val state by overviewViewModel.overviewState.collectAsStateWithLifecycle()
     val events = overviewViewModel.events
     val days by overviewViewModel.days.collectAsStateWithLifecycle()
+
 
     TripOverviewPage(
         modifier ,
@@ -103,7 +97,6 @@ fun TripOverviewRoot(
         navigateToDayDetails = navigateToDayDetails ,
         navToEditTrip = navToEditTrip ,
         shareTrip = shareTrip ,
-        markTripAsDone = markTripAsDone ,
         navigateUp = navigateUp
     )
 }
@@ -113,8 +106,7 @@ fun TripOverviewRoot(
  * @param wanderaToastState Can be used to show custom toasts
  * @param navigateToDayDetails View day details like todos, locations
  * @param navToEditTrip Edit trip details
- * @param shareTrip
- * @param markTripAsDone
+ * @param shareTrip Navigate to the ExportPage with tripId
  */
 @Composable
 private fun TripOverviewPage(
@@ -127,7 +119,6 @@ private fun TripOverviewPage(
     navigateToDayDetails: (dayId : Long) -> Unit ,
     navToEditTrip: (tripId: Long) -> Unit ,
     shareTrip: (tripId: Long) -> Unit = {} ,
-    markTripAsDone: () -> Unit = {} ,
     navigateUp: () -> Unit ,
 ) {
 
@@ -181,10 +172,15 @@ private fun TripOverviewPage(
                 onAction(OverviewActions.OnFabCollapse(true))
             }
 
-            wanderaSheetState.visible -> {
-                scope.launch {
-                    wanderaSheetState.animateTo(SheetState.CLOSED)
-                }
+//            wanderaSheetState.visible -> {
+//                scope.launch {
+//                    wanderaSheetState.animateTo(SheetState.CLOSED)
+//                }
+//            }
+            wanderaToastState.visible->{
+                wanderaToastState.dismiss()
+                onAction(OverviewActions.CleanUpResources)
+                navigateUp()
             }
 
             else -> {
@@ -256,7 +252,8 @@ private fun TripOverviewPage(
                             onDayClick = {
                                 //onAction(OverviewActions.UpdateSelectedDay(it,false))
                                 navigateToDayDetails(it.id)
-                            }
+                            },
+                            interactionsEnabled = !wanderaSheetState.visible
                         )
                     } else {
                         ItineraryList(
@@ -276,6 +273,7 @@ private fun TripOverviewPage(
                 VerticalSpace(10.dp)
                 //docs
                 if (state.docs.isNotEmpty()) {
+                    /*
                     Text(
                         "Your documents" ,
                         fontSize = 16.sp ,
@@ -298,10 +296,41 @@ private fun TripOverviewPage(
                             )
                         }
                     }
+
+                     */
+                    UserDocsList(
+                        documents = state.docs,
+                        collapsed = state.docsListCollapsed,
+                        onCollapseChange = {
+                            onAction(OverviewActions.OnDocsListCollapse)
+                        },
+                        //modifier = Modifier.background(Color.Gray)
+                    )
                 }
 
                 //checklist
-                VerticalSpace(10.dp)
+                //VerticalSpace(10.dp)
+                ChecklistSection(
+                    checklist = state.checklist,
+                    checklistProgress = state.checklistProgress,
+                    onCheck = {id,checked->
+                        onAction(
+                            OverviewActions.CheckChecklistItem(
+                                id,
+                                checked
+                            )
+                        )
+                    },
+                    onDelete = {id->
+                        onAction(OverviewActions.DeleteChecklistItem(id))
+                    },
+                    collapsed = state.checklistCollapsed,
+                    onCollapse = {
+                        onAction(OverviewActions.OnChecklistCollapse)
+                    },
+                    trapeziumChecklist = state.trapeziumChecklist
+                )
+                /*
                 Column {
 
                     ChecklistHeader(
@@ -310,67 +339,66 @@ private fun TripOverviewPage(
                             onAction(OverviewActions.OnChecklistCollapse)
                         }
                     )
+
                     VerticalSpace(8.dp)
 
                     AnimatedVisibility(!state.checklistCollapsed) {
-                        if (state.checklist.isEmpty()) {
-                            Text(
-                                "Seems like you haven't created a checklist..." ,
-                                color = MaterialTheme.colorScheme.onBackground.copy(0.7f)
-                            )
 
-                        }
-
-                        LazyColumn(
-                            Modifier
-                                .fillMaxWidth()
-                                .heightIn(max = 500.dp) ,
-                            verticalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            items(
-                                items = state.checklist ,
-                                key = { it.id }
-                            ) { item ->
-                                ChecklistItemRoot(
-                                    item = item ,
-                                    onCheck = { itemId , checked ->
-                                        onAction(
-                                            OverviewActions.CheckChecklistItem(
-                                                itemId ,
-                                                checked
-                                            )
-                                        )
-                                    } ,
-                                    onDelete = { itemId ->
-                                        onAction(OverviewActions.DeleteChecklistItem(itemId))
-                                    } ,
-                                    modifier = Modifier.animateItem() ,
-                                    trapeziumChecklist = state.trapeziumChecklist
+                        when{
+                            state.checklist.isEmpty()->{
+                                Text(
+                                    "Seems like you haven't created a checklist..." ,
+                                    color = MaterialTheme.colorScheme.onBackground.copy(0.7f)
                                 )
-                                /*
-                                RectangleChecklistItem(
-                                    item = item ,
-                                    onCheck = { itemId , checked ->
-                                        onAction(
-                                            OverviewActions.CheckChecklistItem(
-                                                itemId ,
-                                                checked
+                            }
+                            else->{
+                                Column {
+                                    LineProgressBar(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        progress = state.checklistProgress,
+                                    )
+                                    VerticalSpace(10.dp)
+                                    LazyColumn(
+                                        Modifier
+                                            .fillMaxWidth()
+                                            .heightIn(max = 400.dp) ,
+                                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                                    ) {
+                                        items(
+                                            items = state.checklist ,
+                                            key = { it.id }
+                                        ) { item ->
+                                            ChecklistItemRoot(
+                                                item = item ,
+                                                onCheck = { itemId , checked ->
+                                                    onAction(
+                                                        OverviewActions.CheckChecklistItem(
+                                                            itemId ,
+                                                            checked
+                                                        )
+                                                    )
+                                                } ,
+                                                onDelete = { itemId ->
+                                                    onAction(OverviewActions.DeleteChecklistItem(itemId))
+                                                } ,
+                                                modifier = Modifier.animateItem() ,
+                                                trapeziumChecklist = state.trapeziumChecklist
                                             )
-                                        )
-                                    } ,
-                                    onDelete = { itemId ->
-                                        onAction(OverviewActions.DeleteChecklistItem(itemId))
-                                    } ,
-                                    modifier = Modifier.animateItem()
-                                )
 
-                                 */
+                                        }
+                                    }
+                                }
+
                             }
                         }
+
+
                     }
 
 
                 }
+
+                 */
 
 
                 VerticalSpace(10.dp)
@@ -393,6 +421,17 @@ private fun TripOverviewPage(
                 ) { page ->
                     when (page) {
                         0 -> {
+                            ExpandableBookLikeTextField(
+                                modifier = Modifier.padding(4.dp) ,
+                                value = state.expenseNote ,
+                                onValueChange = {
+                                    onAction(OverviewActions.OnExpenseNoteValueChange(it))
+                                } ,
+                                onSave = {
+                                    onAction(OverviewActions.UpdateExpenseNote)
+                                }
+                                )
+                            /*
                             Column(
                                 Modifier.padding(4.dp)
                             ) {
@@ -415,6 +454,8 @@ private fun TripOverviewPage(
                                 VerticalSpace(10.dp)
                             }
 
+                             */
+
                         }
 
                         1 -> {
@@ -423,15 +464,11 @@ private fun TripOverviewPage(
                                 expenses = state.expenses ,
                                 groupedExpenses = state.groupedExpenses ,
                                 launchAddExpenseSheet = {
-                                    scope.launch {
-                                        wanderaSheetState.show()
-                                    }
+                                    wanderaSheetState.show()
                                 } ,
                                 onExpenseItemClick = { itemId: Long ->
                                     onAction(OverviewActions.SelectExpenseItem(itemId))
-                                    scope.launch {
-                                        wanderaSheetState.show()
-                                    }
+                                    wanderaSheetState.show()
                                 },
                                 interactionsEnabled = !wanderaSheetState.visible
                             )
@@ -521,7 +558,8 @@ private fun TripOverviewPage(
                 }
             } ,
             onMarkAsDone = {
-                onAction(OverviewActions.MarkTripAsDone)
+                onAction(OverviewActions.OnFabCollapse(true))
+                onAction(OverviewActions.MarkTripAsDone(true))
             } ,
             modifier = Modifier
                 .align(Alignment.BottomEnd)
@@ -550,8 +588,9 @@ private fun TripOverviewPage(
             enter = fadeIn(),
             exit = fadeOut()
         ){
-            MarkedAsDoneAnimation(
+            MarkedAsDoneRoot(
                 onAnimationFinish = {
+                    onAction(OverviewActions.CleanUpResources)
                     navigateUp()
                 }
             )
@@ -562,7 +601,7 @@ private fun TripOverviewPage(
 
 }
 
-@Preview()
+@Preview
 @Composable
 private fun TopBarPrev() {
     MaterialTheme {

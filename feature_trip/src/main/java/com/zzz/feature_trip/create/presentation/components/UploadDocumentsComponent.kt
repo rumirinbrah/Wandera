@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -29,6 +30,9 @@ import com.zzz.core.presentation.dialogs.DialogWithTextField
 
 @Composable
 fun UploadDocumentComponent(
+    launchImagePicker : ()->Unit,
+    pickedImage : Uri? = null,
+    clearPickedImage : ()->Unit,
     onAddDoc :(uri:Uri , docName : String)->Unit,
     modifier: Modifier = Modifier
 ) {
@@ -38,15 +42,6 @@ fun UploadDocumentComponent(
     var currentDocUri by remember { mutableStateOf<Uri?>(null) }
     var showNameDocDialog by remember { mutableStateOf(false) }
 
-    val imagePicker = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.PickVisualMedia()
-    ) {uri->
-        uri?.let {
-            context.contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            currentDocUri = uri
-            showNameDocDialog = true
-        }
-    }
     val pdfPicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocument()
     ) {uri->
@@ -57,6 +52,12 @@ fun UploadDocumentComponent(
         }
     }
 
+    LaunchedEffect(pickedImage) {
+        pickedImage?.let {
+            currentDocUri = it
+            showNameDocDialog = true
+        }
+    }
 
     //docs
     Column(
@@ -81,9 +82,10 @@ fun UploadDocumentComponent(
                 icon = com.zzz.core.R.drawable.upload_image ,
                 text = "Image" ,
                 onClick = {
-                    imagePicker.launch(
-                        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-                    )
+//                    imagePicker.launch(
+//                        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+//                    )
+                    launchImagePicker()
                 }
             )
             //pdf
@@ -111,6 +113,7 @@ fun UploadDocumentComponent(
                     }
                 } ,
                 onDismiss = {
+                    clearPickedImage()
                     showNameDocDialog = false
                     currentDocUri = null
                 },

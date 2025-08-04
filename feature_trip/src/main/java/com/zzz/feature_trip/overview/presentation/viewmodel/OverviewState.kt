@@ -1,9 +1,6 @@
 package com.zzz.feature_trip.overview.presentation.viewmodel
 
 import com.zzz.data.note.model.ChecklistEntity
-import com.zzz.data.trip.DayWithTodos
-import com.zzz.data.trip.model.Day
-import com.zzz.data.trip.model.TodoLocation
 import com.zzz.data.trip.model.Trip
 import com.zzz.data.trip.model.UserDocument
 import com.zzz.feature_trip.overview.domain.ExpenseEntityUI
@@ -13,7 +10,6 @@ import java.time.LocalDate
  * @param loading Loading
  * @param trip Selected Trip
  * @param itineraryPagerLayout Whether itinerary layout is pager or lazy list
- * @param selectedDay Currrently selected day
  * @param docs User docs
  * @param checklist Checklist
  * @param checklistCollapsed Control collapsed list
@@ -30,8 +26,10 @@ internal data class OverviewState(
     val trip : Trip? = null,
     val itineraryPagerLayout : Boolean = true,
     val docs : List<UserDocument> = emptyList(),
+    val docsListCollapsed : Boolean = true,
     val checklist : List<ChecklistEntity> = emptyList(),
-    val checklistCollapsed : Boolean = false,
+    val checklistCollapsed : Boolean = true,
+    val checklistProgress : Float = 0f,
     val trapeziumChecklist : Boolean = true,
     val expenseNote : String = "",
     val expenseNoteId : Long? = null,

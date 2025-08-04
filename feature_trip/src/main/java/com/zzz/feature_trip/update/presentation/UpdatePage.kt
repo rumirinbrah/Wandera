@@ -43,6 +43,8 @@ import com.zzz.core.presentation.dialogs.DateRangePickerDialog
 import com.zzz.core.presentation.dialogs.LoadingDialog
 import com.zzz.core.presentation.events.ObserveAsEvents
 import com.zzz.core.presentation.events.UIEvents
+import com.zzz.core.presentation.image_picker.WanderaImagePicker
+import com.zzz.core.presentation.image_picker.rememberWanderaImagePicker
 import com.zzz.core.presentation.modifiers.customShadow
 import com.zzz.core.presentation.snackbar.WanderaSnackbar
 import com.zzz.core.presentation.snackbar.showWanderaSnackbar
@@ -62,6 +64,7 @@ import org.koin.androidx.compose.koinViewModel
 /**
  * This is simply a copy of the CreatePage with a few logical changes in the view model
  */
+@Deprecated("Not used anymore")
 @Composable
 fun UpdateRoot(
     modifier: Modifier = Modifier ,
@@ -102,6 +105,7 @@ private fun UpdateTripPage(
 ) {
 
     val snackbarState = remember {  SnackbarHostState() }
+    val wanderaImagePicker = rememberWanderaImagePicker()
 
     val scope = rememberCoroutineScope()
 
@@ -150,8 +154,8 @@ private fun UpdateTripPage(
                         .align(Alignment.CenterStart),
                     icon = com.zzz.core.R.drawable.arrow_back ,
                     contentDescription = "Go back" ,
-                    background = Color.DarkGray.copy(0.3f) ,
-                    onBackground = Color.White,
+                    background = MaterialTheme.colorScheme.surfaceContainer ,
+                    onBackground = MaterialTheme.colorScheme.onBackground ,
                     onClick = {
                         showConfirmDiscardDialog = true
                     }
@@ -275,10 +279,18 @@ private fun UpdateTripPage(
             VerticalSpace(5.dp)
 
             UploadDocumentComponent(
-                onAddDoc = { uri,name->
-                    onAction(CreateAction.TripActions.OnDocumentUpload(uri,name))
-                }
-            )
+                onAddDoc = { uri , name ->
+                    onAction(CreateAction.TripActions.OnDocumentUpload(uri , name))
+                } ,
+                launchImagePicker = {
+                    wanderaImagePicker.launch()
+                } ,
+                pickedImage = state.selectedPhotoDoc,
+                clearPickedImage = {
+                    onAction(CreateAction.TripActions.OnPhotoDocSelect(null))
+
+                } ,
+                )
             if(state.userDocs.isEmpty()){
                 IndicatorCard("Added documents will appear here")
             }
@@ -325,9 +337,19 @@ private fun UpdateTripPage(
 
 
         }
+        //---------- OVERLAY----------
         when{
             state.saving->{
                 LoadingDialog(modifier = Modifier.align(Alignment.Center))
+            }
+            wanderaImagePicker.pickerVisible->{
+                WanderaImagePicker(
+                    launcherState = wanderaImagePicker ,
+                    onImagePicked = { uri ->
+                        onAction(CreateAction.TripActions.OnPhotoDocSelect(uri))
+                        wanderaImagePicker.dismiss()
+                    }
+                )
             }
             showConfirmDiscardDialog ->{
                 ConfirmActionDialog(

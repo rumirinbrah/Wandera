@@ -1,9 +1,14 @@
 package com.zzz.feature_trip.home.presentation.components
 
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,6 +27,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ExperimentalComposeApi
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -30,12 +36,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
@@ -56,7 +63,6 @@ import com.zzz.data.trip.TripWithDays
 import com.zzz.feature_trip.R
 import com.zzz.feature_trip.home.util.drawBarcodeIntoImage
 import com.zzz.feature_trip.home.util.drawTicketDecorationIntoImage
-import com.zzz.feature_trip.home.util.drawVerticalBarcode
 import com.zzz.feature_trip.home.util.getDateDifference
 
 /**
@@ -97,7 +103,6 @@ internal fun TripItem(
     modifier: Modifier = Modifier ,
 ) {
 
-
     val dayImages = remember(tripWithDays.days) {
         tripWithDays.days.map {
             it.image
@@ -106,22 +111,39 @@ internal fun TripItem(
     val trip = remember(tripWithDays.trip) { tripWithDays.trip }
     var duration by remember(trip.startDate) { mutableStateOf("Duration...") }
 
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed = interactionSource.collectIsPressedAsState()
+    val scaleAnimation = animateFloatAsState(
+        targetValue = if(isPressed.value){
+            0.95f
+        }else{
+            1f
+        },
+        animationSpec = tween(
+            durationMillis = 300,
+            delayMillis = 50
+        )
+    )
+
+
     LaunchedEffect(Unit) {
         val diff = getDateDifference(trip.startDate , trip.endDate)
         duration = "Duration $diff days"
     }
     Box(
         modifier
+            .scale(scaleAnimation.value)
             .clip(RoundedCornerShape(15))
             .fillMaxWidth()
             .background(MaterialTheme.colorScheme.surfaceContainer)
             .clickable(
                 onClick = {
                     onClick(trip.id)
-                }
+                },
+                interactionSource = interactionSource,
+                indication = null
             )
             .padding(22.dp)
-
     ) {
         Row(
             Modifier.fillMaxWidth() ,
@@ -179,6 +201,15 @@ internal fun TicketLikeTripItem(
     containerOnBackground: Color = Color.Black
 ) {
     val density = LocalDensity.current
+
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed = interactionSource.collectIsPressedAsState()
+
+    val scale = animateFloatAsState(
+        targetValue = if(isPressed.value) 0.95f else 1f,
+        animationSpec = tween(500)
+    )
+
     val innerRowContainerHeight = remember { mutableStateOf(60.dp) }
 
     val arrowComponentWidth = remember {
@@ -197,11 +228,19 @@ internal fun TicketLikeTripItem(
     //--- PARENT ---
     Box(
         modifier
+            .graphicsLayer {
+                scaleX = scale.value
+                scaleY = scale.value
+            }
             .clip(CutCornerShape(4.dp))
             .fillMaxWidth()
-            .clickable {
-                onClick(trip.id)
-            }
+            .clickable(
+                onClick = {
+                    onClick(trip.id)
+                },
+                interactionSource = interactionSource,
+                indication = null
+            )
 //            .drawWithContent {
 //                val xOffset = size.width - arrowComponentWidth.value.toPx()
 //                drawContent()
@@ -251,13 +290,9 @@ internal fun TicketLikeTripItem(
 
             ) {
 
-            //--- BARCODE ---
-            VerticalBarCode(
-                height = innerRowContainerHeight.value ,
+            VerticalBarCodeSvg(
                 modifier = Modifier
                     .align(Alignment.CenterVertically)
-                    .padding(8.dp) ,
-                color = containerOnBackground
             )
 
             Column(
@@ -365,8 +400,12 @@ internal fun TicketLikeTripItem(
 }
 
 /**
- * Uses  custom barcode drawn into an ImageBitmap
+ * Uses  custom barcode drawn into an ImageBitmap. Doesn't get redrawn after recompositions.
+ *
+ * *WARNING* : Beware that even though this barcode is drawn into an image, it will be created again every
+ * time a component comes into the view. If performance is mandatory, use [VerticalBarCodeSvg] instead.
  */
+@ExperimentalComposeApi
 @Composable
 internal fun VerticalBarCode(
     width: Dp = 15.dp ,
@@ -393,6 +432,36 @@ internal fun VerticalBarCode(
             .height(height)
     ) {
         drawImage(barcodeImage)
+    }
+}
+
+
+/**
+ * Draws a static barcode with an image. Ideal when performance is needed.
+ *
+ * For more dynamic & custom barcodes, try using [VerticalBarCode] instead.
+ */
+@Composable
+internal fun VerticalBarCodeSvg(
+    width: Dp = 15.dp ,
+    heightMin: Dp = 60.dp ,
+    heightMax: Dp = 80.dp ,
+    padding : Dp = 8.dp,
+    modifier: Modifier = Modifier
+) {
+
+    Box(
+        modifier
+            .padding(padding)
+            .heightIn(heightMin,heightMax)
+            .fillMaxHeight()
+            .width(width),
+        contentAlignment = Alignment.Center
+    ){
+        Image(
+            painter = painterResource(R.drawable.barcode_figma),
+            contentDescription = "Barcode photo"
+        )
     }
 }
 
@@ -505,17 +574,18 @@ private fun TicketLikeTripItem(
             ) {
 
             //--- BARCODE ---
-            Box(
-                Modifier
-                    .align(Alignment.CenterVertically)
-                    .padding(8.dp)
-                    .heightIn(min = 60.dp , max = 80.dp)
-                    .fillMaxHeight()
-                    .width(15.dp)
-                    .drawBehind {
-                        drawVerticalBarcode()
-                    }
-            )
+//            Box(
+//                Modifier
+//                    .align(Alignment.CenterVertically)
+//                    .padding(8.dp)
+//                    .heightIn(min = 60.dp , max = 80.dp)
+//                    .fillMaxHeight()
+//                    .width(15.dp)
+//                    .drawBehind {
+//                        drawVerticalBarcode()
+//                    }
+//            )
+            VerticalBarCodeSvg()
 
 
             Column(
