@@ -20,7 +20,10 @@ import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
-
+/**
+ * Progress bar with two circles around. One outer & one inner.
+ * @param componentSize Overall component size
+ */
 @Composable
 fun DoublyProgressBar(
     color: Color = MaterialTheme.colorScheme.onBackground,

@@ -36,7 +36,7 @@ import androidx.compose.ui.util.lerp
 fun DotsLoadingAnimation(
     dotSize : Dp = 20.dp,
     bounceSize : Int = 10,
-    color: Color = MaterialTheme.colorScheme.primaryContainer ,
+    color: Color = MaterialTheme.colorScheme.onBackground ,
 ) {
     val transition = rememberInfiniteTransition(label = "animation")
 
@@ -95,8 +95,8 @@ fun DotsLoadingAnimation(
 }
 
 /**
- * @param anchor - Infinite animation value (0..1f)
- * @param size - Size of vertical bounce
+ * @param anchor Infinite animation value (0..1f)
+ * @param size Size of vertical bounce
  */
 private fun Modifier.dotAnimation(anchor: Float , size: Int): Modifier {
 

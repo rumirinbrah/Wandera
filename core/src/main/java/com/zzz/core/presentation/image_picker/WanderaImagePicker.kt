@@ -51,14 +51,16 @@ import com.zzz.core.presentation.image_picker.viewmodel.PickerViewModel
 import com.zzz.core.presentation.permission.PermissionDialog
 import com.zzz.core.presentation.permission.PermissionViewModel
 import com.zzz.core.presentation.permission.openAppSettings
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
 /**
- * Custom image picker. Handles media access permissions for API 26 to 35
+ * Custom image picker. Handles media access permissions for API 26 to 35.
+ *
+ * Handles back navigation for sheet dismiss as well
  * @param launcherState Used to hide picker when needed
- * @param onImagePicked Callback lambda that returns the picked image
+ * @param onImagePicked Callback lambda that returns the picked image.
+ * Make sure to call `launcher.dismiss()` afterwards.
  * @param background Background for the picker sheet
  */
 @Composable
@@ -66,7 +68,7 @@ fun WanderaImagePicker(
     launcherState: LauncherImagePickerState ,
     onImagePicked: (imageUri: Uri) -> Unit ,
     modifier: Modifier = Modifier ,
-    background: Color = MaterialTheme.colorScheme.surfaceContainer ,
+    background: Color = MaterialTheme.colorScheme.surface ,
     sheetShape: Shape = RoundedCornerShape(topEnd = 40.dp , topStart = 40.dp)
 ) {
     val scope = rememberCoroutineScope()
@@ -298,27 +300,34 @@ fun WanderaImagePicker(
 
             VerticalSpace()
 
-            PickerTabRow(
-                currentTab = pagerState.currentPage ,
-                onTabChange = {newTab->
-                    scope.launch {
-                        pagerState.animateScrollToPage(newTab)
-                    }
-                }
-            )
+
+
+            if(state.tabRowVisible){
+                PickerTabRow(
+                    currentTab = pagerState.currentPage ,
+                    onTabChange = { newTab ->
+                        scope.launch {
+                            pagerState.animateScrollToPage(newTab)
+                        }
+                    } ,
+                    containerColor = background
+                )
+            }
+
 
             HorizontalPager(
                 pagerState ,
                 modifier = Modifier.fillMaxWidth() ,
+                userScrollEnabled = state.tabRowVisible
             ) { page ->
                 when (page) {
                     0 -> {
                         RecentImagesPage(
                             images = state.images ,
-                            loading = state.loading,
+                            loading = state.loading ,
                             onAction = { action ->
                                 pickerViewModel.onAction(action)
-                            },
+                            } ,
                             onDismiss = {
                                 launcherState.dismiss()
                                 pickerViewModel.clearViewModel()

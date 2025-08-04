@@ -23,7 +23,17 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 
 /**
- * A custom wrapper around OutlinedTextField
+ * A custom wrapper around the OutlinedTextField.
+ * @param value String value
+ * @param placeholder Helper text
+ * @param onValueChange Callback
+ * @param singleLine Single line
+ * @param maxLines Max num lines
+ * @param imeAction Action for the keyboard
+ * @param onDone Called for ime action DONE
+ * @param hideKeyboardOnDone When true, will hide the keyboard on DONE action. Note that onDone callback will not be called.
+ * @param keyboardType Type of keyboard
+ * @param trailingIcon Icon at the end of text field
  * @author zyzz
  */
 @Composable
@@ -35,6 +45,8 @@ fun RoundedTextField(
     enabled : Boolean = true ,
     maxLines : Int = 10 ,
     imeAction : ImeAction = ImeAction.Unspecified ,
+    onDone : ()->Unit = {},
+    hideKeyboardOnDone : Boolean = true,
     keyboardType : KeyboardType = KeyboardType.Unspecified,
     @DrawableRes trailingIcon : Int? = null ,
     trailingIconDescription : String? = null ,
@@ -80,7 +92,12 @@ fun RoundedTextField(
         },
         keyboardActions = KeyboardActions(
             onDone = {
-                keyboard?.hide()
+                //keyboard?.hide()
+                if(hideKeyboardOnDone){
+                    keyboard?.hide()
+                }else{
+                    onDone()
+                }
             }
         ),
         keyboardOptions = KeyboardOptions(
@@ -91,6 +108,17 @@ fun RoundedTextField(
     )
 }
 /**
+ * A custom wrapper around the OutlinedTextField.
+ * @param value String value
+ * @param placeholder Helper annotated text
+ * @param onValueChange Callback
+ * @param singleLine Single line
+ * @param maxLines Max num lines
+ * @param imeAction Action for the keyboard
+ * @param onDone Called for ime action DONE
+ * @param hideKeyboardOnDone When true, will hide the keyboard on DONE action. Note that onDone callback will not be called.
+ * @param keyboardType Type of keyboard
+ * @param trailingIcon Icon at the end of text field
  * @author zyzz
  */
 @Composable
@@ -102,6 +130,9 @@ fun RoundedTextField(
     enabled : Boolean = true ,
     maxLines : Int = 10 ,
     imeAction : ImeAction = ImeAction.Unspecified ,
+    onDone : ()->Unit = {},
+    hideKeyboardOnDone : Boolean = false,
+    keyboardType : KeyboardType = KeyboardType.Unspecified,
     @DrawableRes trailingIcon : Int? = null ,
     trailingIconDescription : String? = null ,
     background : Color = MaterialTheme.colorScheme.primaryContainer ,
@@ -141,12 +172,17 @@ fun RoundedTextField(
         },
         keyboardActions = KeyboardActions(
             onDone = {
-                keyboard?.hide()
+                if(hideKeyboardOnDone){
+                    keyboard?.hide()
+                }else{
+                    onDone()
+                }
             }
         ),
         keyboardOptions = KeyboardOptions(
             imeAction = imeAction,
-            capitalization = KeyboardCapitalization.Words
+            capitalization = KeyboardCapitalization.Words,
+            keyboardType = keyboardType
         )
     )
 }

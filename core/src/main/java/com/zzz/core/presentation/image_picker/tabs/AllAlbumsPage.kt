@@ -63,19 +63,27 @@ internal fun AlbumsRoot(
     }
 
     NavHost(
-        modifier = modifier ,
+        modifier = modifier,
         navController = navController ,
         startDestination = Screen.AllAlbumsScreen ,
         enterTransition = {
-            slideInHorizontally()
+            slideInHorizontally(
+                initialOffsetX = {
+                    it
+                }
+            )
         } ,
         popEnterTransition = {
-            slideInHorizontally()
+            slideInHorizontally(
+                initialOffsetX = {
+                    -it
+                }
+            )
         } ,
         exitTransition = {
             slideOutHorizontally(
                 targetOffsetX = {
-                    it
+                    -it
                 }
             )
         } ,
@@ -88,10 +96,15 @@ internal fun AlbumsRoot(
         }
     ) {
         composable<Screen.AllAlbumsScreen> {
+            LaunchedEffect(Unit) {
+                //delay(500)
+                onAction(ImagePickerActions.TriggerTabRow(true))
+            }
             AllAlbumsPage(
                 state.albums ,
                 onNavToAlbum = { albumName ->
                     navController.navigate(Screen.AlbumDetailsScreen(albumName))
+                    onAction(ImagePickerActions.TriggerTabRow(false))
                 } ,
             )
         }
@@ -99,6 +112,7 @@ internal fun AlbumsRoot(
             val route = it.toRoute<Screen.AlbumDetailsScreen>()
             LaunchedEffect(Unit) {
                 onAction(ImagePickerActions.LoadAlbumImages(route.albumName))
+                onAction(ImagePickerActions.TriggerTabRow(false))
             }
 
             AlbumImagesPage(
@@ -187,7 +201,7 @@ private fun AlbumImagesPage(
             actionDescription = "Go back" ,
             title = albumName ?: "Unknown"
         )
-        VerticalSpace()
+        VerticalSpace(10.dp)
         when{
             loading->{
                 CircularProgressIndicator(

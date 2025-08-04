@@ -3,8 +3,8 @@ package com.zzz.core.presentation.modifiers
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.GenericShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -13,13 +13,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.graphics.drawOutline
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.zzz.core.theme.WanderaTheme
 
 /**
  * Creates a shape having a curve at the top and sharp bottom edges
@@ -48,7 +46,21 @@ fun Density.trapeziumShape(displacementFraction : Int = 5) : Shape = GenericShap
 
     close()
 }
-
+//------------- KITE -------------
+fun KiteLikeShape(
+    topStart : Dp = 0.dp,
+    topEnd : Dp = 40.dp,
+    bottomStart : Dp = 40.dp,
+    bottomEnd : Dp = 0.dp,
+) : Shape{
+    return RoundedCornerShape(
+        topStart = topStart,
+        topEnd = topEnd,
+        bottomStart = bottomStart,
+        bottomEnd = bottomEnd
+    )
+}
+/*
 fun Density.homeTripItemShape(
     yBend : Dp = 15.dp,
     xBend : Dp = 15.dp,
@@ -74,6 +86,8 @@ fun Density.homeTripItemContainer(
     close()
 
 }
+
+ */
 
 @Preview(showBackground = true)
 @Composable

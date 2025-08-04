@@ -17,7 +17,6 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
-import java.util.Date
 
 /**
  * Converts a URI to a Bitmap
@@ -75,6 +74,9 @@ fun Long.toLocalDate() : LocalDate{
     }
 }
 
+/**
+ * Returns whether the mime type is Image
+ */
 suspend fun Context.isMimeTypeImg(uri: Uri):Boolean {
     return withContext(Dispatchers.IO) {
 
@@ -89,12 +91,46 @@ suspend fun Context.isMimeTypeImg(uri: Uri):Boolean {
                 true
             }
             "application/pdf"->{
-                println("PDF")
                 false
             }
             else -> {
                 false
             }
+        }
+    }
+}
+
+/**
+ * Returns the type of file. For supported types, see [FileType]
+ * @see FileType
+ */
+suspend fun Context.getMimeType(uri: Uri) : FileType{
+    return withContext(Dispatchers.IO){
+        val mimeType = contentResolver.getType(uri)
+
+        try {
+            return@withContext when(mimeType){
+                "null"->{
+                    FileType.CORRUPT
+                }
+                "image/jpeg"->{
+                    FileType.IMAGE
+                }
+                "image/png"->{
+                    FileType.IMAGE
+                }
+                "application/pdf"->{
+                    FileType.PDF
+                }
+                else-> FileType.UNKNOWN
+            }
+        } catch (e : SecurityException) {
+            println("here")
+            e.printStackTrace()
+            return@withContext FileType.CORRUPT
+        }catch (e : Exception){
+            e.printStackTrace()
+            return@withContext FileType.CORRUPT
         }
     }
 }
@@ -141,6 +177,9 @@ fun Context.openImageInGallery(uri: Uri){
 }
 
 //send text
+/**
+ * Share text via other apps
+ */
 fun Context.shareText(text : String){
     val intent = Intent(ACTION_SEND).apply {
         type = "text/plain"

@@ -27,6 +27,9 @@ import java.time.LocalDate
 import java.util.Date
 import java.util.Locale
 
+/**
+ * Date header with calendar icon
+ */
 @Composable
 fun DateHeader(
     startDate : Long,
@@ -59,6 +62,11 @@ fun DateHeader(
     }
 }
 
+/**
+ * Date header representing date as Month and Date in a column
+ * @param dateFontSize Size for the date
+ * @param monthFontSize Size for the month name
+ */
 @Composable
 fun VerticalDateHeader(
     date : LocalDate ,
@@ -95,6 +103,9 @@ fun VerticalDateHeader(
 
 }
 
+/**
+ * Simple date with a background
+ */
 @Composable
 fun DateText(
     modifier: Modifier = Modifier,
@@ -117,6 +128,9 @@ fun DateText(
     }
 }
 
+/**
+ * Format long value to a date
+ */
 private fun Long.toFormattedDate(format : String = "dd MMM") : String{
     val formatter = SimpleDateFormat(format, Locale.getDefault())
     return formatter.format(Date(this))

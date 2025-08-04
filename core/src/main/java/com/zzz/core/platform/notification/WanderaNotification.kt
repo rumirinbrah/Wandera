@@ -15,9 +15,14 @@ class WanderaNotification (
     private val context : Context
 ){
     private var notificationManager  = context.getSystemService<NotificationManager>()
+
+    //-------- TAG - wanderaNoti ---------
     private val loggingEnabled : Boolean = true
 
     // -------- DOWNLOAD --------
+    /**
+     * Sends download in progress notification
+     */
     fun sendDownloadNotification(modelName : String){
 
         log {
@@ -36,6 +41,10 @@ class WanderaNotification (
 
 
     }
+
+    /**
+     * Notify that the model has been downloaded
+     */
     fun sendDownloadFinishedNotification(modelName: String){
         log {
             "Sending downloaded notification for $modelName"
@@ -50,6 +59,10 @@ class WanderaNotification (
 
         notificationManager?.notify(Random.nextInt(),builder)
     }
+
+    /**
+     * Cancel downloads notifications
+     */
     fun cancelDownloadingNotification(){
         log {
             "Cancelling downloading notification"
@@ -58,6 +71,9 @@ class WanderaNotification (
     }
 
 
+    /**
+     * Send trip start reminder
+     */
     fun sendTripReminder(tripName : String){
         val builder = getSoundNotificationBuilder()
             .setContentTitle("Trip to $tripName starts tomorrow")
@@ -66,23 +82,33 @@ class WanderaNotification (
         notificationManager?.notify(Random.nextInt(),builder)
     }
 
-    fun cancelAll(){
-        log {
-            "Cancelling ALL"
-        }
-        notificationManager?.cancelAll()
-    }
 
+    /**
+     * Notification builder for channel with no sound(muted)
+     */
     private fun getSilentNotificationBuilder() : NotificationCompat.Builder{
         return NotificationCompat
             .Builder(context , NotificationUtil.SILENT_CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_launcher_foreground)
     }
 
+    /**
+     * Notification builder for channel with sound
+     */
     private fun getSoundNotificationBuilder() : NotificationCompat.Builder{
         return NotificationCompat
             .Builder(context , NotificationUtil.SOUND_CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_launcher_foreground)
+    }
+
+    /**
+     * Cancels all the notifications for all channels
+     */
+    fun cancelAll(){
+        log {
+            "Cancelling ALL"
+        }
+        notificationManager?.cancelAll()
     }
 
     private fun log(msg : ()->String){

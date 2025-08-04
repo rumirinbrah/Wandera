@@ -17,6 +17,7 @@ import coil.request.ImageRequest
 import com.zzz.core.R
 
 /**
+ * An async image with a default background
  * @author zyzz
  */
 @Composable
@@ -41,6 +42,10 @@ fun ImageComponentWithDefaultBackground(
             }
     )
 }
+/**
+ * An async image with a default image
+ * @author zyzz
+ */
 @Composable
 fun ImageComponentWithDefaultImage(
     title: String ,
@@ -74,7 +79,13 @@ fun ImageComponentWithDefaultImage(
 
 }
 
-
+/**
+ * Used to render async images.
+ * @param contentDescription Helper text for the image
+ * @param colorFilter Color filter can be applied to the image
+ * @param alpha Image alpha
+ * @author zyzz
+ */
 @Composable
 fun ImageComponent(
     imageUri: Uri? = null ,

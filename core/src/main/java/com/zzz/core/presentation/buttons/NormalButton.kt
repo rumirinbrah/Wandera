@@ -68,6 +68,8 @@ fun NormalButton(
 
 /**
  * Button with custom shrink animation when pressed.
+ * @param scaleValue Amount by which button will be scaled on shrink
+ * @param animationSpec Animation spec for shrink animation
  * @author zyzz
  */
 @Composable

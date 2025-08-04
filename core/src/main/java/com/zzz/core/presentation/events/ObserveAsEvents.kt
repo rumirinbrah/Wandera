@@ -9,6 +9,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 
+/**
+ * Used to observe one time UI events.
+ *
+ * Keys can be passed to trigger event on change
+ * @author zyzz
+ */
 @Composable
 fun <T> ObserveAsEvents(
     events : Flow<T> ,

@@ -14,6 +14,9 @@ internal class WanderaVisuals(
     val onBackground : Color? = null,
 ) : SnackbarVisuals
 
+/**
+ * Show wandera snackbar
+ */
 suspend fun SnackbarHostState.showWanderaSnackbar(
     message : String,
     actionLabel : String = "Dismiss",

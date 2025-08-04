@@ -3,6 +3,8 @@ package com.zzz.core.presentation.image_picker.viewmodel
 import android.net.Uri
 
 sealed class ImagePickerActions {
+    data class TriggerTabRow(val visible : Boolean) : ImagePickerActions()
+
     data object Load : ImagePickerActions()
     data object LoadRecentsNextPage : ImagePickerActions()
 

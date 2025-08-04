@@ -72,7 +72,6 @@ internal class AndroidNetworkObserver(
                 .addTransportType(NetworkCapabilities.TRANSPORT_ETHERNET)
                 .build()
 
-//            networkManager?.registerDefaultNetworkCallback(callback)
             networkManager?.requestNetwork(networkRequest , callback)
 
             awaitClose {
@@ -84,6 +83,11 @@ internal class AndroidNetworkObserver(
 
         }
 
+    /**
+     * Gives network type for the NetworkCapabilities.
+     *
+     * For supported types, see [NetworkType]
+     */
     private fun NetworkCapabilities.getNetworkType(): NetworkType {
         return when {
             hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> NetworkType.WIFI

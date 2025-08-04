@@ -25,6 +25,7 @@ internal data class ImagePickerState(
     val albumImages : List<GalleryImage> = emptyList(),
     val selectedImage : Uri? = null,
     val selectedAlbum : String? = null,
+    val tabRowVisible : Boolean = true,
     val loading : Boolean = false,
     val loadingAlbumImages : Boolean = false,
 )

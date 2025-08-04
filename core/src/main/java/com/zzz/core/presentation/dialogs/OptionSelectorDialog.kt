@@ -1,6 +1,5 @@
 package com.zzz.core.presentation.dialogs
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.widthIn
@@ -24,7 +23,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -52,7 +50,6 @@ fun OptionSelectorDialog(
     modifier: Modifier = Modifier
 ) {
     val keyboard = LocalSoftwareKeyboardController.current
-    val focusManager = LocalFocusManager.current
     val focusRequester = remember { FocusRequester() }
 
     var text by remember { mutableStateOf("") }
@@ -85,14 +82,7 @@ fun OptionSelectorDialog(
                 placeholder = { Text(textFieldPlaceholder) },
                 keyboardActions = KeyboardActions(
                     onDone = {
-                        println("DONE!")
-                        //focusRequester.freeFocus()
-                        //focusManager.clearFocus()
                         keyboard?.hide()
-                        keyboard?.let {
-                            println("MC KB")
-                            keyboard.hide()
-                        }
                     }
                 ),
                 keyboardOptions = KeyboardOptions(

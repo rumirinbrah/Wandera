@@ -12,6 +12,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import com.zzz.core.presentation.components.DualOptionSelector
 
+@Deprecated("Unstable")
 @Composable
 fun WanderaTabRow(
     currentTab: Int = 0 ,

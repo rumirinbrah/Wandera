@@ -8,6 +8,7 @@ import androidx.compose.animation.core.calculateTargetValue
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.rememberSplineBasedDecay
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.DraggableState
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.draggable
@@ -33,6 +34,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
@@ -45,6 +47,7 @@ import kotlinx.coroutines.launch
 
 /**
  * Used to create a custom bottom sheet out of any composable
+ * @param initialState Initial sheet state. See [SheetState]
  */
 @Composable
 fun rememberWanderaSheetState(
@@ -57,9 +60,6 @@ fun rememberWanderaSheetState(
 
     val navBarHeight = WindowInsets.systemGestures.getBottom(density)
 
-    LaunchedEffect(Unit) {
-        println("Nav bar height is $navBarHeight")
-    }
     val screenHeight = remember(density) {
         with(density) {
             localConfig.screenHeightDp.dp.toPx()
@@ -97,19 +97,39 @@ fun rememberWanderaSheetState(
             animatable = translationY ,
             decayAnimationSpec = decay ,
             draggableState = draggableState ,
+            sheetState = initialState
         )
     }
 
 }
 
+/**
+ * @param color Handle color
+ * @param verticalPadding Padding around the handle
+ */
 @Composable
 fun BottomSheetHandle(
     modifier: Modifier = Modifier ,
+    sheetState: SheetState = SheetState.HALF_EXPANDED ,
     color: Color = MaterialTheme.colorScheme.onBackground.copy(0.5f) ,
-    verticalPadding : Dp = 10.dp,
+    verticalPadding: Dp = 10.dp ,
     width: Dp = 30.dp ,
     height: Dp = 5.dp ,
 ) {
+    /*
+    val handleWidth = animateDpAsState(
+        targetValue = when (sheetState) {
+            SheetState.EXPANDED -> {
+                width * 2
+            }
+
+            else -> {
+                width
+            }
+        } ,
+    )
+
+     */
     Box(
         modifier
             .padding(vertical = verticalPadding)
@@ -120,23 +140,59 @@ fun BottomSheetHandle(
     )
 }
 
+/**
+ * Custom bottom sheet. Can be used to convert any component to a bottom sheet.
+ * @param onSheetClosed Called when sheet is closed
+ * @param contentPadding Padding for the sheet content. Must be passed explicitly. Don't use Modifier.padding() here.
+ * @param verticalSpacing Column vertical spacing for items
+ * @param sheetColor Bottom sheet color
+ * @param dismissTopContainer Whether you want a container behind the shit aligned at Top that can be used to dismiss sheet on click
+ */
 @Composable
 fun WanderaBottomSheet(
     state: WanderaSheetState ,
     onSheetClosed: () -> Unit = {} ,
     modifier: Modifier = Modifier ,
+    contentPadding : Dp = 16.dp,
     verticalSpacing: Dp = 8.dp ,
     sheetColor: Color = MaterialTheme.colorScheme.surfaceContainer ,
+    dismissTopContainer : Boolean = false,
     content: @Composable ColumnScope.() -> Unit
 ) {
     val scope = rememberCoroutineScope()
+
+
+    //-------- PARENT CONTAINER --------
     Box(
         Modifier
             .fillMaxSize()
             .background(
-                sheetColor.copy(0.2f)
+                color = sheetColor.copy(0.2f)
             )
     ) {
+        //-------- OVERLAY AT THE TOP TO DISMISS SHEET ON CLICK --------
+        if(dismissTopContainer){
+            Box(
+                Modifier.fillMaxSize()
+                    .clickable(
+                        onClick = {
+                            onSheetClosed()
+                            scope.launch {
+                                state.dismiss()
+                            }
+                        },
+                        onClickLabel = "Dismiss bottom sheet",
+                        interactionSource = null,
+                        indication = null
+                    )
+                    .align(Alignment.TopCenter)
+            ){
+
+            }
+        }
+
+
+        //-------- DRAGGABLE CONTAINER --------
         Box(
             Modifier
                 .graphicsLayer {
@@ -208,12 +264,14 @@ fun WanderaBottomSheet(
 
                              */
                         }
-                    ) ,
+                    )
+                    .padding(contentPadding),
                 verticalArrangement = Arrangement.spacedBy(verticalSpacing)
             ) {
                 BottomSheetHandle(
                     Modifier.align(Alignment.CenterHorizontally),
-                    verticalPadding = 10.dp
+                    verticalPadding = 10.dp ,
+                    sheetState = state.sheetState
                 )
                 VerticalSpace(5.dp)
                 content()
@@ -229,11 +287,15 @@ class WanderaSheetState(
     private val animatable: Animatable<Float , AnimationVector1D> ,
     val decayAnimationSpec: DecayAnimationSpec<Float> ,
     draggableState: DraggableState ,
-    visible: Boolean = false
-) {
+    visible: Boolean = false ,
+    sheetState: SheetState = SheetState.HALF_EXPANDED
+)
+{
     val translationY: State<Float> = animatable.asState()
     val draggableState = draggableState
     var visible by mutableStateOf(visible)
+        private set
+    var sheetState by mutableStateOf(sheetState)
         private set
 
     /**
@@ -252,11 +314,11 @@ class WanderaSheetState(
                 SheetState.CLOSED -> {
                     false
                 }
-
                 else -> {
                     true
                 }
             }
+            this.sheetState = sheetState
         } catch (e: Exception) {
             if (e is CancellationException) {
                 throw e
@@ -266,6 +328,9 @@ class WanderaSheetState(
 
     }
 
+    /**
+     * Snap without animation
+     */
     suspend fun snapTo(
         sheetState: SheetState ,
     ) {
@@ -280,6 +345,7 @@ class WanderaSheetState(
                     true
                 }
             }
+            this.sheetState = sheetState
         } catch (e: Exception) {
             if (e is CancellationException) {
                 throw e
@@ -288,14 +354,21 @@ class WanderaSheetState(
         }
     }
 
+    /**
+     * Hide sheet
+     */
     fun show() {
         visible = true
     }
 
+    /**
+     * Hide sheet
+     */
     suspend fun dismiss() {
         try {
             animatable.snapTo(anchors.getValue(SheetState.CLOSED))
             visible = false
+            sheetState = SheetState.CLOSED
         } catch (e: Exception) {
             e.printStackTrace()
         }

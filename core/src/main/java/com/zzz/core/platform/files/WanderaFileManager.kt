@@ -10,14 +10,16 @@ import com.zzz.core.platform.files.util.FileManagerProgress
 import com.zzz.core.platform.files.util.ResultMessage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.io.BufferedReader
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
-import java.io.InputStreamReader
 
+/**
+ * @author zyzz
+ */
 class WanderaFileManager : FileManager {
 
+    
     override suspend fun writeJsonToFile(
         context: Context ,
         json: String ,
@@ -26,6 +28,7 @@ class WanderaFileManager : FileManager {
         return withContext(Dispatchers.IO) {
 
             try {
+                //----------- WRITE FILE -------------
                 val fileName = generateFileName(tripName)
                 val file = File(context.cacheDir , fileName)
                 FileOutputStream(file)
@@ -35,6 +38,7 @@ class WanderaFileManager : FileManager {
                         )
                     }
 
+                //----------- GET URI -------------
                 val fileUri = FileProvider.getUriForFile(
                     context ,
                     "${context.packageName}.provider" ,
@@ -47,20 +51,42 @@ class WanderaFileManager : FileManager {
                     )
                 )
 
-
             } catch (e: IllegalArgumentException) {
+
                 e.printStackTrace()
                 Result.Error(FileManagerError.WriteError(ResultMessage.ILLEGAL_ARG))
             } catch (e: Exception) {
+
+                e.printStackTrace()
                 Result.Error(FileManagerError.WriteError(ResultMessage.ERROR_UNKNOWN))
             }
 
         }
     }
 
-    private fun generateFileName(tripName: String , extension: String = ".json" , initial : String = "Share Trip"): String {
-        return "$initial ${tripName}_${System.currentTimeMillis()}$extension"
-        //return "$initial ${tripName.replace(" " , "_")}_${System.currentTimeMillis()}$extension"
+    /**
+     * Generated a file name for the json
+     * @param extension File extension
+     * @param initial File initial to be displayed before name
+     * @param appendTimeMillisLong Whether to include long time millis in the file name
+     * @return File name
+     */
+    private fun generateFileName(
+        fileName: String ,
+        extension: String = ".json" ,
+        initial: String = "Share Trip" ,
+        appendTimeMillisLong: Boolean = true
+    ): String {
+        return when {
+            appendTimeMillisLong -> {
+                "$initial ${fileName}_${System.currentTimeMillis()}$extension"
+            }
+
+            else -> {
+                "$initial ${fileName}$extension"
+            }
+        }
+
     }
 
     override suspend fun readTripJsonFromUri(
@@ -83,16 +109,17 @@ class WanderaFileManager : FileManager {
                                     currentLine = bufferedReader.readLine()
                                 }
                                 return@withContext Result.Success(
-                                    opString?.ifEmpty{null}
+                                    opString?.ifEmpty { null }
                                 )
                             }
-                    } ?: return@withContext Result.Error(
-                    FileManagerError.WriteError("Import failed! Couldn't open the file.")
-                )
+                    } ?: return@withContext Result
+                    .Error(
+                        FileManagerError.WriteError(ResultMessage.FILE_OPEN_ERROR)
+                    )
 
             } catch (e: IOException) {
                 e.printStackTrace()
-                Result.Error(FileManagerError.WriteError("Import failed! The file appears to be corrupt."))
+                Result.Error(FileManagerError.WriteError(ResultMessage.FILE_CORRUPT_ERROR))
             } catch (e: Exception) {
                 e.printStackTrace()
                 Result.Error(FileManagerError.WriteError(ResultMessage.ERROR_UNKNOWN))

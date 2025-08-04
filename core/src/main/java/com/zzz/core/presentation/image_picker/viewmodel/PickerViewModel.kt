@@ -40,6 +40,9 @@ internal class PickerViewModel(
 
     fun onAction(action: ImagePickerActions) {
         when (action) {
+            is ImagePickerActions.TriggerTabRow->{
+                triggerTabRow(action.visible)
+            }
             ImagePickerActions.CancelSelection -> {
                 clearViewModel()
             }
@@ -62,6 +65,12 @@ internal class PickerViewModel(
             is ImagePickerActions.SelectImage -> {
                 selectImage(action.image)
             }
+        }
+    }
+
+    private fun triggerTabRow(visible : Boolean) {
+        _state.update {
+            it.copy(tabRowVisible = visible)
         }
     }
 
