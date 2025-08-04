@@ -30,7 +30,7 @@ import com.zzz.core.presentation.modifiers.drawStrikethroughLine
 import com.zzz.data.trip.model.Day
 
 /**
- * Used in column layout of itinerary in TripOverviewPage
+ * Used in column layout of itinerary LIST in TripOverviewPage
  * @author zyzz
  */
 @Composable

@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.zzz.data.trip.model.Day
 
@@ -20,7 +21,8 @@ internal fun ItineraryList(
     onClick :(Day)->Unit,
     markDayStatus: (isDone: Boolean , dayId: Long) -> Unit,
     viewOnly : Boolean = false,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    maxHeight : Dp = 400.dp
 ) {
 
     val finishedDays = remember (days){
@@ -33,7 +35,7 @@ internal fun ItineraryList(
 
     LazyColumn(
         modifier.fillMaxWidth()
-            .heightIn(max = 800.dp),
+            .heightIn(max = maxHeight),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         item {

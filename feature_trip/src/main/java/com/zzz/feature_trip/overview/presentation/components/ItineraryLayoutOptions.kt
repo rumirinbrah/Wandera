@@ -1,5 +1,6 @@
 package com.zzz.feature_trip.overview.presentation.components
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -41,13 +42,14 @@ internal fun ItineraryLayoutOptions(
         Text(
             "Itinerary",
             fontSize = 16.sp,
-            fontWeight = FontWeight.Medium
+            fontWeight = FontWeight.Bold
         )
         Box(
             modifier.clip(CircleShape)
                 .clickable {
                     onLayoutChange()
                 }
+                .background(MaterialTheme.colorScheme.surfaceContainer)
                 .padding(8.dp)
         ){
             Icon(

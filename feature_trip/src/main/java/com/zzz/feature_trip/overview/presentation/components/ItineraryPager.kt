@@ -7,12 +7,10 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerDefaults
 import androidx.compose.foundation.pager.PagerSnapDistance
-import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
@@ -21,24 +19,31 @@ import com.zzz.data.trip.model.Day
 import kotlin.math.absoluteValue
 
 /**
+ * @param days Days
+ * @param loading Loading state
+ * @param onDayClick Callback
+ * @param pageFlingOverCount If the number of days is over this value, custom fling will be applied
+ * @param maxPageFling Max pages that can be swiped at once
  * @author zyzz
  */
 @Composable
 internal fun ItineraryPager(
-    //pagerState: PagerState,
     days: List<Day> ,
     loading: Boolean = false ,
+    interactionsEnabled: Boolean = true ,
     onDayClick: (Day) -> Unit ,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier ,
+    pageFlingOverCount: Int = 12 ,
+    maxPageFling: Int = 3
 ) {
-    val pagerState = rememberPagerState() {
+    val pagerState = rememberPagerState {
         days.size
     }
     val pagerFling = PagerDefaults.flingBehavior(
         state = pagerState ,
         pagerSnapDistance = PagerSnapDistance.atMost(
-            pages = if (days.size > 12) {
-                3
+            pages = if (days.size > pageFlingOverCount) {
+                maxPageFling
             } else {
                 1
             }
@@ -68,13 +73,18 @@ internal fun ItineraryPager(
                         days[it].id
                     } ,
                     pageSpacing = 10.dp ,
-                    flingBehavior = pagerFling
+                    flingBehavior = pagerFling ,
+                    userScrollEnabled = interactionsEnabled
                 ) { page ->
                     val pageOffset = pagerState.getOffsetDistanceInPages(page).absoluteValue
 
                     PagerItem(
                         day = days[page] ,
-                        onClick = onDayClick ,
+                        onClick = {
+                            if(interactionsEnabled){
+                                onDayClick(it)
+                            }
+                        } ,
                         modifier = Modifier
                             .graphicsLayer {
                                 val scale = (1 - pageOffset).coerceIn(0.95f , 1f)

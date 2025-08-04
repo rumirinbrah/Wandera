@@ -1,9 +1,9 @@
 package com.zzz.feature_trip.home.presentation
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
@@ -13,27 +13,29 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.zzz.core.presentation.buttons.CircularIconButton
 import com.zzz.core.presentation.components.DotsLoadingAnimation
 import com.zzz.core.presentation.components.VerticalSpace
-import com.zzz.core.presentation.modifiers.customShadow
+import com.zzz.core.presentation.text_field.RoundedTextField
 import com.zzz.core.theme.WanderaTheme
 import com.zzz.data.trip.TripWithDays
+import com.zzz.feature_trip.home.presentation.components.HomeTopBar
 import com.zzz.feature_trip.home.presentation.components.TripItemRoot
 import kotlinx.coroutines.delay
 import org.koin.androidx.compose.koinViewModel
@@ -62,6 +64,7 @@ fun HomeRoot(
             onNavBarVisibilityChange(it)
         }
     )
+    //Tester(modifier)
 }
 
 @Composable
@@ -77,8 +80,18 @@ private fun HomePage(
     val lazyListState = rememberLazyListState()
 
     val isAtTop = remember {
-        derivedStateOf{
-            lazyListState.firstVisibleItemIndex == 0
+
+//        derivedStateOf{
+//            println("Is at top remember")
+//            lazyListState.firstVisibleItemIndex == 0
+//        }
+        mutableStateOf(true)
+    }
+    LaunchedEffect(lazyListState) {
+        snapshotFlow {
+            lazyListState.firstVisibleItemIndex==0
+        }.collect{
+            isAtTop.value = it
         }
     }
     LaunchedEffect(isAtTop.value) {
@@ -122,17 +135,19 @@ private fun HomePage(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
+
+            /*
             CircularIconButton(
                 modifier = Modifier.align(Alignment.Start),
-                icon = com.zzz.core.R.drawable.round_more_vert_24 ,
+                icon = com.zzz.core.R.drawable.settings ,
                 contentDescription = "Go to theme settings" ,
                 onClick = {
                     navToThemeSettings()
                 },
-                background = Color.Gray.copy(0.4f),
-                onBackground = Color.White,
+                background = MaterialTheme.colorScheme.surfaceContainer,
+                onBackground = MaterialTheme.colorScheme.onBackground,
                 buttonSize = 40.dp,
-                iconSize = 20.dp
+                iconSize = 25.dp
             )
             //HEADER
             Row(
@@ -172,6 +187,14 @@ private fun HomePage(
                 )
 
             }
+
+             */
+            AnimatedVisibility(isAtTop.value) {
+                HomeTopBar(
+                    navToThemeSettings = navToThemeSettings,
+                    navToCreateTrip = navToCreateTrip
+                )
+            }
             VerticalSpace()
             Text(
                 "Adventures" ,
@@ -180,7 +203,8 @@ private fun HomePage(
             )
             //TRIPS
             LazyColumn(
-                Modifier.fillMaxWidth()
+                Modifier
+                    .fillMaxWidth()
                     .heightIn(max = 800.dp) ,
                 state = lazyListState,
                 verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -211,6 +235,35 @@ private fun HomePage(
         }
     }
 
+}
+
+@Composable
+fun Tester(modifier: Modifier = Modifier) {
+    var text by remember { mutableStateOf("") }
+    val list = remember {  mutableStateListOf<String>() }
+
+    Column(
+        modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        RoundedTextField(
+            value = text,
+            onValueChange = {
+                text = it
+            },
+            placeholder= "Enter",
+            imeAction = ImeAction.Done,
+            onDone = {
+                list.add(text)
+                text = ""
+            }
+        )
+        LazyColumn {
+            items(list){
+                Text(it , fontSize = 25.sp , fontWeight = FontWeight.Bold)
+            }
+        }
+    }
 }
 
 @Preview

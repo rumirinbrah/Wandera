@@ -22,6 +22,8 @@ sealed class OverviewActions {
 
     data class SelectExpenseItem(val itemId : Long?) : OverviewActions()
 
+    // ----- DOCS -----
+    data object OnDocsListCollapse : OverviewActions()
 
     //----checklist----
     data class CheckChecklistItem(val itemId : Long , val checked : Boolean) : OverviewActions()
@@ -31,6 +33,7 @@ sealed class OverviewActions {
 
     data class OnFabCollapse(val collapsed : Boolean) : OverviewActions()
 
-    data object MarkTripAsDone : OverviewActions()
+    data class MarkTripAsDone(val done : Boolean) : OverviewActions()
+    data class PlayMarkAsDoneAnimation(val playAnimation : Boolean ) : OverviewActions()
     data object DeleteTrip : OverviewActions()
 }
