@@ -6,14 +6,11 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -26,19 +23,14 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.toRoute
 import com.zzz.core.presentation.modifiers.customShadow
-import com.zzz.wandera.presentation.nav.util.Screen
 import com.zzz.core.presentation.theme_change.ChangeThemePage
 import com.zzz.core.presentation.toast.rememberWanderaToastState
 import com.zzz.feature_settings.presentation.AppSettingsRoot
 import com.zzz.feature_translate.presentation.TranslateRoot
 import com.zzz.feature_translate.presentation.viewmodel.TranslationViewModel
-import com.zzz.feature_trip.overview.presentation.viewmodel.OverviewActions
-import com.zzz.feature_trip.overview.presentation.viewmodel.OverviewViewModel
-import com.zzz.feature_trip.recents.presentation.RecentOverviewRoot
-import com.zzz.feature_trip.recents.presentation.RecentsRoot
 import com.zzz.wandera.presentation.nav.util.BottomNavBar
+import com.zzz.wandera.presentation.nav.util.Screen
 import com.zzz.wandera.ui.ThemeState
 import org.koin.androidx.compose.koinViewModel
 

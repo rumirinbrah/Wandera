@@ -13,27 +13,25 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import androidx.navigation.toRoute
 import com.zzz.core.presentation.toast.WanderaToastState
-import com.zzz.wandera.presentation.nav.util.Screen
 import com.zzz.feature_trip.create.presentation.AddDayRoot
 import com.zzz.feature_trip.create.presentation.CreateRoot
-import com.zzz.feature_trip.create.presentation.viewmodel.CreateViewModel
 import com.zzz.feature_trip.create.presentation.viewmodel.CreateAction
+import com.zzz.feature_trip.create.presentation.viewmodel.CreateViewModel
 import com.zzz.feature_trip.create.presentation.viewmodel.DayViewModel
 import com.zzz.feature_trip.day_details.DayDetailsRoot
-import com.zzz.feature_trip.day_details.viewmodel.DayDetailsViewModel
 import com.zzz.feature_trip.home.presentation.HomeRoot
 import com.zzz.feature_trip.home.presentation.HomeViewModel
+import com.zzz.feature_trip.overview.presentation.TripOverviewRoot
 import com.zzz.feature_trip.overview.presentation.viewmodel.OverviewActions
 import com.zzz.feature_trip.overview.presentation.viewmodel.OverviewViewModel
-import com.zzz.feature_trip.overview.presentation.TripOverviewRoot
 import com.zzz.feature_trip.recents.presentation.RecentOverviewRoot
 import com.zzz.feature_trip.recents.presentation.RecentsRoot
 import com.zzz.feature_trip.recents.presentation.viewmodel.RecentsViewModel
 import com.zzz.feature_trip.share.presentation.ExportTripRoot
 import com.zzz.feature_trip.share.presentation.ImportTripRoot
-
 import com.zzz.feature_trip.update.presentation.UpdateRoot
 import com.zzz.feature_trip.update.presentation.viewmodel.UpdateTripViewModel
+import com.zzz.wandera.presentation.nav.util.Screen
 import org.koin.androidx.compose.koinViewModel
 
 fun NavGraphBuilder.homeNavGraph(
@@ -47,7 +45,7 @@ fun NavGraphBuilder.homeNavGraph(
     navigation<Screen.HomeGraph>(
         startDestination = Screen.HomeGraph.HomeScreen
     ){
-        //home
+        //-------- HOME ---------
         composable<Screen.HomeGraph.HomeScreen> { backStack->
 
             LaunchedEffect(Unit) {
@@ -109,7 +107,7 @@ fun NavGraphBuilder.homeNavGraph(
                 createViewModel
             )
         }
-        //Update
+        //-------- UPDATE---------
         composable<Screen.HomeGraph.UpdateTripScreen> { backStack->
             val route = backStack.toRoute<Screen.HomeGraph.UpdateTripScreen>()
             val parentEntry = remember(backStack) {
@@ -171,6 +169,8 @@ fun NavGraphBuilder.homeNavGraph(
             )
 
         }
+
+
         //-------- DETAILS --------
         composable<Screen.HomeGraph.DayDetailsScreen> { backStack->
             /*
@@ -190,7 +190,6 @@ fun NavGraphBuilder.homeNavGraph(
                 dayId = route.dayId,
             )
         }
-
         //-------- overview --------
         composable<Screen.HomeGraph.TripOverviewScreen> { backStack->
             val parentEntry = remember(backStack) {
@@ -220,14 +219,14 @@ fun NavGraphBuilder.homeNavGraph(
                 shareTrip = {tripId ->
                     navController.navigate(Screen.HomeGraph.ExportTripScreen(tripId))
                 },
-                markTripAsDone = {
-                    navController.navigate(Screen.HomeGraph.ImportTripScreen)
-                },
                 navigateUp = {
                     navController.navigateUp()
                 }
             )
         }
+
+
+        //-------- EXPORT ---------
         composable<Screen.HomeGraph.ExportTripScreen> {
             val route = it.toRoute<Screen.HomeGraph.ExportTripScreen>()
 
@@ -239,10 +238,12 @@ fun NavGraphBuilder.homeNavGraph(
                 },
                 navUp = {
                     navController.navigateUp()
-                }
+                },
+                toastState = wanderaToastState
             )
 
         }
+        //-------- IMPORT ---------
         composable<Screen.HomeGraph.ImportTripScreen> {
             LaunchedEffect(Unit) {
                 println("hide navbar")
@@ -263,6 +264,9 @@ fun NavGraphBuilder.homeNavGraph(
 
 }
 
+/**
+ * Recents NavGraph
+ */
 fun NavGraphBuilder.recentsNavGraph(
     navController : NavHostController,
     navBarVisible : (Boolean)->Unit,
@@ -271,6 +275,7 @@ fun NavGraphBuilder.recentsNavGraph(
     navigation<Screen.RecentsGraph>(
         startDestination = Screen.RecentsGraph.RecentsScreen
     ) {
+        //-------- RECENT ---------
         composable<Screen.RecentsGraph.RecentsScreen> {backStack->
             val parentEntry = remember(backStack) {
                 navController.getBackStackEntry(Screen.RecentsGraph)
@@ -289,6 +294,7 @@ fun NavGraphBuilder.recentsNavGraph(
             )
         }
 
+        //-------- RECENT OVERVIEW---------
         composable<Screen.RecentsGraph.RecentOverviewScreen> { backStack->
             val parentEntry = remember(backStack) {
                 navController.getBackStackEntry(Screen.RecentsGraph)
@@ -317,6 +323,7 @@ fun NavGraphBuilder.recentsNavGraph(
 
         }
 
+        //-------- DAY Details ---------
         composable<Screen.RecentsGraph.DayDetailsScreen> {backStack->
             val route = backStack.toRoute<Screen.RecentsGraph.DayDetailsScreen>()
 

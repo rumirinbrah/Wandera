@@ -16,6 +16,7 @@ roomVersion = "2.6.1"
 kspVersion = "2.0.21-1.0.27"
 coilCompose = "2.6.0"
 palette = "1.0.0"
+graphics = "1.0.1"
 
 #google
 translateKit = "17.0.3"
@@ -72,6 +73,7 @@ coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose"
 
 #palette
 androidx-palette = {module = "androidx.palette:palette" , version.ref = "palette"}
+androidx-graphics = {module = "androidx.graphics:graphics-shapes" , version.ref = "graphics"}
 
 #serialize
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }

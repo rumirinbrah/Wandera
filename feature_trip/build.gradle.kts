@@ -45,6 +45,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
 
+
     //koin
     implementation(project.dependencies.platform(libs.koin.bom))
     implementation(libs.koin.android)
