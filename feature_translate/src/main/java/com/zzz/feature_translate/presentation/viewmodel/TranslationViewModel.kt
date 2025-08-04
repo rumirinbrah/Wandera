@@ -127,8 +127,8 @@ class TranslationViewModel(
                     }
 
                     is TranslateAction.ManagerAction.FilterByDownloads -> {
-                        //setDownloadsFilter(action.filter)
-                        wanderaNotification.sendTripReminder("")
+                        setDownloadsFilter(action.filter)
+                        //wanderaNotification.sendTripReminder("")
                     }
 
                     //UI
