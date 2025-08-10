@@ -1,4 +1,4 @@
-package com.zzz.feature_trip.overview.presentation.tabs.note_expense.pager.expense_tracker
+package com.zzz.feature_trip.overview.presentation.tabs.note_expense.pages.expense_tracker
 
 import android.content.res.Configuration
 import android.widget.Toast
@@ -35,6 +35,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -48,6 +49,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -75,8 +77,9 @@ import com.zzz.feature_trip.R
 import com.zzz.feature_trip.overview.domain.ExpenseEntityUI
 import com.zzz.feature_trip.overview.domain.ExpenseType
 import com.zzz.feature_trip.overview.domain.expenseTypes
-import com.zzz.feature_trip.overview.presentation.tabs.note_expense.pager.expense_tracker.viewmodel.ExpenseActions
-import com.zzz.feature_trip.overview.presentation.tabs.note_expense.pager.expense_tracker.viewmodel.ExpenseTrackerViewModel
+import com.zzz.feature_trip.overview.presentation.tabs.note_expense.pages.expense_tracker.components.CurrencySelectorPage
+import com.zzz.feature_trip.overview.presentation.tabs.note_expense.pages.expense_tracker.viewmodel.ExpenseActions
+import com.zzz.feature_trip.overview.presentation.tabs.note_expense.pages.expense_tracker.viewmodel.ExpenseTrackerViewModel
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import java.time.LocalDate
@@ -97,6 +100,7 @@ fun ExpensePage(
     totalExpense: Int? = null ,
     onExpenseItemClick: (itemId: Long) -> Unit ,
     launchAddExpenseSheet: () -> Unit ,
+    shareExpenses: () -> Unit ,
     interactionsEnabled: Boolean = true ,
     viewOnly: Boolean = false ,
     modifier: Modifier = Modifier
@@ -109,25 +113,44 @@ fun ExpensePage(
             modifier.fillMaxWidth() ,
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            if (!viewOnly) {
-                //header
-                Row(
-                    verticalAlignment = Alignment.CenterVertically ,
-                    horizontalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    CircularIconButton(
-                        icon = com.zzz.core.R.drawable.add ,
-                        contentDescription = "add new expense" ,
-                        onClick = {
-                            launchAddExpenseSheet()
-                        } ,
-                        buttonSize = 40.dp ,
-                        background = MaterialTheme.colorScheme.surfaceContainer ,
-                        onBackground = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Text("Add new" , fontWeight = FontWeight.Medium)
+            //header
+            Row(
+                Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically ,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                //action buttons
+                if (!viewOnly) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically ,
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        CircularIconButton(
+                            icon = com.zzz.core.R.drawable.add ,
+                            contentDescription = "add new expense" ,
+                            onClick = {
+                                launchAddExpenseSheet()
+                            } ,
+                            buttonSize = 40.dp ,
+                            background = MaterialTheme.colorScheme.surfaceContainer ,
+                            onBackground = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Text("Add new" , fontWeight = FontWeight.Medium)
+                    }
                 }
+                //share
+                CircularIconButton(
+                    icon = com.zzz.core.R.drawable.share ,
+                    contentDescription = "share expense" ,
+                    onClick = {
+                        shareExpenses()
+                    } ,
+                    buttonSize = 40.dp ,
+                    background = MaterialTheme.colorScheme.surfaceContainer ,
+                    onBackground = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
+
 
             VerticalSpace(5.dp)
 
@@ -198,7 +221,7 @@ internal fun AddExpenseSheet(
     itemId: Long? = null ,
     sheetState: WanderaSheetState ,
     onClosed: () -> Unit = {} ,
-    errorToast : (errorMsg : String)->Unit = {},
+    errorToast: (errorMsg: String) -> Unit = {} ,
     modifier: Modifier = Modifier ,
     sheetBackground: Color = MaterialTheme.colorScheme.surface ,
     onSheetBackground: Color = MaterialTheme.colorScheme.onSurface.copy(0.8f) ,
@@ -211,6 +234,8 @@ internal fun AddExpenseSheet(
     val expenseViewModel = koinViewModel<ExpenseTrackerViewModel>()
     val state by expenseViewModel.state.collectAsStateWithLifecycle()
     val events = expenseViewModel.events
+
+    var selector by remember { mutableStateOf(false) }
 
     //----------- CLEAN UP VM -----------
     DisposableEffect(Unit) {
@@ -252,175 +277,215 @@ internal fun AddExpenseSheet(
 
     BackHandler {
         //onClosed()
-        scope.launch {
-            sheetState.animateTo(SheetState.CLOSED)
+        when {
+            selector -> {
+                selector = false
+            }
+
+            else -> {
+                scope.launch {
+                    sheetState.animateTo(SheetState.CLOSED)
+                }
+            }
         }
+
     }
 
 
     WanderaBottomSheet(
         sheetState ,
         //onSheetClosed = {} ,
-        dismissTopContainer = true,
+        dismissTopContainer = true ,
         modifier = modifier
             .fillMaxSize()
             .background(sheetBackground)
-            //.padding(16.dp),
+        //.padding(16.dp),
     ) {
-        Column(
-            Modifier
-                .fillMaxWidth()
-                .verticalScroll(rememberScrollState()) ,
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-
-            VerticalSpace(5.dp)
-            if (state.loading) {
-                CircularProgressIndicator(Modifier.align(Alignment.CenterHorizontally))
-            }
-            //price
-            RoundedTextField(
-                value = state.amount ,
-                onValueChange = {
-                    expenseViewModel.onAction(ExpenseActions.OnAmountChange(it))
-                } ,
-                placeholder = "Amount/money spent" ,
-                background = MaterialTheme.colorScheme.surfaceContainer ,
-                onBackground = MaterialTheme.colorScheme.onSurfaceVariant ,
-                keyboardType = KeyboardType.Number ,
-                trailingIcon = R.drawable.dollar ,
-                textStyle = TextStyle(
-                    fontSize = 20.sp ,
-                    fontWeight = FontWeight.Bold
-                ) ,
-                singleLine = true ,
-                modifier = Modifier.fillMaxWidth(),
-            )
-
-            //EXPENSE TYPE
-            VerticalSpace(10.dp)
-            Text(
-                "What did you spend on?" ,
-                fontWeight = FontWeight.Bold ,
-                fontSize = 16.sp ,
-                color = onSheetBackground
-            )
-            /*
-            FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(8.dp) ,
+        Box(Modifier.fillMaxSize()) {
+            Column(
+                Modifier
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState()) ,
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                flowRowItems.onEach { type ->
-                    ExpenseTypeFlowRowItem(
-                        item = type ,
-                        selected = type.shortTitle == state.expenseType ,
-                        onClick = {
-                            expenseViewModel.onAction(ExpenseActions.OnExpenseTypeChange(type.shortTitle))
-                        }
-                    )
+
+                VerticalSpace(5.dp)
+                if (state.loading) {
+                    CircularProgressIndicator(Modifier.align(Alignment.CenterHorizontally))
                 }
-            }
-
-             */
-            ExpenseTypesFlowRow(
-                modifier = Modifier.fillMaxWidth(),
-                items = flowRowItems,
-                currentTypeShortTitle = state.expenseType ,
-                onClick = {shortTitle ->
-                    expenseViewModel.onAction(ExpenseActions.OnExpenseTypeChange(shortTitle))
-                }
-            )
-
-            //titlew
-            VerticalSpace(10.dp)
-            RoundedTextField(
-                value = state.title ?: "" ,
-                onValueChange = {
-                    expenseViewModel.onAction(ExpenseActions.OnTitleChange(it))
-                } ,
-                placeholder = "Title (Optional)" ,
-                background = MaterialTheme.colorScheme.surfaceContainer ,
-                onBackground = MaterialTheme.colorScheme.onSurfaceVariant ,
-                singleLine = true ,
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            //split
-            VerticalSpace(10.dp)
-            RoundedTextField(
-                value = state.splitInto ?: "" ,
-                onValueChange = {
-                    expenseViewModel.onAction(ExpenseActions.OnSplitIntoChange(it))
-                } ,
-                placeholder = "Split Into (Optional)" ,
-                background = MaterialTheme.colorScheme.surfaceContainer ,
-                onBackground = MaterialTheme.colorScheme.onSurfaceVariant ,
-                keyboardType = KeyboardType.Number ,
-                singleLine = true ,
-                textStyle = TextStyle(
-                    fontWeight = FontWeight.Bold ,
-                    fontSize = 20.sp ,
-                ) ,
-                modifier = Modifier
-            )
-
-            //save
-            VerticalSpace(30.dp)
-            when {
-                state.saving -> {
-                    CircularProgressIndicator(
-                        modifier = Modifier
-                            .size(25.dp)
-                            .align(Alignment.CenterHorizontally) ,
-                        strokeWidth = 5.dp ,
-                    )
-                }
-
-                state.updating -> {
-                    NormalButton(
-                        title = "Update" ,
-                        onClick = {
-                            tripId?.let {
-                                expenseViewModel.onAction(ExpenseActions.Update(it))
+                //price
+                Row(
+                    verticalAlignment = Alignment.CenterVertically ,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Box(
+                        Modifier
+                            .clickable(
+                            ) {
+                                selector = true
                             }
+                    ) {
+                        Text(
+                            text = state.currencySymbol ?: "$" ,
+                            fontSize = 25.sp ,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                    RoundedTextField(
+                        value = state.amount ,
+                        onValueChange = {
+                            expenseViewModel.onAction(ExpenseActions.OnAmountChange(it))
                         } ,
-                        shape = MaterialTheme.shapes.small ,
-                        background = successGreen ,
-                        onBackground = Color.White ,
-                        modifier = Modifier.align(Alignment.CenterHorizontally) ,
-                        animationSpec = tween(200)
-                    )
-                    NormalButton(
-                        title = "Delete" ,
-                        onClick = {
-                            tripId?.let {
-                                expenseViewModel.onAction(ExpenseActions.DeleteExpense)
-                            }
-                        } ,
-                        enabled = !state.loading ,
-                        shape = MaterialTheme.shapes.small ,
+                        placeholder = "Amount/money spent" ,
                         background = MaterialTheme.colorScheme.surfaceContainer ,
-                        onBackground = MaterialTheme.colorScheme.onBackground ,
-                        modifier = Modifier.align(Alignment.CenterHorizontally) ,
+                        onBackground = MaterialTheme.colorScheme.onSurfaceVariant ,
+                        keyboardType = KeyboardType.Number ,
+                        textStyle = TextStyle(
+                            fontSize = 20.sp ,
+                            fontWeight = FontWeight.Bold
+                        ) ,
+                        singleLine = true ,
+                        modifier = Modifier.weight(1f) ,
                     )
+
                 }
 
-                else -> {
-                    NormalButton(
-                        title = "Save" ,
-                        onClick = {
-                            tripId?.let {
-                                expenseViewModel.onAction(ExpenseActions.Save(it))
+
+                //EXPENSE TYPE
+                VerticalSpace(10.dp)
+                Text(
+                    "What did you spend on?" ,
+                    fontWeight = FontWeight.Bold ,
+                    fontSize = 16.sp ,
+                    color = onSheetBackground
+                )
+                /*
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp) ,
+                ) {
+                    flowRowItems.onEach { type ->
+                        ExpenseTypeFlowRowItem(
+                            item = type ,
+                            selected = type.shortTitle == state.expenseType ,
+                            onClick = {
+                                expenseViewModel.onAction(ExpenseActions.OnExpenseTypeChange(type.shortTitle))
                             }
-                        } ,
-                        shape = MaterialTheme.shapes.small ,
-                        background = successGreen ,
-                        onBackground = Color.White ,
-                        modifier = Modifier.align(Alignment.CenterHorizontally) ,
-                        animationSpec = tween(200)
-                    )
+                        )
+                    }
+                }
+
+                 */
+                ExpenseTypesFlowRow(
+                    modifier = Modifier.fillMaxWidth() ,
+                    items = flowRowItems ,
+                    currentTypeShortTitle = state.expenseType ,
+                    onClick = { shortTitle ->
+                        expenseViewModel.onAction(ExpenseActions.OnExpenseTypeChange(shortTitle))
+                    }
+                )
+
+                //titlew
+                VerticalSpace(10.dp)
+                RoundedTextField(
+                    value = state.title ?: "" ,
+                    onValueChange = {
+                        expenseViewModel.onAction(ExpenseActions.OnTitleChange(it))
+                    } ,
+                    placeholder = "Title (Optional)" ,
+                    background = MaterialTheme.colorScheme.surfaceContainer ,
+                    onBackground = MaterialTheme.colorScheme.onSurfaceVariant ,
+                    singleLine = true ,
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                //split
+                VerticalSpace(10.dp)
+                RoundedTextField(
+                    value = state.splitInto ?: "" ,
+                    onValueChange = {
+                        expenseViewModel.onAction(ExpenseActions.OnSplitIntoChange(it))
+                    } ,
+                    placeholder = "Split Into (Optional)" ,
+                    background = MaterialTheme.colorScheme.surfaceContainer ,
+                    onBackground = MaterialTheme.colorScheme.onSurfaceVariant ,
+                    keyboardType = KeyboardType.Number ,
+                    singleLine = true ,
+                    textStyle = TextStyle(
+                        fontWeight = FontWeight.Bold ,
+                        fontSize = 20.sp ,
+                    ) ,
+                    modifier = Modifier
+                )
+
+                //save
+                VerticalSpace(30.dp)
+                when {
+                    state.saving -> {
+                        CircularProgressIndicator(
+                            modifier = Modifier
+                                .size(25.dp)
+                                .align(Alignment.CenterHorizontally) ,
+                            strokeWidth = 5.dp ,
+                        )
+                    }
+
+                    state.updating -> {
+                        NormalButton(
+                            title = "Update" ,
+                            onClick = {
+                                tripId?.let {
+                                    expenseViewModel.onAction(ExpenseActions.Update(it))
+                                }
+                            } ,
+                            shape = MaterialTheme.shapes.small ,
+                            background = successGreen ,
+                            onBackground = Color.White ,
+                            modifier = Modifier.align(Alignment.CenterHorizontally) ,
+                            animationSpec = tween(200)
+                        )
+                        NormalButton(
+                            title = "Delete" ,
+                            onClick = {
+                                tripId?.let {
+                                    expenseViewModel.onAction(ExpenseActions.DeleteExpense)
+                                }
+                            } ,
+                            enabled = !state.loading ,
+                            shape = MaterialTheme.shapes.small ,
+                            background = MaterialTheme.colorScheme.surfaceContainer ,
+                            onBackground = MaterialTheme.colorScheme.onBackground ,
+                            modifier = Modifier.align(Alignment.CenterHorizontally) ,
+                        )
+                    }
+
+                    else -> {
+                        NormalButton(
+                            title = "Save" ,
+                            onClick = {
+                                tripId?.let {
+                                    expenseViewModel.onAction(ExpenseActions.Save(it))
+                                }
+                            } ,
+                            shape = MaterialTheme.shapes.small ,
+                            background = successGreen ,
+                            onBackground = Color.White ,
+                            modifier = Modifier.align(Alignment.CenterHorizontally) ,
+                            animationSpec = tween(200)
+                        )
+                    }
                 }
             }
+            if (selector) {
+                CurrencySelectorPage(
+                    onClick = { symbol , code ->
+                        selector = false
+                        expenseViewModel.onAction(ExpenseActions.OnCurrencyChange(symbol , code))
+                    }
+                )
+            }
+
         }
+
     }
 }
 
@@ -435,8 +500,8 @@ internal fun AddExpenseSheet(
 private fun ExpenseTypesFlowRow(
     modifier: Modifier = Modifier ,
     items: List<ExpenseType> ,
-    currentTypeShortTitle : String ,
-    onClick: (shortTitle : String) -> Unit ,
+    currentTypeShortTitle: String ,
+    onClick: (shortTitle: String) -> Unit ,
     enabled: Boolean = true ,
     horizontalSpacing: Dp = 8.dp ,
     maxItemsEachRow: Int = 4 ,
@@ -456,8 +521,8 @@ private fun ExpenseTypesFlowRow(
                 val extraSpace = horizontalSpacing * maxItemsEachRow
                 val itemWidthDp = (totalWidth - extraSpace) / maxItemsEachRow
                 flowRowItemWidth.value = itemWidthDp
-            },
-        horizontalArrangement = Arrangement.spacedBy(horizontalSpacing),
+            } ,
+        horizontalArrangement = Arrangement.spacedBy(horizontalSpacing) ,
         maxItemsInEachRow = maxItemsEachRow
     ) {
         items.onEach { type ->
@@ -466,10 +531,10 @@ private fun ExpenseTypesFlowRow(
                 selected = type.shortTitle == currentTypeShortTitle ,
                 onClick = {
                     //expenseViewModel.onAction(ExpenseActions.OnExpenseTypeChange(type.shortTitle))
-                    if(enabled){
+                    if (enabled) {
                         onClick(type.shortTitle)
                     }
-                },
+                } ,
                 modifier = Modifier.width(flowRowItemWidth.value)
             )
         }
@@ -505,7 +570,7 @@ private fun ExpenseTypeFlowRowItem(
             }
             //.widthIn(50.dp , 80.dp)
             .aspectRatio(1f)
-            //.padding(4.dp)
+        //.padding(4.dp)
         ,
         horizontalAlignment = Alignment.CenterHorizontally ,
         verticalArrangement = Arrangement.Center
@@ -555,6 +620,7 @@ internal fun ExpenseEntityItem(
     ) {
 
         Column {
+            //------- ICON --------
             Box(
                 Modifier
                     .background(Color(item.iconBackground))
@@ -568,6 +634,7 @@ internal fun ExpenseEntityItem(
             }
         }
 
+        //------- TITLE ,SPLIT --------
         Column(
             Modifier
                 .weight(1f)
@@ -589,13 +656,17 @@ internal fun ExpenseEntityItem(
             }
         }
 
+        //------- MONEY --------
         Column(
             Modifier.widthIn(min = 70.dp , max = 60.dp) ,
             horizontalAlignment = Alignment.CenterHorizontally ,
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             Text(
-                item.amount.toString() ,
+                text = item.annotatedAmount(
+                    amountColor = MaterialTheme.colorScheme.error ,
+                    symbolColor = MaterialTheme.colorScheme.onBackground ,
+                ) ,
                 fontSize = 20.sp ,
                 fontWeight = FontWeight.Bold ,
                 color = MaterialTheme.colorScheme.error
@@ -607,7 +678,7 @@ internal fun ExpenseEntityItem(
                             SpanStyle(
                                 fontWeight = FontWeight.Medium ,
                                 fontSize = 13.sp ,
-                                color = onBackground
+                                color = onBackground.copy(0.8f)
                             )
                         ) {
                             val perHead = (item.amount / it)
@@ -619,6 +690,46 @@ internal fun ExpenseEntityItem(
                 )
             }
         }
+
+    }
+}
+
+/**
+ * Formats the expense amount and its symbol
+ */
+private fun ExpenseEntityUI.annotatedAmount(
+    amountColor: Color ,
+    symbolColor: Color
+): AnnotatedString {
+
+    return buildAnnotatedString {
+        pushStyle(
+            SpanStyle(
+                fontSize = 20.sp ,
+                fontWeight = FontWeight.Bold ,
+                color = symbolColor
+            )
+        )
+        append(amount.toString())
+        append(" $currencySymbol")
+        /*
+        withStyle(
+            style = SpanStyle(
+                color = amountColor
+            )
+        ){
+            append(amount.toString())
+        }
+        withStyle(
+            style = SpanStyle(
+                color = symbolColor
+            )
+        ){
+            append(" $currencySymbol")
+        }
+
+         */
+
 
     }
 }

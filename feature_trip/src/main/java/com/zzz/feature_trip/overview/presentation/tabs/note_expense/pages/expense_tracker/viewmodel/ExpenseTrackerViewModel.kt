@@ -1,11 +1,14 @@
-package com.zzz.feature_trip.overview.presentation.tabs.note_expense.pager.expense_tracker.viewmodel
+package com.zzz.feature_trip.overview.presentation.tabs.note_expense.pages.expense_tracker.viewmodel
 
+import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.zzz.core.presentation.events.UIEvents
 import com.zzz.data.trip.model.ExpenseEntity
 import com.zzz.data.trip.source.ExpenseSource
+import com.zzz.feature_trip.overview.data.local.CurrencyPref
+import com.zzz.feature_trip.overview.domain.currencySymbolMap
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.ensureActive
@@ -22,13 +25,15 @@ import kotlinx.coroutines.withContext
  * Handles user input while creating Expense, CRUD
  */
 class ExpenseTrackerViewModel(
-    private val dataSource : ExpenseSource
+    private val dataSource : ExpenseSource,
+    context: Context
 ) : ViewModel() {
 
     private var loggingEnabled = true
+    private val currencyPref = CurrencyPref(context)
 
     private val _state = MutableStateFlow(AddExpenseState())
-    val state = _state
+    internal val state = _state
         .onStart {
             log {
                 "Collecting flow..."
@@ -42,6 +47,14 @@ class ExpenseTrackerViewModel(
     private val _events = Channel<UIEvents>()
     val events = _events.receiveAsFlow()
 
+    init {
+        log {
+            "Init..."
+        }
+        getDefaultCurrencyFromPrefs()
+
+    }
+
 
     fun onAction(action: ExpenseActions){
         when(action){
@@ -49,6 +62,9 @@ class ExpenseTrackerViewModel(
                 fetchExpenseData(action.itemId)
             }
 
+            is ExpenseActions.OnCurrencyChange->{
+                changeCurrency(action.symbol, action.currency)
+            }
             is ExpenseActions.OnAmountChange -> {
                 onAmountChange(action.amount)
             }
@@ -77,7 +93,38 @@ class ExpenseTrackerViewModel(
         }
     }
 
+    /**
+     * Updates UI with the default currency on init
+     */
+    private fun getDefaultCurrencyFromPrefs(){
+        viewModelScope.launch {
+            val currency = currencyPref.getDefaultCurrency()
+            val symbol = currencySymbolMap[currency] ?: "$"
+            _state.update {
+                AddExpenseState(
+                    currencySymbol = symbol
+                )
+            }
+        }
+    }
+
+
     //------ UI ------
+    /**
+     * Updates UI as well as shared prefs
+     * @param symbol Currency symbol e.g. $
+     * @param currency e.g. USD
+     */
+    private fun changeCurrency(symbol  : String,currency : String){
+        viewModelScope.launch {
+            _state.update {
+                it.copy(
+                    currencySymbol = symbol
+                )
+            }
+            setDefaultCurrency(currency)
+        }
+    }
     private fun onTitleChange(value : String){
         viewModelScope.launch {
             _state.update {
@@ -117,6 +164,16 @@ class ExpenseTrackerViewModel(
     }
 
     /**
+     * Sets default currency in shared prefs
+     * @param currency e.g. USD
+     */
+    private fun setDefaultCurrency(currency : String){
+        viewModelScope.launch {
+            currencyPref.setDefaultCurrency(currency)
+        }
+    }
+
+    /**
      * Fetch details about the selected expense to update, delete
      */
     private fun fetchExpenseData(expenseId : Long){
@@ -143,6 +200,7 @@ class ExpenseTrackerViewModel(
                                 title = item.title,
                                 expenseType = item.expenseType,
                                 splitInto = item.splitInto?.toString(),
+                                currencySymbol = item.currencySymbol,
                                 timestamp = item.timestamp
                             )
                         }
@@ -171,9 +229,12 @@ class ExpenseTrackerViewModel(
             "RESET STATE"
         }
         viewModelScope.launch {
-            _state.update {
-                AddExpenseState()
-            }
+//            _state.update {
+//                AddExpenseState(
+//                    currencySymbol = currencyPref.getDefaultCurrency()
+//                )
+//            }
+            getDefaultCurrencyFromPrefs()
         }
     }
 
@@ -199,6 +260,7 @@ class ExpenseTrackerViewModel(
                     splitInto = values.splitInto?.toInt() ,
                     expenseType = values.expenseType,
                     tripId = tripId,
+                    currencySymbol = values.currencySymbol
                 )
                 val id =dataSource.addExpense(entity)
                 log {

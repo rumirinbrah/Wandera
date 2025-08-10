@@ -6,9 +6,13 @@ import androidx.compose.ui.graphics.toArgb
 import com.zzz.data.trip.model.ExpenseEntity
 import com.zzz.feature_trip.R
 
+/**
+ * Entity for UI
+ */
 data class ExpenseEntityUI(
     val id : Long,
     val amount : Int = 0,
+    val currencySymbol : String = "$",
     val title : String? = null,
     val splitInto : Int? = null,
     val expenseType : String = "other",
@@ -22,6 +26,7 @@ fun ExpenseEntity.toUIEntity() : ExpenseEntityUI{
     return ExpenseEntityUI(
         id = id,
         amount = amount,
+        currencySymbol = currencySymbol,
         title = title,
         splitInto = splitInto,
         expenseType = expenseType,

@@ -1,8 +1,10 @@
-package com.zzz.feature_trip.overview.presentation.tabs.note_expense.pager.expense_tracker.viewmodel
+package com.zzz.feature_trip.overview.presentation.tabs.note_expense.pages.expense_tracker.viewmodel
 
 sealed class ExpenseActions {
 
     data class FetchExpenseData(val itemId : Long) : ExpenseActions()
+
+    data class OnCurrencyChange (val symbol : String, val currency : String) : ExpenseActions()
 
     data class OnAmountChange(val amount : String) : ExpenseActions()
     data class OnTitleChange(val value : String) : ExpenseActions()

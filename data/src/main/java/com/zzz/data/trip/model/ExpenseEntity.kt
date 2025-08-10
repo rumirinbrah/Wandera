@@ -20,10 +20,20 @@ import com.zzz.data.util.DbUtils
         Index(value = ["tripId"])
     ]
 )
+/**
+ * Represents a user expense.
+ *
+ * @param amount Amount
+ * @param title Title
+ * @param expenseType The type of expense. e.g. Transport, Food, etc.
+ * @param splitInto
+ * @param timestamp
+ */
 data class ExpenseEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0 ,
     val amount: Int = 0 ,
+    val currencySymbol : String = "$",
     val title: String? = null ,
     val expenseType: String = "other" ,
     val splitInto: Int? = null ,
