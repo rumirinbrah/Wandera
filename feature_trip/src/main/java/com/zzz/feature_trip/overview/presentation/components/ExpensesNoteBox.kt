@@ -12,8 +12,11 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -51,10 +54,14 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.zzz.core.presentation.buttons.WanderaTextButton
+import com.zzz.core.presentation.components.HazeEffectRectangle
 import com.zzz.core.presentation.components.KeyboardAware
 import com.zzz.core.presentation.components.VerticalSpace
 import com.zzz.core.presentation.components.WanderaShapes
 import com.zzz.core.presentation.modifiers.customShadow
+import com.zzz.core.presentation.modifiers.dynamicHeight
+import com.zzz.core.presentation.modifiers.dynamicWidth
 import com.zzz.core.presentation.text_field.RoundedTextField
 import com.zzz.core.theme.WanderaTheme
 import com.zzz.core.util.shareText
@@ -180,7 +187,7 @@ internal fun BookLikeTextField(
     onValueChange: (String) -> Unit ,
     onSave: () -> Unit ,
     //componentHeight : Dp = 50.dp,
-    interactionsEnabled : Boolean = true
+    interactionsEnabled: Boolean = true
 ) {
     val context = LocalContext.current
     val bgColor = remember { Color(0xFFFFF3A2) }
@@ -234,50 +241,49 @@ internal fun BookLikeTextField(
                 .padding(bottom = 20.dp)
                 .align(Alignment.TopStart) ,
             textStyle = TextStyle(
-                color = Color.Black,
+                color = Color.Black ,
                 fontSize = 15.sp ,
                 lineHeight = lineHeight ,
                 fontWeight = FontWeight.Medium
-            ),
+            ) ,
             keyboardOptions = KeyboardOptions(
-                capitalization = KeyboardCapitalization.Sentences,
+                capitalization = KeyboardCapitalization.Sentences ,
                 imeAction = ImeAction.Default
-            ),
-            keyboardActions = KeyboardActions(),
+            ) ,
+            keyboardActions = KeyboardActions() ,
             enabled = interactionsEnabled
         )
-        if(value.isBlank()){
+        if (value.isBlank()) {
             Text(
                 text = buildAnnotatedString {
                     withStyle(
                         SpanStyle(
-                            color = Color.Black,
+                            color = Color.Black ,
                             fontSize = 15.sp ,
                         )
-                    ){
+                    ) {
                         append("You can save some notes here!\nFor ex, ")
                     }
                     withStyle(
                         SpanStyle(
-                            fontWeight = FontWeight.Bold,
-                            color = Color.Black,
+                            fontWeight = FontWeight.Bold ,
+                            color = Color.Black ,
                             fontSize = 15.sp ,
                         )
                     ) {
                         append("Breakfast : Ryan $25")
                     }
-                },
-                lineHeight = lineHeight,
+                } ,
+                lineHeight = lineHeight ,
                 modifier = Modifier
                     .padding(bottom = 20.dp)
             )
         }
 
 
-
         //action buttons
 
-        if(interactionsEnabled){
+        if (interactionsEnabled) {
             Row(
                 verticalAlignment = Alignment.CenterVertically ,
                 horizontalArrangement = Arrangement.spacedBy(12.dp) ,
@@ -335,25 +341,31 @@ internal fun ExpandableBookLikeTextField(
     value: String ,
     onValueChange: (String) -> Unit ,
     onSave: () -> Unit ,
-    interactionsEnabled : Boolean = true
+    interactionsEnabled: Boolean = true
 ) {
     val density = LocalDensity.current
 
     var collapsed by remember { mutableStateOf(true) }
-    val rotation = animateFloatAsState(
-        targetValue = if(collapsed) 0f else 180f,
-        animationSpec = tween(500)
-    )
-
+    var heightActionText = remember(collapsed) {
+        if(collapsed){
+            "Show more"
+        }else{
+            "Show less"
+        }
+    }
 
 
     Column(
         modifier.fillMaxWidth()
     ) {
         KeyboardAware {
+
             BookLikeTextField(
                 modifier = Modifier
-
+                    .dynamicHeight(
+                        condition = !collapsed ,
+                        height = 80.dp
+                    )
                     .customShadow(
                         MaterialTheme.colorScheme.onBackground ,
                         borderRadius = 0.dp
@@ -364,25 +376,21 @@ internal fun ExpandableBookLikeTextField(
                 } ,
                 onSave = {
                     onSave()
-                },
+                } ,
                 interactionsEnabled = interactionsEnabled
             )
         }
+
         VerticalSpace(10.dp)
-        Box(
-            Modifier.clip(CircleShape)
-                .clickable {
-                    collapsed = !collapsed
-                }
-                .align(Alignment.CenterHorizontally)
-        ){
-            Icon(
-                imageVector = Icons.Default.ArrowDropDown,
-                tint = MaterialTheme.colorScheme.onBackground,
-                contentDescription = "expand/collapse notes",
-                modifier = Modifier.rotate(rotation.value)
-            )
-        }
+
+        WanderaTextButton(
+            text = heightActionText ,
+            onClick = {
+                collapsed = !collapsed
+            },
+            modifier = Modifier.align(Alignment.CenterHorizontally),
+            paddingValues = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
+        )
 
     }
 }
