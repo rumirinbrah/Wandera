@@ -1,5 +1,6 @@
 package com.zzz.feature_trip.overview.presentation.viewmodel
 
+import android.content.Context
 import com.zzz.data.trip.model.Day
 
 sealed class OverviewActions {
@@ -30,6 +31,7 @@ sealed class OverviewActions {
     data class DeleteChecklistItem(val itemId : Long) : OverviewActions()
     data object OnChecklistCollapse : OverviewActions()
 
+    data class ShareTripExpenses(val context: Context) : OverviewActions()
 
     data class OnFabCollapse(val collapsed : Boolean) : OverviewActions()
 

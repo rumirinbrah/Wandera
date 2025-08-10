@@ -1,9 +1,15 @@
 package com.zzz.feature_trip.overview.presentation.viewmodel
 
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.zzz.core.domain.result.Result
+import com.zzz.core.domain.result.map
+import com.zzz.core.platform.files.WanderaFileManager
+import com.zzz.core.platform.files.util.FileManagerError
 import com.zzz.core.util.toLocalDate
 import com.zzz.data.common.SettingsPreferences
 import com.zzz.data.note.model.ChecklistEntity
@@ -17,6 +23,7 @@ import com.zzz.data.trip.source.TripSource
 import com.zzz.data.trip.source.UserDocSource
 import com.zzz.feature_trip.overview.data.local.ItineraryLayoutPref
 import com.zzz.feature_trip.overview.domain.toUIEntity
+import com.zzz.feature_trip.share.data.repo.ShareExpenseManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
@@ -39,8 +46,8 @@ class OverviewViewModel(
     private val daySource: DaySource ,
     private val docSource: UserDocSource ,
     private val notesSource: ExpenseNoteSource ,
-    private val checklistSource: ChecklistSource,
-    private val expenseSource : ExpenseSource,
+    private val checklistSource: ChecklistSource ,
+    private val expenseSource: ExpenseSource ,
     context: Context
 ) : ViewModel() {
 
@@ -68,7 +75,7 @@ class OverviewViewModel(
         Log.d("overviewVm" , "Init....")
         _overviewState.update {
             it.copy(
-                itineraryPagerLayout = layoutPref.isLayoutPager(),
+                itineraryPagerLayout = layoutPref.isLayoutPager() ,
                 trapeziumChecklist = settingsPref.isChecklistBoxTrapezium()
             )
         }
@@ -97,39 +104,47 @@ class OverviewViewModel(
             OverviewActions.UpdateExpenseNote -> {
                 updateNote()
             }
+
             is OverviewActions.OnExpenseNoteValueChange -> {
                 onNoteValueChange(action.value)
             }
 
-            is OverviewActions.SelectExpenseItem ->{
+            is OverviewActions.SelectExpenseItem -> {
                 updateSelectedExpenseItem(action.itemId)
             }
 
             //------ Cheklist -----
-            OverviewActions.OnDocsListCollapse->{
+            OverviewActions.OnDocsListCollapse -> {
                 onDocsListCollapse()
             }
 
             //------ Cheklist -----
-            is OverviewActions.CheckChecklistItem->{
-                checkChecklistItem(action.itemId,action.checked)
+            is OverviewActions.CheckChecklistItem -> {
+                checkChecklistItem(action.itemId , action.checked)
             }
-            is OverviewActions.DeleteChecklistItem->{
+
+            is OverviewActions.DeleteChecklistItem -> {
                 deleteChecklistItem(action.itemId)
             }
-            OverviewActions.OnChecklistCollapse ->{
+
+            OverviewActions.OnChecklistCollapse -> {
                 onChecklistCollapse()
             }
 
+            is OverviewActions.ShareTripExpenses->{
+                shareTripExpenses(context = action.context)
+            }
 
-            is OverviewActions.OnFabCollapse->{
+
+            is OverviewActions.OnFabCollapse -> {
                 onFabCollapse(action.collapsed)
             }
 
-            is OverviewActions.PlayMarkAsDoneAnimation->{
+            is OverviewActions.PlayMarkAsDoneAnimation -> {
                 playMarkAsDoneAnimation(action.playAnimation)
             }
-            is OverviewActions.MarkTripAsDone ->{
+
+            is OverviewActions.MarkTripAsDone -> {
                 markTripAsDone(action.done)
             }
             //dELETE
@@ -151,7 +166,7 @@ class OverviewViewModel(
 
             _overviewState.update {
                 it.copy(
-                    loading = true,
+                    loading = true ,
                     itineraryPagerLayout = layoutPref.isLayoutPager()
                 )
             }
@@ -189,6 +204,103 @@ class OverviewViewModel(
         }
     }
 
+    //--------------------- SHARE EXPENSES -----------------
+    /**
+     * Converts the expenses into a string, calls other function to write it to a file.
+     */
+    private fun shareTripExpenses(context: Context) {
+        if(_overviewState.value.loading){
+            return
+        }else if(_overviewState.value.expenses.isEmpty()){
+            return
+        }
+        viewModelScope.launch {
+            _overviewState.update {
+                it.copy(loading = true)
+            }
+            val shareManger = ShareExpenseManager()
+            val tripName = _overviewState.value.trip?.tripName ?: "Untitled"
+            val result = shareManger.convertExpensesToString(_overviewState.value.expenses)
+            when (result) {
+                is Result.Error -> {
+                    _overviewState.update {
+                        it.copy(loading = false)
+                    }
+                }
+
+                is Result.Success -> {
+                    result.map {
+                        val expensesString = it.expensesString
+                        expensesString?.let {
+                            convertExpensesStringToFile(
+                                expensesString ,
+                                tripName ,
+                                context
+                            )
+                        }
+                    }
+                }
+            }
+
+
+        }
+    }
+
+    /**
+     * Writes formatted string of expenses to a .txt file & calls share intent function
+     */
+    private fun convertExpensesStringToFile(string : String, tripName : String, context: Context) {
+        viewModelScope.launch {
+            val fileManger = WanderaFileManager()
+            val result = fileManger.writeStringToTxt(
+                context ,
+                string = string,
+                fileName = tripName
+            )
+            when(result){
+                is Result.Error -> {
+                    when(val fileError = result.error){
+                        is FileManagerError.WriteError -> {
+                            _events.send(OverviewEvents.Error(fileError.errorMsg))
+                        }
+                    }
+                    _overviewState.update {
+                        it.copy(loading = false)
+                    }
+                }
+                is Result.Success -> {
+                    result.map {
+                        it.fileUri?.let { uri->
+                            createShareExpensesIntent(uri, tripName)
+                        }
+                    }
+                }
+            }
+        }
+    }
+    /**
+     * Creates an intent to share the expenses .txt file and sends an event to UI
+     */
+    private fun createShareExpensesIntent(fileUri: Uri, tripName: String){
+        viewModelScope.launch {
+            _overviewState.update {
+                it.copy(loading = false)
+            }
+            val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                type = "text/plain"
+
+                putExtra(Intent.EXTRA_STREAM, fileUri)
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+
+                putExtra(Intent.EXTRA_SUBJECT,"Hey, here's a list of expenses for $tripName")
+                putExtra(Intent.EXTRA_TEXT,"You can find all our expenses here!")
+            }
+            val chooserIntent = Intent.createChooser(shareIntent,"Share expenses via...")
+            _events.send(OverviewEvents.ShareExpenseIntent(chooserIntent))
+        }
+    }
+
+
     //-------- NOTE ---------
     //TODO add saving state for the note
     private fun updateNote() {
@@ -201,6 +313,7 @@ class OverviewViewModel(
             _events.send(OverviewEvents.SuccessWithMsg("Note saved!"))
         }
     }
+
     private fun onNoteValueChange(value: String) {
         viewModelScope.launch {
             _overviewState.update {
@@ -209,18 +322,18 @@ class OverviewViewModel(
         }
     }
 
-    private fun updateSelectedExpenseItem(itemId : Long?){
+    private fun updateSelectedExpenseItem(itemId: Long?) {
         viewModelScope.launch {
             _overviewState.update {
                 it.copy(
-                    selectedExpenseId = itemId,
+                    selectedExpenseId = itemId ,
                 )
             }
         }
     }
 
     //-------- DOCS ---------
-    private fun onDocsListCollapse(){
+    private fun onDocsListCollapse() {
         viewModelScope.launch {
             _overviewState.update {
                 it.copy(
@@ -231,35 +344,38 @@ class OverviewViewModel(
     }
 
     //-------- Checklist ---------
-    private fun checkChecklistItem(itemId : Long , checked : Boolean){
+    private fun checkChecklistItem(itemId: Long , checked: Boolean) {
         viewModelScope.launch {
-            checklistSource.checkItem(itemId,checked)
+            checklistSource.checkItem(itemId , checked)
         }
     }
-    private fun deleteChecklistItem(itemId: Long){
+
+    private fun deleteChecklistItem(itemId: Long) {
         viewModelScope.launch {
             checklistSource.deleteItem(itemId)
         }
     }
-    private fun onChecklistCollapse(){
+
+    private fun onChecklistCollapse() {
         viewModelScope.launch {
             _overviewState.update {
                 it.copy(checklistCollapsed = !it.checklistCollapsed)
             }
         }
     }
-    private fun updateChecklistProgress(list: List<ChecklistEntity>){
-        if(list.isEmpty()){
+
+    private fun updateChecklistProgress(list: List<ChecklistEntity>) {
+        if (list.isEmpty()) {
             return
         }
         viewModelScope.launch {
             val done = list.count {
                 it.isChecked
             }
-            val progress = (done*1f) / list.size
+            val progress = (done * 1f) / list.size
 
             _overviewState.update {
-                it.copy(checklistProgress = progress.coerceIn(0f,1f))
+                it.copy(checklistProgress = progress.coerceIn(0f , 1f))
             }
         }
     }
@@ -339,7 +455,7 @@ class OverviewViewModel(
         }
     }
 
-    private fun collectChecklistFlow(tripId: Long){
+    private fun collectChecklistFlow(tripId: Long) {
         collectChecklistJob = viewModelScope.launch {
             checklistSource.getChecklistItems(tripId)
                 .flowOn(Dispatchers.IO)
@@ -357,7 +473,7 @@ class OverviewViewModel(
                     }
                     Log.d("overviewVM" , "collectChecklistFlow: Finished with the flow")
                 }
-                .collect{list->
+                .collect { list ->
                     _overviewState.update {
                         it.copy(checklist = list)
                     }
@@ -365,7 +481,8 @@ class OverviewViewModel(
                 }
         }
     }
-    private fun collectExpensesFlow(tripId: Long){
+
+    private fun collectExpensesFlow(tripId: Long) {
         viewModelScope.launch {
             expenseSource.getExpensesByTripId(tripId)
                 .flowOn(Dispatchers.IO)
@@ -383,7 +500,7 @@ class OverviewViewModel(
                         throw it
                     }
                 }
-                .collect{ data: List<ExpenseEntity> ->
+                .collect { data: List<ExpenseEntity> ->
                     val uiList = data.map {
                         it.toUIEntity()
                     }
@@ -394,7 +511,7 @@ class OverviewViewModel(
 
                     _overviewState.update {
                         it.copy(
-                            expenses = uiList,
+                            expenses = uiList ,
                             groupedExpenses = groupedList
                         )
                     }
@@ -402,10 +519,11 @@ class OverviewViewModel(
                 }
         }
     }
-    private fun computeTotalExpense(){
+
+    private fun computeTotalExpense() {
         viewModelScope.launch {
             val expenses = _overviewState.value.expenses
-            var total= 0
+            var total = 0
             expenses.onEach {
                 total += it.amount
             }
@@ -415,21 +533,22 @@ class OverviewViewModel(
         }
     }
 
-    private fun playMarkAsDoneAnimation(play : Boolean){
+    private fun playMarkAsDoneAnimation(play: Boolean) {
         viewModelScope.launch {
             _overviewState.update {
                 it.copy(playMarkAsDoneAnimation = play)
             }
         }
     }
-    private fun markTripAsDone(done : Boolean ){
+
+    private fun markTripAsDone(done: Boolean) {
         //ADD EVENTS!
         val tripId = _overviewState.value.trip?.id ?: return
         viewModelScope.launch {
             _overviewState.update {
                 it.copy(playMarkAsDoneAnimation = true)
             }
-            tripSource.markTripAsDone(true,tripId)
+            tripSource.markTripAsDone(true , tripId)
 
         }
 

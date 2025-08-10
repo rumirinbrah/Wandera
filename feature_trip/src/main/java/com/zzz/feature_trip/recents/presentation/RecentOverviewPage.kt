@@ -57,7 +57,7 @@ import com.zzz.feature_trip.overview.presentation.components.MarkedAsDoneRoot
 import com.zzz.feature_trip.overview.presentation.components.OverviewDocumentCard
 import com.zzz.feature_trip.overview.presentation.components.OverviewTopBar
 import com.zzz.feature_trip.overview.presentation.tabs.note_expense.NoteExpenseTabRow
-import com.zzz.feature_trip.overview.presentation.tabs.note_expense.pager.expense_tracker.ExpensePage
+import com.zzz.feature_trip.overview.presentation.tabs.note_expense.pages.expense_tracker.ExpensePage
 import com.zzz.feature_trip.overview.presentation.viewmodel.OverviewActions
 import com.zzz.feature_trip.overview.presentation.viewmodel.OverviewEvents
 import com.zzz.feature_trip.overview.presentation.viewmodel.OverviewState
@@ -356,6 +356,7 @@ private fun RecentTripOverviewPage(
                                 launchAddExpenseSheet = {} ,
                                 onExpenseItemClick = { },
                                 interactionsEnabled = false,
+                                shareExpenses = {},
                                 viewOnly = true
                             )
                         }

@@ -64,7 +64,6 @@ fun HomeRoot(
             onNavBarVisibilityChange(it)
         }
     )
-    //Tester(modifier)
 }
 
 @Composable

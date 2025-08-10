@@ -28,6 +28,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -59,8 +60,8 @@ import com.zzz.feature_trip.overview.presentation.components.OverviewTopBar
 import com.zzz.feature_trip.overview.presentation.components.UserDocsList
 import com.zzz.feature_trip.overview.presentation.components.checklist.ChecklistSection
 import com.zzz.feature_trip.overview.presentation.tabs.note_expense.NoteExpenseTabRow
-import com.zzz.feature_trip.overview.presentation.tabs.note_expense.pager.expense_tracker.AddExpenseSheet
-import com.zzz.feature_trip.overview.presentation.tabs.note_expense.pager.expense_tracker.ExpensePage
+import com.zzz.feature_trip.overview.presentation.tabs.note_expense.pages.expense_tracker.AddExpenseSheet
+import com.zzz.feature_trip.overview.presentation.tabs.note_expense.pages.expense_tracker.ExpensePage
 import com.zzz.feature_trip.overview.presentation.viewmodel.OverviewActions
 import com.zzz.feature_trip.overview.presentation.viewmodel.OverviewEvents
 import com.zzz.feature_trip.overview.presentation.viewmodel.OverviewState
@@ -123,6 +124,7 @@ private fun TripOverviewPage(
 ) {
 
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
 
     val columnScrollState = rememberScrollState()
 
@@ -143,6 +145,9 @@ private fun TripOverviewPage(
             is OverviewEvents.SuccessWithMsg -> {
                 //Toast.makeText(context , event.msg , Toast.LENGTH_SHORT).show()
                 wanderaToastState.showToast(event.msg)
+            }
+            is OverviewEvents.ShareExpenseIntent->{
+                context.startActivity(event.intent)
             }
 
             OverviewEvents.NavigateUp ->{
@@ -470,6 +475,9 @@ private fun TripOverviewPage(
                                     onAction(OverviewActions.SelectExpenseItem(itemId))
                                     wanderaSheetState.show()
                                 },
+                                shareExpenses = {
+                                    onAction(OverviewActions.ShareTripExpenses(context))
+                                },
                                 interactionsEnabled = !wanderaSheetState.visible
                             )
                         }
@@ -574,7 +582,7 @@ private fun TripOverviewPage(
                     sheetState = wanderaSheetState ,
                     onClosed = {
                         onAction(OverviewActions.SelectExpenseItem(null))
-                    }
+                    },
                 )
             }
         }
