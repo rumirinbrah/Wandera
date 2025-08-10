@@ -2,6 +2,7 @@ package com.zzz.data.di
 
 import androidx.room.Room
 import com.zzz.data.db.WanderaDatabase
+import com.zzz.data.db.migrations.WanderaMigrations
 import com.zzz.data.db.repos.DaySourceImpl
 import com.zzz.data.db.repos.TodoSourceImpl
 import com.zzz.data.db.repos.TripSourceImpl
@@ -32,6 +33,8 @@ val dbModule = module {
             DbUtils.DB_NAME
         ).createFromAsset(
             "database/wandera_db.db"
+        ).addMigrations(
+            WanderaMigrations.MIGRATION_1_2
         ).build()
     }
 

@@ -37,7 +37,7 @@ internal fun ChecklistHeader(
         Text(
             "Don't forget your stuff!!",
             fontSize = 16.sp,
-            fontWeight = FontWeight.Medium
+            fontWeight = FontWeight.Bold
         )
 
         IconButton(
