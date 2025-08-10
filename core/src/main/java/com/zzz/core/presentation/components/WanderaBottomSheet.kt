@@ -36,6 +36,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalConfiguration
@@ -111,7 +112,7 @@ fun rememberWanderaSheetState(
 fun BottomSheetHandle(
     modifier: Modifier = Modifier ,
     sheetState: SheetState = SheetState.HALF_EXPANDED ,
-    color: Color = MaterialTheme.colorScheme.onBackground.copy(0.5f) ,
+    color: Color = MaterialTheme.colorScheme.onBackground.copy(0.7f) ,
     verticalPadding: Dp = 10.dp ,
     width: Dp = 30.dp ,
     height: Dp = 5.dp ,
@@ -139,6 +140,7 @@ fun BottomSheetHandle(
             .background(color)
     )
 }
+
 
 /**
  * Custom bottom sheet. Can be used to convert any component to a bottom sheet.

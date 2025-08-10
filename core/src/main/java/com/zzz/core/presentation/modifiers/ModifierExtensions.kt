@@ -5,6 +5,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -56,6 +59,36 @@ fun Modifier.generalDialogProperties(
         .fillMaxWidth()
         .background(background)
         .padding(padding)
+}
+
+/**
+ * Apply full width if `@condition` is true. Else, apply width passed
+ */
+@Stable
+fun Modifier.dynamicWidth(
+    condition : Boolean,
+    width : Dp
+) : Modifier{
+    return if(condition){
+        this.fillMaxWidth()
+    }else{
+        this.width(width)
+    }
+}
+
+/**
+ * Apply full height if `@condition` is true. Else, apply width passed
+ */
+@Stable
+fun Modifier.dynamicHeight(
+    condition : Boolean,
+    height : Dp
+) : Modifier{
+    return if(condition){
+        this.wrapContentHeight()
+    }else{
+        this.height(height)
+    }
 }
 
 /**

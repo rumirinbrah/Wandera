@@ -64,6 +64,50 @@ class WanderaFileManager : FileManager {
         }
     }
 
+
+    override suspend fun writeStringToTxt(
+        context: Context ,
+        string: String ,
+        fileName: String
+    ): Result<FileManagerProgress , FileManagerError> {
+        return withContext(Dispatchers.IO){
+            try {
+                val txtFileName = generateFileName(
+                    fileName = fileName ,
+                    extension = ".txt" ,
+                    initial = "Trip Expenses" ,
+                    appendTimeMillisLong = false
+                )
+                val file = File(context.cacheDir , txtFileName)
+                FileOutputStream(file)
+                    .use { opStream ->
+                        opStream.write(
+                            string.toByteArray()
+                        )
+                    }
+                val fileUri = FileProvider.getUriForFile(
+                    context ,
+                    "${context.packageName}.provider" ,
+                    file
+                )
+                Result.Success(
+                    FileManagerProgress(
+                        progressMsg = "Expenses Ready!" ,
+                        fileUri = fileUri
+                    )
+                )
+            } catch (e: IllegalArgumentException) {
+                Result.Error(
+                    FileManagerError.WriteError("Couldn't open file!")
+                )
+            } catch (e : Exception) {
+                Result.Error(
+                    FileManagerError.WriteError(ResultMessage.ERROR_UNKNOWN)
+                )
+            }
+        }
+    }
+
     /**
      * Generated a file name for the json
      * @param extension File extension

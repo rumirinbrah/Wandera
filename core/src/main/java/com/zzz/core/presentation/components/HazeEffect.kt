@@ -1,6 +1,7 @@
 package com.zzz.core.presentation.components
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -15,6 +16,7 @@ import androidx.core.graphics.ColorUtils
 
 /**
  * Creates a haze/fade effect. Can be applied at the bottom of any scrollable component.
+ *
  * @param background Background color of your composable
  * @param hazeColor Color of the fade effect
  * @param height Height of haze component
@@ -41,6 +43,7 @@ fun HazeEffectRectangle(
     }
     Canvas(
         modifier.height(height)
+            .fillMaxWidth()
     ) {
         drawRect(
             brush = brush,

@@ -22,6 +22,15 @@ interface FileManager {
     ) : Result<FileManagerProgress , FileManagerError>
 
     /**
+     * Writes a string to a .txt file. Returns uri on success through `@FileManagerProgress`
+     */
+    suspend fun writeStringToTxt(
+        context: Context,
+        string: String,
+        fileName : String = "Untitled"
+    ) : Result<FileManagerProgress,FileManagerError>
+
+    /**
      * Reads trip from uri and returns the json
      */
     suspend fun readTripJsonFromUri(
