@@ -6,6 +6,9 @@ import com.zzz.data.util.DbUtils
 
 object WanderaMigrations {
 
+    /**
+     * Added column currencySymbol to track_expense_table
+     */
     val MIGRATION_1_2 = object : Migration(1,2){
         override fun migrate(db: SupportSQLiteDatabase) {
             db.execSQL(
