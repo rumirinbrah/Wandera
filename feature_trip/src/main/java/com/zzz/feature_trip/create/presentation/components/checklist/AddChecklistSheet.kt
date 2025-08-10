@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -87,8 +88,8 @@ fun AddChecklistSheet(
         Column(
             Modifier
                 .fillMaxWidth()
-                //.weight(1f)
-                //.imePadding()
+                .weight(1f)
+                .imePadding()
             ,
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
@@ -130,7 +131,7 @@ fun AddChecklistSheet(
             LazyColumn(
                 Modifier
                     .fillMaxWidth() ,
-                //    .heightIn(max = 500.dp)
+//                    .heightIn(max = 500.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp) ,
                 state = lazyListState
             ) {
