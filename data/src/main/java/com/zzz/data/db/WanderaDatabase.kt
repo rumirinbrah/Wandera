@@ -31,7 +31,7 @@ import com.zzz.data.trip.model.UserDocument
         ChecklistEntity::class ,
         ExpenseEntity::class
     ] ,
-    version = 1 ,
+    version = 2 ,
     exportSchema = false
 )
 @TypeConverters(value = [UriTypeConverter::class])
