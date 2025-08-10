@@ -13,13 +13,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.zzz.core.presentation.components.TestLazyColumn
+import com.zzz.core.presentation.components.TestProgBar
 import com.zzz.core.theme.WanderaTheme
-import com.zzz.feature_trip.overview.presentation.components.MarkedAsDoneRoot
+import com.zzz.feature_trip.overview.presentation.tabs.note_expense.pages.expense_tracker.components.CurrencySelectorPage
 import com.zzz.wandera.presentation.nav.Navigation
 import com.zzz.wandera.ui.ThemeViewModel
+import com.zzz.wandera.util.checkJsonIntent
 import org.koin.androidx.compose.koinViewModel
 
 
@@ -49,8 +51,9 @@ class MainActivity : ComponentActivity() {
 //                            //.statusBarsPadding()
 //                            .padding(innerPadding)
 //                        ,
+//                        contentAlignment = Alignment.Center
 //                    ){
-//                        TestLazyColumn()
+//                        TestProgBar()
 //                    }
 //                }
                 Navigation(
@@ -65,6 +68,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+/*
 fun ComponentActivity.checkJsonIntent(onJsonReceived: (Uri) -> Unit) {
     try {
         if (intent != null && intent.action == Intent.ACTION_SEND) {
@@ -90,3 +94,5 @@ fun ComponentActivity.checkJsonIntent(onJsonReceived: (Uri) -> Unit) {
     }
 
 }
+
+ */

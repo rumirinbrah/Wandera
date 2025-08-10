@@ -34,6 +34,9 @@ sealed class Screen {
         data class TripOverviewScreen(val tripId : Long)
 
         @Serializable
+        data object CurrencySelectorScreen
+
+        @Serializable
         data class ExportTripScreen(val tripId: Long)
 
         @Serializable

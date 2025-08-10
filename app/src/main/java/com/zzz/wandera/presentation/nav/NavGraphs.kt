@@ -22,6 +22,7 @@ import com.zzz.feature_trip.day_details.DayDetailsRoot
 import com.zzz.feature_trip.home.presentation.HomeRoot
 import com.zzz.feature_trip.home.presentation.HomeViewModel
 import com.zzz.feature_trip.overview.presentation.TripOverviewRoot
+import com.zzz.feature_trip.overview.presentation.tabs.note_expense.pages.expense_tracker.components.CurrencySelectorPage
 import com.zzz.feature_trip.overview.presentation.viewmodel.OverviewActions
 import com.zzz.feature_trip.overview.presentation.viewmodel.OverviewViewModel
 import com.zzz.feature_trip.recents.presentation.RecentOverviewRoot

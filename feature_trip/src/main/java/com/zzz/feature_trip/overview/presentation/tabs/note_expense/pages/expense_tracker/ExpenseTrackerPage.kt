@@ -3,7 +3,12 @@ package com.zzz.feature_trip.overview.presentation.tabs.note_expense.pages.expen
 import android.content.res.Configuration
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -475,7 +480,19 @@ internal fun AddExpenseSheet(
                     }
                 }
             }
-            if (selector) {
+            androidx.compose.animation.AnimatedVisibility(
+                selector,
+                enter = slideInVertically(
+                    initialOffsetY = {
+                        it/2
+                    }
+                ) ,
+                exit = slideOutVertically(
+                    targetOffsetY = {
+                        it
+                    }
+                )
+            ) {
                 CurrencySelectorPage(
                     onClick = { symbol , code ->
                         selector = false

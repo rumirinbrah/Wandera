@@ -143,7 +143,6 @@ private fun TripOverviewPage(
             }
 
             is OverviewEvents.SuccessWithMsg -> {
-                //Toast.makeText(context , event.msg , Toast.LENGTH_SHORT).show()
                 wanderaToastState.showToast(event.msg)
             }
             is OverviewEvents.ShareExpenseIntent->{
@@ -177,11 +176,6 @@ private fun TripOverviewPage(
                 onAction(OverviewActions.OnFabCollapse(true))
             }
 
-//            wanderaSheetState.visible -> {
-//                scope.launch {
-//                    wanderaSheetState.animateTo(SheetState.CLOSED)
-//                }
-//            }
             wanderaToastState.visible->{
                 wanderaToastState.dismiss()
                 onAction(OverviewActions.CleanUpResources)
